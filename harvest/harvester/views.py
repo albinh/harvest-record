@@ -131,43 +131,6 @@ class DeliveryNew ( CreateView ):
         return {'time': timezone.now ( )}
 
 
-class HarvestNew ( CreateView ):
-    model = HarvestItem
-    form_class = HarvestItemForm
-    template_name = 'harvester/harvest-edit.html'
-
-    def get(self, request, *args, **kwargs):
-        self.object = None
-        form_class = self.get_form_class ( )
-        form = self.get_form ( form_class )
-        print ( "asdf" )
-        print ( "asdf" )
-        print ( request.GET )
-        if 'delivery_item' in request.GET:
-            print ( request.GET.get ( 'delivery_item' ) )
-            delivery = get_object_or_404 ( DeliveryItem, pk=request.GET.get ( 'delivery_item' ) )
-
-            print ( delivery.crop_form.crop )
-            form.initial['crop'] = delivery.crop_form.crop.id
-            form.initial['cropform'] = delivery.crop_form.id
-            form.initial['destination'] = delivery.delivery.id
-            print ( delivery.delivery.id )
-            print ( "---" )
-
-        return self.render_to_response (
-            self.get_context_data ( form=form,
-
-                                    ) )
-
-    def get_success_url(self):
-        return reverse ( 'harvest-list' )
-
-
-class HarvestEdit ( UpdateView ):
-    model = HarvestItem
-    form_class = HarvestItemFormUpdate
-    template_name = 'harvester/harvest-edit.html'
-
 
 class CustomerCategoryList ( ListView ):
     model = CustomerCategory
@@ -232,15 +195,6 @@ class CropEdit ( UpdateView ):
     def get_initial(self):
         return {'time': timezone.now ( )}
 
-
-class HarvestList ( ListView ):
-    template_name = 'harvester/harvest-list.html'
-    model = HarvestItem
-
-    def get_context_data(self, **kwargs):
-        context = super ( HarvestList, self ).get_context_data ( **kwargs )
-        context['now'] = timezone.now ( )
-        return context
 
 
 class DeliveryList ( ListView ):
