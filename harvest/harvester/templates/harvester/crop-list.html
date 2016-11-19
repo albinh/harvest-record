@@ -1,0 +1,26 @@
+{% extends "harvester/base.html" %}
+{% block content %}
+<h1>Grödor</h1>
+<table class="uk-table">
+    <tr>
+    <th>Gröda</th><th>Sorter</th><th>Former</th>
+
+
+
+    </tr>
+    {% for crop in object_list %}
+    <tr>
+        <td><a href="{%url 'crop-edit' crop.id%}">
+            {{crop.crop}}</a></td>
+        <td></td>
+        <td>
+            {% for i in crop.cropforms.all %}
+ <div class="uk-badge uk-badge-success">{{i.form_name}}</div>
+            {% endfor %}
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% endblock %}

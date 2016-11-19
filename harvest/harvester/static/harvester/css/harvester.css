@@ -1,0 +1,24 @@
+#logo {
+	height:10em;
+	right:0px;
+	position:absolute;
+
+}
+
+input[type="text"],input[type="number"], select {
+    width:100%;
+      box-sizing: border-box;
+  #height:1.5em;
+
+}
+
+.w-50 {
+    width:50% !important;
+}
+.row > div[class*="col-"] > .row > div[class*="col-"] {
+  padding:5px;
+}
+
+input[type="checkbox"] {
+    width:1em;
+}

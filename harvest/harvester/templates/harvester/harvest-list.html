@@ -1,0 +1,11 @@
+{% extends "harvester/base.html" %}
+{% block content %}
+{% for harvest_item in object_list %}
+<ul>
+    <li><a href="{% url 'harvest-update' harvest_item.id %}">{{ harvest_item.culture }}</a></li>
+</ul>
+    {% empty %}
+    <li>No articles yet.</li>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,254 @@
+{% load widget_tweaks %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-xs-3">
+
+                Kultur
+
+            </div>
+
+
+            <div class="col-xs-3 weight">
+                kg
+            </div>
+            <div class="col-xs-3">
+                {% if delivery_item.crop_form.countable is True%}
+                antal
+                {%endif%}
+            </div>
+            <div class="col-xs-3">
+                bäddmeter
+            </div>
+
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="row mobile-hide collapse">
+            <div class="col-xs-3">
+
+                kulturstatus
+
+            </div>
+
+            <div class="col-xs-9">
+                kommentar
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<form action="{% url "delivery-edit-harvests" pk=d_pk %}" method="POST" id="form2" class="">
+{% csrf_token %}
+
+{{ formset.management_form }}
+{{ formset.non_form_errors }}
+
+{% for form in formset %}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-xs-3">
+
+                {{form.culture_name|add_class:'form-control w-75'}}
+
+            </div>
+
+            <div class="col-xs-3 weight">
+                {{form.weight|add_class:'form-control'}}
+                {{form.weight.errors}}
+            </div>
+
+            <div class="col-xs-3 ">
+                <div class="count {% if delivery_item.crop_form.countable is False%}hidden{%endif%}">
+                    {{form.count|add_class:'form-control'}}
+                    {{form.count.errors}}
+                </div>
+            </div>
+
+            <div class="col-xs-3 harvest">
+                {{form.harvested_length|add_class:'form-control'}}
+                {{form.harvested_length.errors}}
+            </div>
+
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="row mobile-hide collapse">
+            <div class="col-xs-3">
+
+                {{form.culture_state}}
+
+            </div>
+
+            <div class="col-xs-9">
+                {{form.comment}}
+                {{form.comment.errors}}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% for field in form.hidden_fields %}
+{% if not forloop.last %}
+{{ field }}
+{% else %}
+{{ field }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+<div class="row">
+    <div class="col-md-6">
+        <hr/>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-xs-3">
+                skördat:
+
+
+            </div>
+
+
+            <div id="" class="col-xs-3 ">
+
+
+                <input id="weight_sum" class="form-control" type="number" readonly
+                       value="{{delivery_item.order_amount}}"/>
+            </div>
+            <div id="" class="col-xs-3">
+                <input id="count_sum" class="{% if delivery_item.crop_form.countable is False%}hidden{%endif%}"
+                       type="number" readonly value="{{delivery_item.order_amount}}"/>
+            </div>
+            <div id="" class="col-xs-3">
+                <input id="harvest_sum" class="" type="number" readonly value="{{delivery_item.order_amount}}"/>
+            </div>
+
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="row mobile-hide collapse">
+            <div class="col-xs-3">
+
+
+            </div>
+
+            <div class="col-xs-9">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-xs-3">
+                Beställning
+
+
+            </div>
+
+
+            <div class="col-xs-3 ">
+                {% if delivery_item.order_unit == 'W' %}
+                <input class="form-control" id="weight_target" type="number" readonly
+                       value="{{delivery_item.order_amount}}"/>
+                {% endif %}
+            </div>
+            <div id="" class="col-xs-3">
+                <div class="count_sum {% if delivery_item.crop_form.countable is False%}hidden{%endif%}">
+                    {% if delivery_item.order_unit == 'U' %}
+                    <input class="form-control" id="count_target" type="number" readonly
+                           value="{{delivery_item.order_amount}}"/>
+                    {% endif %}
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<button class="visible-xs btn btn-primary" type="button" data-toggle="collapse" data-target=".mobile-hide"
+        aria-expanded="false" aria-controls="collapseExample">
+    Vissa kulturstatus och kommentarer
+</button>
+{{form.delivery_comment}}
+{{form.closed}}
+<script>
+    function recalc(selector, target) {
+      var sum=0
+      $(selector).each(function(i,n){
+        sum += parseFloat($(n).val(),10);
+      });
+      $(target).val(sum);
+    }
+
+
+    function recalc_weight() {
+        recalc('.weight>input','#weight_sum')
+        t=parseFloat($('#weight_target').val())
+        s=parseFloat($('#weight_sum').val())
+        if (Math.abs((s/t)-1.0)<0.1)
+        {
+            console.log("asdf")
+            $('#weight_target').css('background-color','#c7edce');
+        } else
+        {
+            $('#weight_target').css('background-color','#f2a17b');
+        }
+    }
+    function recalc_count() {
+        console.log("123")
+        recalc('.count>input','#count_sum')
+
+                t=parseInt($('#count_target').val())
+        s=parseInt($('#count_sum').val())
+        if (t==s)
+        {
+            console.log("asdf")
+            $('#count_target').css('background-color','#c7edce');
+        } else
+        {
+            $('#count_target').css('background-color','#f2a17b');
+        }
+
+
+    }
+
+    function recalc_harvest () {
+        recalc('.harvest>input','#harvest_sum')
+    }
+
+    $( document ).ready(function() {
+        $('.weight>input').on('change', recalc_weight)
+        $('.count>input').on('change', recalc_count)
+        $('.harvest>input').on('change', recalc_harvest)
+        recalc_harvest();
+        recalc_count();
+        recalc_weight();
+    });
+
+    $('form').on('submit', function() {
+    $('[id $=culture_name]').prop('disabled', false);
+
+});
+
+
+
+
+
+
+</script>
+</form>

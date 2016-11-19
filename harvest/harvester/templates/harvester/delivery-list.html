@@ -1,0 +1,81 @@
+{% extends "harvester/base.html" %}
+{% block content %}
+{% include "harvester/harvest-item-modal.html" %}
+<div class="container">
+<div id="d-list">
+
+    <table id="data-table" class="table" cellspacing="0" >
+        <thead>
+        <tr>
+            <th>Kund</th>
+            <th>Önskat leveransdatum</th>
+            <th>Grödor</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for delivery in object_list %}
+
+        <tr>
+
+            <td class="customer"><a href="{% url 'delivery-edit' delivery.id %}">{{ delivery.customer}}</a></td>
+            <td class="date">{{delivery.target_date}}</td>
+            <td class="crop">
+                {% for i in delivery.deliveryitem_set.all %}
+                <a href="#" data-toggle="modal" data-load-url="/harvester/deliveries/harvests/{{i.id}}" data-target="#harvest-item-modal">
+                {% if i.is_closed %}
+                    <span class=" label label-success">
+                        {{i.crop_form.crop }}
+                    </span>
+                {% elif i.is_in_progress %}
+                    <span class=" label label-primary">
+{{i.crop_form.crop }}
+                        </span>
+                        {% else %}
+                        <span class=" label label-danger">
+                        {{i.crop_form.crop }}
+                        </span>
+                            {%endif%}
+
+
+
+
+</a>&nbsp;
+                        {% endfor %}
+            </td>
+            <td>
+                <div class="dropdown" >
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"">Ändra <span class="caret"></span></button></i></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Redigera leverans</a></li>
+                            <li><a href="#">Markera som levererad</a></li>
+                            <li><a href="#">Skriv ut följesedel</a></li>
+                            <li><a href="#">Markera som levererad</a></li>
+                            <li><a href="#">Ta bort leverans</a></li>
+                        </ul>
+
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+
+
+
+$(document).ready(function() {
+
+    $('#data-table').DataTable();
+} );
+
+
+
+</script>
+
+
+
+    </div>
+{% endblock %}
