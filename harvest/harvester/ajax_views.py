@@ -94,25 +94,4 @@ class deliveries_new_crop_form_for_crop(AjaxView):
 
 
 
-class harvest_new_cultures_for_crop(AjaxView):
-    def get_data(self):
-        return Culture.objects.filter ( crop=self.f ( 'id_crop' ) )
-    def use_neutral(self):
-        return self.IF_MULTIPLE
-
-class harvest_new_destinations_for_crop(AjaxView):
-    def get_data(self):
-        return DeliverySingle.objects.filter ( deliveryitem__crop_form__crop=self.f ( 'id_crop' ) ).distinct ( )
-    def use_neutral(self):
-        return self.ALWAYS
-
-class harvest_new_cropform_for_deliveryitem(AjaxView):
-    def get_data(self):
-        print (self.request.POST)
-        delivery_items = DeliveryItem.objects.filter ( delivery=self.f ( 'id_destination' ),
-                                                       crop_form__crop=self.f ( 'id_crop' ) )
-        return [d.crop_form for d in delivery_items]
-    def use_neutral(self):
-        return self.IF_MULTIPLE
-
 

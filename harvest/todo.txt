@@ -1,3 +1,4 @@
+- Ta bort skörderegistreing
 
 -Delivery/Edit: Knappar i leversn-redigering. Visa färg efter status. Ajax-vid redigering av skörd
 
@@ -17,11 +18,9 @@
 - Prislista
 
 - CSA-skördeplanering
-asdf
 
-Skördschema
+- Skördschema
 
-Ta bort skörderegistreing
 
 - kasserat/Eget uttag
 

@@ -4,9 +4,6 @@ from . import views
 from . import ajax_views
 urlpatterns = [
 
-	url(r'^harvests/new$',                          views.HarvestNew.as_view(),                     name='harvest-new',),
-	url(r'^harvests/(?P<pk>\d+)/$',                 views.HarvestEdit.as_view(),                    name='harvest-update',),
-    url(r'^harvests/$',                             views.HarvestList.as_view(),                    name='harvest-list'),
 
 	url(r'^deliveries/$',                           views.DeliveryList.as_view(),                   name='delivery-list'),
     url(r'^deliveries/new$',                        views.DeliveryNew.as_view(),                    name='delivery-new'),
