@@ -1,13 +1,13 @@
-from django.shortcuts import render
-from django.http import HttpResponse
 from django.core.urlresolvers import reverse
-from django.views.generic import CreateView, UpdateView, ListView, TemplateView, View
-from django.utils import timezone
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render
+from django.utils import timezone
+from django.views.generic import CreateView, UpdateView, ListView, View
 
-from .models import *
 from .forms import *
+from .models import *
 
 
 class DeliveryEdit ( UpdateView ):
@@ -25,7 +25,6 @@ class DeliveryEdit ( UpdateView ):
         delivery_item_form = DeliveryItemFormSet ( instance=self.object, )
 
         for form2 in delivery_item_form.forms:
-            print ( form2.instance.pk )
             if form2.instance.pk:
                 form2.fields['crop'].disabled = True
                 form2.fields['crop_form'].disabled = True
@@ -53,17 +52,9 @@ class DeliveryEdit ( UpdateView ):
         return HttpResponseRedirect ( self.get_success_url ( ) )
 
     def form_invalid(self, form, delivery_item_form):
-        print ( "invalid" )
-        print ( form.is_valid ( ) )
-        print ( delivery_item_form.is_valid ( ) )
         for f in delivery_item_form.forms:
             c=f.changed_data
 
-        print ( form.errors )
-        print ( "A" )
-
-        print ( delivery_item_form.errors )
-        print ( "B" )
         return self.render_to_response (
             self.get_context_data ( form=form,
                                     delivery_item_form=delivery_item_form
@@ -114,11 +105,6 @@ class DeliveryNew ( CreateView ):
         return HttpResponseRedirect ( self.get_success_url ( ) )
 
     def form_invalid(self, form, delivery_item_form):
-        print ( "invalid" )
-        print ( form.is_valid ( ) )
-        print ( delivery_item_form.is_valid ( ) )
-        print ( form.errors )
-        print ( delivery_item_form.errors )
         return self.render_to_response (
             self.get_context_data ( form=form,
                                     delivery_item_form=delivery_item_form
@@ -170,7 +156,6 @@ class CropEdit ( UpdateView ):
         form_class = self.get_form_class ( )
         form = self.get_form ( form_class )
         cropform_form = CropFormFormSet ( self.request.POST )
-        print ( cropform_form )
         if (form.is_valid ( ) and cropform_form.is_valid ( )):
             return self.form_valid ( form, cropform_form )
         else:
@@ -229,7 +214,6 @@ class DeliveryEditHarvests ( View ):
         id = self.kwargs['pk']
         self.deliveryitem = get_object_or_404 ( DeliveryItem, pk=id )
     def get(self, request, *args, **kwargs):
-        print ( self.kwargs )
         self.get_deliveryitem()
         formset = HarvestItemFormSet ( initial=self.initial_data(), )
         form    = DeliveryItemHarvestForm(instance=self.deliveryitem)
@@ -272,22 +256,15 @@ class DeliveryEditHarvests ( View ):
     def post( self, request, *args, **kwargs ):
         self.get_deliveryitem ( )
         formset = HarvestItemFormSet ( request.POST, initial=self.initial_data() )
-        print (request.POST);
         if formset.is_valid():
             for form2 in formset.forms:
                 if form2.has_changed():
-                    print ("changed")
-                    print (form2.changed_data)
-                    print (form2.cleaned_data)
                     self.create_or_update(form2.cleaned_data)
                     if 'culture_state' in form2.changed_data:
                         self.update_culture_state(form2.cleaned_data)
 
-            print ("VALID!")
             return HttpResponse ( "Here's the text of the Web page." )
         else:
-            print ("invalid!")
-            print (formset.errors)
             return HttpResponse(render(request,self.template_name,{'formset':formset}))
 
 

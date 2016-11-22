@@ -10,7 +10,7 @@ from .models import Customer
 import simplejson
 from collections import namedtuple
 from django.http import HttpResponseRedirect
-
+from django.shortcuts import get_object_or_404
 class Option:
     def __init__(self,id,name):
         self.id=id
@@ -25,7 +25,6 @@ class AjaxView(View):
     def post(self,request):
         self.request=request
 
-        print (self.request.POST)
 
         try:
             self.data=self.to_hashes(self.get_data())
@@ -50,17 +49,14 @@ class AjaxView(View):
 class deliveries_new_order_units_for_cropform(AjaxView):
 
     def get_data(self):
-        print ("ASDF")
         try:
             cf = CropForm.objects.get(pk=self.f('crop_form'))
-            print (dir(cf))
             d=[Option('W','kg')]
             if cf.countable:
                 name = 'st '+cf.form_name
                 d=d+[Option('U',name)]
         except:
             d = [Option ( 'W', '' )]
-        print (d)
         return d
     def use_neutral(self):
         return self.NEVER
@@ -68,18 +64,15 @@ class deliveries_new_order_units_for_cropform(AjaxView):
 class deliveries_new_price_units_for_cropform(AjaxView):
 
     def get_data(self):
-        print ("ASDF")
         try:
             cf = CropForm.objects.get(pk=self.f('crop_form'))
 
-            print (dir(cf))
             d=[Option('W','kr/kg')]
             if cf.countable:
                 name = 'kr/st '+cf.form_name
                 d=d+[Option('U',name)]
         except:
             d=[Option('W',"")]
-        print (d)
         return d
     def use_neutral(self):
         return self.NEVER
@@ -94,4 +87,14 @@ class deliveries_new_crop_form_for_crop(AjaxView):
 
 
 
+class deliveries_harvest_for_delivery(View):
+    def post(self,request):
+        delivery_item_id = request.POST['id']
+        delivery_item    = get_object_or_404 ( DeliveryItem, pk=delivery_item_id )
 
+        data={'harvested_amount': delivery_item.harvested_amount(),
+              'unit': delivery_item.order_unit_text(),
+              'status':delivery_item.status(),
+            'target_amount':delivery_item.order_amount,
+              'crop':delivery_item.crop_form.crop.crop}
+        return HttpResponse ( simplejson.dumps ( data ) )

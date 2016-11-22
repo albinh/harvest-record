@@ -1,13 +1,10 @@
-- Ta bort skörderegistreing
-
--Delivery/Edit: Knappar i leversn-redigering. Visa färg efter status. Ajax-vid redigering av skörd
-
-
+- Delivery/Edit/Harvets: Rad för färdig, rad för
+- Delivery/Edit/Harvets: Kopiera rad (flera rader per skörd)
 
 - Delivery/Edit: Dynamiskt antal rader
 - Delivery/Edit: Ta bort rad
+
 - Delivery/Edit: Värde. Prognos och utfall
-- Delivery/Edit/Harvets: Kopiera rad (flera rader per skörd)
 - Delivery/Edit: Markera skörden skickad. / lås
 
 
@@ -21,17 +18,15 @@
 
 - Skördschema
 
-
 - kasserat/Eget uttag
-
-- Lager/Kylrum/
 
 Prislista
 
 Följesedel - utskrift
 
+- Markera aktuella kulturer
 
 
 Faktura
 Återtag och returer. Rabatter
-
+Lager/Kylrum/

@@ -26,12 +26,8 @@ urlpatterns = [
 	url(r'^ajax/deliveries_new_crop_form_for_crop/$', 					ajax_views.deliveries_new_crop_form_for_crop.as_view(), name='deliveries_new_crop_form_for_crop'),
 	url ( r'^ajax/deliveries_new_price_units_for_cropform/$', ajax_views.deliveries_new_price_units_for_cropform.as_view ( ),		  name='deliveries_new_price_units_for_cropform' ),
 
+	url(r'ajax/deliveries_harvest_for_delivery', ajax_views.deliveries_harvest_for_delivery.as_view(), name ='deliveries_harvest_for_delivery'),
 
-
-	# harvest_new
-	url(r'^ajax/harvest_new_cultures_for_crop/$', 	ajax_views.harvest_new_cultures_for_crop.as_view(), 			name='harvest_new_cultures_for_crop'),
-url(r'^ajax/harvest_new_destinations_for_crop/$', 	ajax_views.harvest_new_destinations_for_crop.as_view(), 			name='harvest_new_destinations_for_crop'),
-	url(r'^ajax/harvest_new_cropform_for_deliveryitem/$', 		ajax_views.harvest_new_cropform_for_deliveryitem.as_view(), 		name='harvest_new_cropform_for_deliveryitem'),
 
 
 

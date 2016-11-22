@@ -16,12 +16,17 @@
 </div>
 </div>
 <script>
-
+btn_to_reload=null;
 $('#harvest-item-modal').on('show.bs.modal', function (e) {
     var i = e.relatedTarget;
+    btn_to_reload=i.id;
     var loadurl = i.dataset['loadUrl'];
     $(this).find('.modal-body').load(loadurl);
 });
+
+$('#harvest-item-modal').on('hidden.bs.modal', function (e) {
+    reload_harvest_button(btn_to_reload)
+})
 
 $(document).ready(function () {
     $("#form2").on("submit", function(e) {
@@ -40,6 +45,7 @@ $(document).ready(function () {
             data: postData,
             success: function(data, textStatus, jqXHR) {
                 $('#harvest-item-modal').modal('hide');
+
                 $('#contact_dialog .modal-header .modal-title').html("Result");
                 $('#contact_dialog .modal-body').html(data);
                 $("#submitForm").remove();

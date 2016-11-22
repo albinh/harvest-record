@@ -84,12 +84,26 @@ Ny leverans
         <div class="col-md-3">
             <div class="row">
             <div class="col-xs-6">
-            <button style="width:100%" type="button" onClick="return false;" class="btn btn-danger" data-toggle="modal" data-load-url="/harvester/deliveries/harvests/{{form2.instance.pk}}" data-target="#harvest-item-modal">4/5kg skördat</button>
+                {%if form2.instance.pk%}
+            <button style="width:100%"
+                    type="button"
+                    {%if form2.instance.pk%} id="harvest-button-{{form2.instance.pk}}" {%endif%}
+                    data-id="{{form2.instance.pk}}"
+                    onClick="return false;"
+                    class="btn btn-default"
+                    data-toggle="modal"
+                    data-load-url="/harvester/deliveries/harvests/{{form2.instance.pk}}"
+                    data-target="#harvest-item-modal"
+                    data-query-url="{% url 'deliveries_harvest_for_delivery' %}">
+                <span class="harvested"></span>
+            </button>
+                {%endif%}
                 <script>
-                    $( document ).ready(function() {
-                        $('.edit-button).
-                    }
-
+                {%if form2.instance.pk%}
+                $( document ).ready(function() {
+                    reload_harvest_button("harvest-button-{{form2.instance.pk}}");
+                    })
+                    {%endif%}
                 </script>
             </div>
                  <div class="col-xs-3">

@@ -98,6 +98,29 @@ class DeliveryItem (models.Model):
     order_comment = models.CharField(max_length=100, default="", blank=True)
     delivery_comment = models.CharField(max_length=100, default="", blank=True)
 
+    NOTHING    = 0
+    TOO_LITTLE = 1
+    OK         = 2
+    TOO_MUCH   = 3
+
+    def status(self):
+        q = self.harvested_amount()/self.order_amount
+        if self.order_unit=="W":
+            h=0.1 # allow 10% differ if calculated in weight
+        else:
+            h=0   # allow no differ if calculated in count
+
+
+        if q==0:
+            return self.NOTHING
+        elif q<1-h:
+            return self.TOO_LITTLE
+        elif q>1+h:
+            return self.TOO_MUCH
+        else:
+            return self.OK
+
+
     def is_closed(self):
         return self.closed
     def is_in_progress(self):
@@ -105,17 +128,37 @@ class DeliveryItem (models.Model):
     def is_not_started(self):
         return HarvestItem.objects.filter(destination=self.pk).count()==0
 
+    def order_unit_text(self):
+        if self.order_unit=="W":
+            return "kg"
+        elif self.order_unit=="U":
+            return self.crop_form.form_name
+        else:
+            raise
 
 
+    def harvested_amount(self):
+        if self.order_unit=="W":
+            a= self.harvested_weight()
+        else:
+            a=self.harvested_count()
+        if a==None:
+            return 0
+        return a
 
     def harvested_weight (self):
-        print ("test")
         harvestitems = HarvestItem.objects.filter(destination=self.pk)
-        return harvestitems.aggregate(weight=Sum('weight'))['weight']
+        a= harvestitems.aggregate(weight=Sum('weight'))['weight']
+        if a==None:
+            return 0
+        return a
 
     def harvested_count(self):
         harvestitems = HarvestItem.objects.filter(destination=self.pk)
-        return harvestitems.aggregate(count=Sum('count'))['count']
+        a=harvestitems.aggregate(count=Sum('count'))['count']
+        if a==None:
+            return 0
+        return a
 
 class HarvestItem (models.Model):
     harvested_length = models.DecimalField(max_digits=4, decimal_places=1)

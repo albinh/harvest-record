@@ -22,25 +22,28 @@
             <td class="date">{{delivery.target_date}}</td>
             <td class="crop">
                 {% for i in delivery.deliveryitem_set.all %}
-                <a href="#" data-toggle="modal" data-load-url="/harvester/deliveries/harvests/{{i.id}}" data-target="#harvest-item-modal">
-                {% if i.is_closed %}
-                    <span class=" label label-success">
-                        {{i.crop_form.crop }}
-                    </span>
-                {% elif i.is_in_progress %}
-                    <span class=" label label-primary">
-{{i.crop_form.crop }}
-                        </span>
-                        {% else %}
-                        <span class=" label label-danger">
-                        {{i.crop_form.crop }}
-                        </span>
-                            {%endif%}
+                               {%if i.pk%}
+            <button style=""
+                    type="button"
+                    {%if i.pk%} id="harvest-button-{{i.pk}}" {%endif%}
+                    data-id="{{i.pk}}"
+                    onClick="return false;"
+                    class="btn btn-xs btn-default"
+                    data-toggle="modal"
+                    data-load-url="/harvester/deliveries/harvests/{{i.pk}}"
+                    data-target="#harvest-item-modal"
+                    data-query-url="{% url 'deliveries_harvest_for_delivery' %}">
+{{i.crop_form.crop.crop}} <span class="harvested"></span>
+            </button>
+                {%endif%}
+                <script>
+                {%if i.pk%}
+                $( document ).ready(function() {
+                    reload_harvest_button("harvest-button-{{i.pk}}");
+                    })
+                    {%endif%}
+                </script>
 
-
-
-
-</a>&nbsp;
                         {% endfor %}
             </td>
             <td>
@@ -67,8 +70,8 @@
 
 
 $(document).ready(function() {
-
     $('#data-table').DataTable();
+
 } );
 
 
