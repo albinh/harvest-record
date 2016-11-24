@@ -163,7 +163,7 @@
                        value="{{delivery_item.order_amount}}"/>
                 {% endif %}
             </div>
-            <div id="" class="col-xs-3">
+            <div  class="col-xs-3">
                 <div class="count_sum {% if delivery_item.crop_form.countable is False%}hidden{%endif%}">
                     {% if delivery_item.order_unit == 'U' %}
                     <input class="form-control" id="count_target" type="number" readonly
@@ -175,17 +175,49 @@
 
         </div>
     </div>
+    </div>
+<div class="row">
+        <div class="col-md-6">
+        <div class="row">
+            <div class="col-xs-3">
+                Kommentar / avvikelser
+
+            </div>
+                        <div class="col-xs-9">
+{{form.delivery_comment|add_class:"form-control"}}
+
+        </div>
+            </div></div>
 </div>
+<div class="row">
+        <div class="col-md-6">
+        <div class="row">
+            <div class="col-xs-3">
+                Färdigskördad
 
+            </div>
+                        <div class="col-xs-9">
+{{form.closed|add_class:"form-control"}}
+      <script>
+                            $( document ).ready(function() {
+$.fn.bootstrapSwitch.defaults.size = 'mini';
+$.fn.bootstrapSwitch.defaults.onText = "klar";
+$.fn.bootstrapSwitch.defaults.offText = "ej klar";
+$('[id $=closed]').bootstrapSwitch();
 
+});
+</script>
+        </div>
+            </div></div>
+</div>
 
 
 <button class="visible-xs btn btn-primary" type="button" data-toggle="collapse" data-target=".mobile-hide"
         aria-expanded="false" aria-controls="collapseExample">
     Vissa kulturstatus och kommentarer
 </button>
-{{form.delivery_comment}}
-{{form.closed}}
+
+
 <script>
     function recalc(selector, target) {
       var sum=0
@@ -202,7 +234,7 @@
         s=parseFloat($('#weight_sum').val())
         if (Math.abs((s/t)-1.0)<0.1)
         {
-            console.log("asdf")
+            $('#id_closed').bootstrapSwitch('state', true, true);
             $('#weight_target').css('background-color','#c7edce');
         } else
         {
@@ -213,12 +245,13 @@
         console.log("123")
         recalc('.count>input','#count_sum')
 
-                t=parseInt($('#count_target').val())
+        t=parseInt($('#count_target').val())
         s=parseInt($('#count_sum').val())
         if (t==s)
         {
-            console.log("asdf")
             $('#count_target').css('background-color','#c7edce');
+
+            $('input[name="my-checkbox"]').bootstrapSwitch('state', true, false);
         } else
         {
             $('#count_target').css('background-color','#f2a17b');

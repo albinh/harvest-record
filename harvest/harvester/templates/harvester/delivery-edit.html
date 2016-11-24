@@ -32,6 +32,7 @@ Ny leverans
     {{ delivery_item_form.non_form_errors }}
 
     {% for form2 in delivery_item_form %}
+    <div class="form-container">
     <div class="visible-xs" style="height:5em"></div>
 
     <div class="row">
@@ -140,7 +141,7 @@ Ny leverans
     {% for hidden in form2.hidden_fields %}
     {{ hidden }}
     {% endfor %}
-
+</div>
     {% endfor %}
 
     <script>
@@ -161,16 +162,9 @@ $( document ).ready(function() {
 
     for (i=0;i<num_rows;i++) {
         prefix= "id_deliveryitem_set-"+i+"-";
-
         ajax_populate_select('{% url 'deliveries_new_crop_form_for_crop'  %}', ['crop'],'crop_form',prefix);
         ajax_populate_select('{% url 'deliveries_new_order_units_for_cropform'  %}', ['crop_form'],'order_unit',prefix,true);
-
         ajax_populate_select('{% url 'deliveries_new_price_units_for_cropform'  %}', ['crop_form'],'price_type',prefix,true);
-
-
-
-
-        //
     }
 
 $('form').on('submit', function() {
@@ -178,7 +172,30 @@ $('form').on('submit', function() {
     $('[id $=crop_form]').prop('disabled', false);
 });
 
+function fixRow(row) {
+    // Ta bort
+    row.find('*').off("change");
+    row.find('[id $=crop]').prop('disabled', false);
+    row.find('[id $=crop]').prop('disabled', false);
+    row.find('[id $=closed]').bootstrapSwitch();
+    row.find('[id $=crop]')[0].selectedIndex = 0
+    row.find('[id $=crop_form]').prop('disabled', false);
+    row.find('[id $=discount]').val(0.0);
+    id = row.find('[id $=crop]').attr('id');
+    i =  /-(\d+)-crop/.exec(id)[1]
+    prefix= "id_deliveryitem_set-"+i+"-";
 
+        ajax_populate_select('{% url 'deliveries_new_crop_form_for_crop'  %}', ['crop'],'crop_form',prefix,true);
+        ajax_populate_select('{% url 'deliveries_new_order_units_for_cropform'  %}', ['crop_form'],'order_unit',prefix,true);
+        ajax_populate_select('{% url 'deliveries_new_price_units_for_cropform'  %}', ['crop_form'],'price_type',prefix,true);
+
+
+}
+
+$('.form-container').formset({
+            prefix: '{{ delivery_item_form.prefix }}',
+            added:fixRow
+        });
 
 $.fn.bootstrapSwitch.defaults.size = 'mini';
 $.fn.bootstrapSwitch.defaults.onText = "klar";

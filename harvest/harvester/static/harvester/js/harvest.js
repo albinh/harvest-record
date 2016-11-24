@@ -36,7 +36,8 @@ function ajax_populate_select(url, froms, to, prefix="",initial=false) {
 
 	}
 
-	function change_callback() {
+	function change_callback(e) {
+	console.log(e);
 	    console.log(url)
 
 	    from_elements = froms.map((x)=>$('#'+prefix+x).first())
@@ -118,3 +119,16 @@ function reload_harvest_button(id) {
         response_cb.bind(null, btn)
     )
  }
+
+ var notLocked = true;
+$.fn.animateHighlight = function(highlightColor, duration) {
+    var highlightBg = highlightColor || "#FFFF9C";
+    var animateMs = duration || 1500;
+    var originalBg = this.css("backgroundColor");
+    if (notLocked) {
+        notLocked = false;
+        this.stop().css("background-color", highlightBg)
+            .animate({backgroundColor: originalBg}, animateMs);
+        setTimeout( function() { notLocked = true; }, animateMs);
+    }
+};

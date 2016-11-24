@@ -85,5 +85,5 @@ class HarvestItemForm2(ModelForm):
 
 HarvestItemFormSet     = formset_factory(HarvestItemForm2,  extra=200, max_num=2)
 
-DeliveryItemFormSet    = inlineformset_factory(DeliverySingle, DeliveryItem,  form=DeliveryItemForm, exclude=[], extra=10)
-CropFormFormSet        = inlineformset_factory(Crop,CropForm,exclude=[],extra=5,can_delete=True)
+DeliveryItemFormSet    = inlineformset_factory(DeliverySingle, DeliveryItem,  form=DeliveryItemForm, exclude=[], extra=0)
+CropFormFormSet        = inlineformset_factory(Crop,CropForm,exclude=[],extra=0,can_delete=True)

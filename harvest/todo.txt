@@ -1,4 +1,3 @@
-- Delivery/Edit/Harvets: Rad för färdig, rad för
 - Delivery/Edit/Harvets: Kopiera rad (flera rader per skörd)
 
 - Delivery/Edit: Dynamiskt antal rader
