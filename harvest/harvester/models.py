@@ -93,7 +93,7 @@ class DeliveryItem (models.Model):
     price_type = models.CharField(max_length=1, choices=PRICE_CHOICES, default="W", null=True)
     order_unit = models.CharField(max_length=1, choices=UNIT_CHOICES,  default="W", null=True)
     closed =     models.BooleanField(default=False)
-    price =      models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    price =      models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     discount =   models.FloatField(default=0.0)
     order_comment = models.CharField(max_length=100, default="", blank=True)
     delivery_comment = models.CharField(max_length=100, default="", blank=True)

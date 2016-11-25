@@ -85,20 +85,20 @@ Ny leverans
         <div class="col-md-3">
             <div class="row">
             <div class="col-xs-6">
-                {%if form2.instance.pk%}
+
             <button style="width:100%"
                     type="button"
                     {%if form2.instance.pk%} id="harvest-button-{{form2.instance.pk}}" {%endif%}
                     data-id="{{form2.instance.pk}}"
                     onClick="return false;"
-                    class="btn btn-default"
+                    class="btn btn-default {% if not form2.instance.pk %} hidden {%endif%}"
                     data-toggle="modal"
                     data-load-url="/harvester/deliveries/harvests/{{form2.instance.pk}}"
                     data-target="#harvest-item-modal"
                     data-query-url="{% url 'deliveries_harvest_for_delivery' %}">
-                <span class="harvested"></span>
+                <span class="harvested">0</span>/<span class="target">0</span> <span class="unit">kg</span>
             </button>
-                {%endif%}
+
                 <script>
                 {%if form2.instance.pk%}
                 $( document ).ready(function() {
@@ -111,7 +111,7 @@ Ny leverans
                      {{form2.closed}}
                      </div>
                 <div class="col-xs-3">
-            <button style="width:100%" type="button" class="btn btn-danger">Ta bort</button>
+            <button style="width:100%" type="button"  class="del-button btn btn-danger">Ta bort</button>
             </div>
                 </div>
         </div>
@@ -148,7 +148,7 @@ Ny leverans
 
 
     </script>
-
+    <button type="button" id="add-btn" class="btn btn-default">Lägg till rad</button>
     <input id="save_harvest_item" type="submit" value="Save"/>
     <script>
 
@@ -192,9 +192,26 @@ function fixRow(row) {
 
 }
 
+function pre_remove(row) {
+
+    harvested=$(row).find('.harvested');
+    i=parseFloat(harvested.text());
+    if (i>0)
+        {
+                BootstrapDialog.alert('Kan inte ta bort eftersom det redan finns registrerad skörd. Ta bort denna först!');
+                return false;
+        }
+
+        return confirm("Ta bort?");
+
+}
+
 $('.form-container').formset({
+            'add_btn_id':"#add-btn",
+            deleteCssClass: 'del-button',
             prefix: '{{ delivery_item_form.prefix }}',
-            added:fixRow
+            added:fixRow,
+            pre_remove:pre_remove
         });
 
 $.fn.bootstrapSwitch.defaults.size = 'mini';

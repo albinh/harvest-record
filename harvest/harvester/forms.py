@@ -83,7 +83,7 @@ class HarvestItemForm2(ModelForm):
         exclude=['destination','culture']
 
 
-HarvestItemFormSet     = formset_factory(HarvestItemForm2,  extra=200, max_num=2)
+HarvestItemFormSet     = formset_factory(HarvestItemForm2,  extra=200, max_num=1)
 
-DeliveryItemFormSet    = inlineformset_factory(DeliverySingle, DeliveryItem,  form=DeliveryItemForm, exclude=[], extra=0)
+DeliveryItemFormSet    = inlineformset_factory(DeliverySingle, DeliveryItem,  form=DeliveryItemForm, exclude=[], extra=1)
 CropFormFormSet        = inlineformset_factory(Crop,CropForm,exclude=[],extra=0,can_delete=True)

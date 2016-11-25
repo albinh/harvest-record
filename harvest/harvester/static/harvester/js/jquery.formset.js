@@ -55,7 +55,7 @@
             insertDeleteLink = function(row) {
                 var delCssSelector = $.trim(options.deleteCssClass).replace(/\s+/g, '.'),
                     addCssSelector = $.trim(options.addCssClass).replace(/\s+/g, '.');
-                if (row.is('TR')) {
+                /*if (row.is('TR')) {
                     // If the forms are laid out in table rows, insert
                     // the remove button into the last table cell:
                     row.children(':last').append('<a class="' + options.deleteCssClass +'" href="javascript:void(0)">' + options.deleteText + '</a>');
@@ -63,21 +63,28 @@
                     // If they're laid out as an ordered/unordered list,
                     // insert an <li> after the last list item:
                     row.append('<li><a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a></li>');
+
                 } else {
                     // Otherwise, just insert the remove button as the
                     // last child element of the form's container:
                     row.append('<a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a>');
-                }
+                }*/
                 // Check if we're under the minimum number of forms - not to display delete link at rendering
                 if (!showDeleteLinks()){
                     row.find('a.' + delCssSelector).hide();
                 }
 
-                row.find('a.' + delCssSelector).click(function() {
+                row.find('button.' + delCssSelector).click(function() {
                     var row = $(this).parents('.' + options.formCssClass),
                         del = row.find('input:hidden[id $= "-DELETE"]'),
                         buttonRow = row.siblings("a." + addCssSelector + ', .' + options.formCssClass + '-add'),
                         forms;
+
+                    if (options.pre_remove) {
+                        if (options.pre_remove(row)==false) {
+                            return;
+                     }
+                    }
                     if (del.length) {
                         // We're dealing with an inline formset.
                         // Rather than remove this form from the DOM, we'll mark it as deleted
@@ -172,8 +179,10 @@
             }
             // FIXME: Perhaps using $.data would be a better idea?
             options.formTemplate = template;
-
-            if ($$.is('TR')) {
+            if (options.add_btn_id) {
+                addButton=$(options.add_btn_id);
+            }
+            else if ($$.is('TR')) {
                 // If forms are laid out as table rows, insert the
                 // "add" button in a new table row:
                 var numCols = $$.eq(0).children().length,   // This is a bit of an assumption :|

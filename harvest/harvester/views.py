@@ -111,7 +111,7 @@ class DeliveryNew ( CreateView ):
                                     ) )
 
     def get_success_url(self):
-        return reverse ( 'harvest-list' )
+        return reverse ( 'delivery-list' )
 
     def get_initial(self):
         return {'time': timezone.now ( )}

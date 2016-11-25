@@ -85,10 +85,7 @@ ajax_populate_select('{% url 'harvest_new_destinations_for_crop' %}', ['id_crop'
 		var c=document.getElementById("weighttable");
 		var b= document.getElementById("weighttable").lastChild;
 		var e=b.getElementsByClassName("weight");
-		console.log(b.cells[0].children[0].value)
-		console.log(b.getElementsByClassName("numbucket")[0].value)
-		console.log(b.getElementsByClassName("bucket")[0].value)
-		
+
 		if (b.getElementsByClassName("weight")[0].value!=0 || b.getElementsByClassName("numbucket")[0].value!=0  || b.getElementsByClassName("bucket")[0].value!=0)
 		addRow()
 		

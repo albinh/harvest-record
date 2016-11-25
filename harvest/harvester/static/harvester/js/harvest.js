@@ -31,34 +31,26 @@ function ajax_populate_select(url, froms, to, prefix="",initial=false) {
 
 
             } else {
-                console.log("error");
+
             }
 
 	}
 
 	function change_callback(e) {
-	console.log(e);
-	    console.log(url)
 
 	    from_elements = froms.map((x)=>$('#'+prefix+x).first())
-		console.log(from_elements)
-	    console.log(to)
 		params = {csrfmiddlewaretoken: csrf_token}
 		// Add parameters to AJAX-call
 
 		from_elements.forEach((f)=> {
-			console.log(f)
 
 			var id=f[0].id.replace(prefix,"");
 			var v=f[0].value[0];
-			console.log(v)
 			if (v==null) {
-			    console.log("exiting")
 			    return;
 			    }
 			params[id]=v;
 		})
-		console.log(params);
 		$.post(
             url,
             params,
@@ -77,7 +69,6 @@ function ajax_populate_select(url, froms, to, prefix="",initial=false) {
 function reload_harvest_button(id) {
     function response_cb(btn, response) {
         result = JSON.parse(response);
-        console.log(result)
 
         color=""
 
@@ -97,7 +88,9 @@ function reload_harvest_button(id) {
                 break;
                }
         text=result.harvested_amount + "/"+result.target_amount+" "+result.unit;
-        btn.getElementsByClassName("harvested")[0].innerHTML=text;
+        btn.getElementsByClassName("harvested")[0].innerHTML=result.harvested_amount ;
+        btn.getElementsByClassName("target")[0].innerHTML=result.target_amount ;
+        btn.getElementsByClassName("unit")[0].innerHTML=result.unit ;
         btn.classList.remove("btn-primary");
         btn.classList.remove("btn-warning");
         btn.classList.remove("btn-success");

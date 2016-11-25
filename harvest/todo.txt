@@ -1,6 +1,5 @@
 - Delivery/Edit/Harvets: Kopiera rad (flera rader per skörd)
 
-- Delivery/Edit: Dynamiskt antal rader
 - Delivery/Edit: Ta bort rad
 
 - Delivery/Edit: Värde. Prognos och utfall

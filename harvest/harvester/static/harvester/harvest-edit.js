@@ -19,12 +19,12 @@ function ajax_populate_select(url, froms, tos) {
 					values = result[t.id];
                 	values.forEach(function(c, index) {
                         t.append(new Option(c.name, c.id, false, false));
-                        console.log(c)
+
                     })
 				e.trigger("change");
 				})
             } else {
-                console.log("error");
+
             }
         }
 

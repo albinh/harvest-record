@@ -34,7 +34,7 @@
                     data-load-url="/harvester/deliveries/harvests/{{i.pk}}"
                     data-target="#harvest-item-modal"
                     data-query-url="{% url 'deliveries_harvest_for_delivery' %}">
-{{i.crop_form.crop.crop}} <span class="harvested"></span>
+{{i.crop_form.crop.crop}} <span class="harvested">0</span>/<span class="target">0</span> <span class="unit">kg</span>
             </button>
                 {%endif%}
                 <script>
