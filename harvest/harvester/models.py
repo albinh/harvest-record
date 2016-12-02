@@ -65,7 +65,7 @@ class Culture (models.Model):
                      (2, 'Skördeklar'),
                      (3, 'Övermogen/slutskördad'),
                )
-    harvest_state = models.IntegerField(choices=HARVEST_CHOICES, default=0)
+    harvest_state = models.IntegerField(choices=HARVEST_CHOICES, default=1)
 
 
 class DeliverySingle (models.Model):
@@ -74,6 +74,10 @@ class DeliverySingle (models.Model):
     delivery_date = models.DateField(null=True, blank=True)
     def __str__(self):
         return '%s (%s)' % (self.customer.name, self.target_date.strftime("%B %d"))
+
+
+
+
 
 
 class DeliveryItem (models.Model):
@@ -159,6 +163,28 @@ class DeliveryItem (models.Model):
         if a==None:
             return 0
         return a
+
+class BasketItem (DeliveryItem):
+    in_1 = models.BooleanField ( )
+    in_2 = models.BooleanField ( )
+    in_3 = models.BooleanField ( )
+    in_4 = models.BooleanField ( )
+    in_5 = models.BooleanField ( )
+    in_6 = models.BooleanField ( )
+    in_7 = models.BooleanField ( )
+    in_8 = models.BooleanField ( )
+    each_amount = models.DecimalField(max_digits=5,decimal_places=1)
+
+class DeliveryBasket(DeliverySingle):
+    c_1 = models.PositiveSmallIntegerField(default=0)
+    c_2 = models.PositiveSmallIntegerField ( default=0 )
+    c_3 = models.PositiveSmallIntegerField ( default=0 )
+    c_4 = models.PositiveSmallIntegerField ( default=0 )
+    c_5 = models.PositiveSmallIntegerField ( default=0 )
+    c_6 = models.PositiveSmallIntegerField ( default=0 )
+    c_7 = models.PositiveSmallIntegerField ( default=0 )
+    c_8 = models.PositiveSmallIntegerField ( default=0 )
+
 
 class HarvestItem (models.Model):
     harvested_length = models.DecimalField(max_digits=4, decimal_places=1)

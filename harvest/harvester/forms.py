@@ -1,7 +1,7 @@
 from django import forms
 
 from django.forms import ModelChoiceField
-from .models import Crop
+from .models import Crop, BasketItem, DeliveryBasket
 from .models import CropForm
 from .models import Culture
 from .models import DeliverySingle
@@ -19,25 +19,6 @@ from django.forms.models import inlineformset_factory, modelformset_factory, for
 from django.urls import reverse_lazy
 
 
-class HarvestItemForm(ModelForm):
-    qs=Crop.objects.all()
-
-    crops = [(cc.id,cc.crop) for cc in qs]
-    crops = [(None,"---")]+crops+crops
-
-
-
-    crop = forms.ChoiceField(choices=crops)
-    culture_is_done = forms.BooleanField(required=False)
-
-    class Meta:
-        model = HarvestItem
-        fields = ['culture',  'harvested_length', 'comment', 'destination','weight','count']
-
-        widgets = {
-            'comment': forms.Textarea(attrs={'cols': 40, 'rows': 3}),
-        }
-
 
 class HarvestItemFormUpdate(ModelForm):
     # fields = ['culture', 'weight','count','comment','time']
@@ -51,16 +32,29 @@ class HarvestItemFormUpdate(ModelForm):
         }
 
 class DeliverySingleForm(ModelForm):
-    error_css_class = "uk-form-danger"
+
     class Meta:
         model = DeliverySingle
         fields = ['customer','target_date']
+
+
+class DeliveryBasketForm(ModelForm):
+
+    class Meta:
+        model = DeliveryBasket
+        exclude=[]
 
 class DeliveryItemForm(ModelForm):
     crop = forms.ModelChoiceField(queryset=Crop.objects.all())
     class Meta:
         exclude = []
-        model = DeliverySingle
+        model = DeliveryItem
+
+class BasketItemForm(ModelForm):
+    crop = forms.ModelChoiceField(queryset=Crop.objects.all())
+    class Meta:
+        exclude = []
+        model = BasketItem
 
 class CropFormForm(ModelForm):
     class Meta:
@@ -72,7 +66,7 @@ class DeliveryItemHarvestForm(ModelForm):
         model=DeliveryItem
         fields=['delivery_comment','closed']
 
-class HarvestItemForm2(ModelForm):
+class HarvestItemForm(ModelForm):
     id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     culture_id =  forms.IntegerField(widget=forms.HiddenInput())
     culture_name = forms.CharField ( disabled=True,required=False)
@@ -83,7 +77,8 @@ class HarvestItemForm2(ModelForm):
         exclude=['destination','culture']
 
 
-HarvestItemFormSet     = formset_factory(HarvestItemForm2,  extra=200, max_num=1)
+HarvestItemFormSet     = formset_factory(HarvestItemForm,  extra=200, max_num=1)
+BasketItemFormSet    = inlineformset_factory(DeliveryBasket, BasketItem,  form=BasketItemForm, exclude=[], extra=1)
 
 DeliveryItemFormSet    = inlineformset_factory(DeliverySingle, DeliveryItem,  form=DeliveryItemForm, exclude=[], extra=1)
 CropFormFormSet        = inlineformset_factory(Crop,CropForm,exclude=[],extra=0,can_delete=True)

@@ -14,11 +14,12 @@ urlpatterns = [
     url(r'^customer_categories/',                   views.CustomerCategoryList.as_view(),           name='cusstomer-categories-list'),
 	url(r'^customer_categories/(?P<pk>\d+)/$',      views.CustomerCategoryEdit.as_view(),           name='customer-category-edit'),
 
+	url(r'^beds/',									views.Beds.as_view(),							name='beds'),
 
-
-	url(r'^crops/$',                                views.CropList.as_view(),                       name='crop-list'),
+	url(r'^crops/$',                                views.CropList.as_view(),                       name='crops'),
 	url(r'^crops/(?P<pk>\d+)/$',                    views.CropEdit.as_view(),                       name='crop-edit'),
 
+	url(r'cultures/$',								views.Cultures.as_view(),						name='cultures'),
 
 
 	# deliveries_new

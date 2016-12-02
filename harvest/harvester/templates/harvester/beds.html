@@ -1,0 +1,32 @@
+
+{% extends "harvester/base.html" %}
+{% load static  placeholder widget_tweaks %}
+{% block title %}
+    Bäddar
+{% endblock %}
+{% block content %}
+
+<form action="." method="post">
+    {{ formset.management_form }}
+    {{ formset.non_form_errors }}
+    {% csrf_token %}
+<table class="table" style="width:auto">
+    {% for form in formset %}
+        <tr>
+            <td>{{form.location|add_class:'form-control'}}{{form.location.errors}}</td>
+            <td>{{form.index|add_class:'form-control'}}{{form.location.errors}}</td>
+            <td>{{form.length|add_class:'form-control'}}{{form.location.errors}}</td>
+        </tr>
+        {% for hidden in form.hidden_fields %}
+    {{ hidden }}
+    {% endfor %}
+
+
+
+ {%endfor%}
+</table>
+
+<input type="submit" value="Submit" />
+
+</form>
+{%endblock%}
