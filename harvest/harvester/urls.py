@@ -5,14 +5,14 @@ from . import ajax_views
 urlpatterns = [
 	url(r'^deliveries/$',                           views.DeliveryList.as_view(),                   name='delivery-list'),
     url(r'^deliveries/new$',                        views.DeliveryNew.as_view(),                    name='delivery-new'),
-    url(r'^deliveries/(?P<pk>\d+)/$',               views.DeliveryEdit.as_view(),                   name='delivery-edit', ),
-	url(r'^deliveries-test/(?P<pk>\d+)/$',               views.DeliveryTest.as_view(),                   name='delivery-test', ),
-	url ( r'^deliveries/new-basket$', views.DeliveryBasketNew.as_view ( ), name='delivery-basket-new' ),
+    #url(r'^deliveries/(?P<pk>\d+)/$',               views.DeliveryEdit.as_view(),                   name='delivery-edit', ),
+	url(r'^deliveries/(?P<pk>\d+)/$',               views.Delivery.as_view(),                   name='delivery-edit', ),
+	#url ( r'^deliveries/new-basket$', views.DeliveryBasketNew.as_view ( ), name='delivery-basket-new' ),
 
 	url(r'^deliveries/harvests/(?P<pk>\d+)/(?P<url>.*)$',		views.HarvestItemNew.as_view(),				name='delivery-edit-harvests',),
 
-    url(r'^customer_categories/',                   views.CustomerCategoryList.as_view(),           name='cusstomer-categories-list'),
-	url(r'^customer_categories/(?P<pk>\d+)/$',      views.CustomerCategoryEdit.as_view(),           name='customer-category-edit'),
+  #  url(r'^customer_categories/',                   views.CustomerCategoryList.as_view(),           name='cusstomer-categories-list'),
+	#url(r'^customer_categories/(?P<pk>\d+)/$',      views.CustomerCategoryEdit.as_view(),           name='customer-category-edit'),
 
 	url(r'^beds/',									views.Beds.as_view(),							name='beds'),
 

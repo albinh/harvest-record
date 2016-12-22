@@ -24,18 +24,10 @@
             <td class="crop">
                 {% for i in delivery.deliveryitem_set.all %}
                                {%if i.pk%}
-            <button style=""
-                    type="button"
-                    {%if i.pk%} id="harvest-button-{{i.pk}}" {%endif%}
-                    data-id="{{i.pk}}"
-                    onClick="return false;"
-                    class="btn btn-xs btn-default"
-                    data-toggle="modal"
-                    data-load-url="/harvester/deliveries/harvests/{{i.pk}}"
-                    data-target="#harvest-item-modal"
-                    data-query-url="{% url 'deliveries_harvest_for_delivery' %}">
+<a class="btn btn-primary btn-sm" role="button" id="harvest-button-{{i.pk}}"
+                            href="{%url "delivery-edit-harvests" i.pk request.get_full_path|urlencode:""  %}"                   >
 {{i.cropform.crop.crop}} <span class="harvested">0</span>/<span class="target">0</span> <span class="unit">kg</span>
-            </button>
+            </a>
                 {%endif%}
                 <script>
                 {%if i.pk%}
