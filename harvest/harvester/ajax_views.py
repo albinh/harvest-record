@@ -50,7 +50,7 @@ class deliveries_new_order_units_for_cropform(AjaxView):
 
     def get_data(self):
         try:
-            cf = CropForm.objects.get(pk=self.f('crop_form'))
+            cf = CropForm.objects.get(pk=self.f('cropform'))
             d=[Option('W','kg')]
             if cf.countable:
                 name = 'st '+cf.form_name
@@ -62,10 +62,9 @@ class deliveries_new_order_units_for_cropform(AjaxView):
         return self.NEVER
 
 class deliveries_new_price_units_for_cropform(AjaxView):
-
     def get_data(self):
         try:
-            cf = CropForm.objects.get(pk=self.f('crop_form'))
+            cf = CropForm.objects.get(pk=self.f('cropform'))
 
             d=[Option('W','kr/kg')]
             if cf.countable:
@@ -77,7 +76,7 @@ class deliveries_new_price_units_for_cropform(AjaxView):
     def use_neutral(self):
         return self.NEVER
 
-class deliveries_new_crop_form_for_crop(AjaxView):
+class deliveries_new_cropform_for_crop(AjaxView):
     def get_data(self):
 
         return CropForm.objects.filter ( crop=self.f ( 'crop' ) ).order_by ( '-is_default' )
@@ -95,6 +94,35 @@ class deliveries_harvest_for_delivery(View):
         data={'harvested_amount': delivery_item.harvested_amount(),
               'unit': delivery_item.order_unit_text(),
               'status':delivery_item.status(),
+              'harvest_relation':delivery_item.harvest_relation(),
             'target_amount':delivery_item.order_amount,
-              'crop':delivery_item.crop_form.crop.crop}
+              'crop':delivery_item.cropform.crop.crop}
         return HttpResponse ( simplejson.dumps ( data ) )
+
+class delivery_item_edit_price(View):
+    def post(self,request):
+        delivery_item = get_object_or_404(DeliveryItem, pk=request.POST['pk'])
+        price = int(request.POST['value[amount]'])
+        delivery_item.price = price
+
+        if 'value[unit]' in request.POST:
+            unit = request.POST['value[unit]']
+            delivery_item.price_type = unit
+
+
+        delivery_item.save()
+        return HttpResponse ( "" )
+
+class delivery_item_edit_amount(View):
+    def post(self,request):
+        delivery_item = get_object_or_404(DeliveryItem, pk=request.POST['pk'])
+        price = int(request.POST['value[amount]'])
+        delivery_item.price = price
+
+        if 'value[unit]' in request.POST:
+            unit = request.POST['value[unit]']
+            delivery_item.amount_unit = unit
+
+
+        delivery_item.save()
+        return HttpResponse ( "" )

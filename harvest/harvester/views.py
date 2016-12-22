@@ -9,7 +9,8 @@ from extra_views import ModelFormSetView
 
 from .forms import *
 from .models import *
-
+from urllib.parse import quote, unquote
+import simplejson
 class Beds (ModelFormSetView):
     template_name = 'harvester/beds.html'
     model = Bed
@@ -20,6 +21,53 @@ class Cultures (ModelFormSetView):
     model=Culture
     exclude = []
     initial = [{'offset':0}]
+
+class DeliveryTest(View):
+    def get(self, request,pk):
+        delivery = get_object_or_404(DeliverySingle,pk=int(pk))
+        template = 'harvester/delivery-edit-test.html'
+
+        cropform_data = {}
+        #crops with at least one cropform
+        crops = Crop.objects.all()
+        crop_data = [{'name':'välj gröda'}]+[{'pk:':crop.pk, 'name':crop.crop} for crop in crops]
+        for crop in crops:
+            print(dir(crop))
+            cropforms = CropForm.objects.filter(crop=crop.pk)
+            #crop_data.append(crop)
+            cf=[]
+            for cropform in cropforms.all():
+                cf.append({'pk':cropform.pk, 'name':cropform.form_name,'countable':cropform.countable})
+            cropform_data[crop.pk]=cf
+
+
+
+
+
+
+        #self_url = quote('')
+        context  = {'delivery':delivery, 'crops':[{'pk':None,'crop':'Välj gröda'}]+list(crops), 'cropform_data':simplejson.dumps(cropform_data)}
+
+
+        return render ( request,
+                        template,
+                       context )
+
+
+    def post(self, request, pk):
+        cf=get_object_or_404(CropForm, pk=int(request.POST['cropform']))
+        d =get_object_or_404(DeliverySingle, pk=pk)
+        di = DeliveryItem(delivery=d,
+                          cropform = cf,
+                          order_amount = float(request.POST['amount']),
+                          order_unit   = request.POST['unit'],
+                          price=0,
+                          price_type="W"
+                          )
+        di.save()
+
+        print(request.POST)
+        return HttpResponseRedirect ( request.path )
 
 class DeliveryMixin:
     form_class = DeliverySingleForm
@@ -35,8 +83,8 @@ class DeliveryMixin:
         for form2 in delivery_item_form.forms:
             if form2.instance.pk:
                 form2.fields['crop'].disabled = True
-                form2.fields['crop_form'].disabled = True
-                form2.initial['crop'] = form2.instance.crop_form.crop
+                form2.fields['cropform'].disabled = True
+                form2.initial['crop'] = form2.instance.cropform.crop
 
         return self.render_to_response (
             self.get_context_data ( form=form,
@@ -74,14 +122,12 @@ class DeliveryEdit ( DeliveryMixin, UpdateView ):
     def get_obj(self):
         return self.get_object ( )
 
-
 class DeliveryBasketEdit (DeliveryEdit):
     model = DeliveryBasket
     form_class = DeliveryBasketForm
-    template_name = 'harvester/delivery-basket-edit'
+    template_name = 'harvester/delivery-basket-edit.html'
     def get_delivery_item_formset(self):
         return BasketItemFormSet ( instance=self.object)
-
 
 class DeliveryNew ( DeliveryMixin, CreateView ):
     model = DeliverySingle
@@ -91,28 +137,23 @@ class DeliveryNew ( DeliveryMixin, CreateView ):
     def get_obj(self):
         return None
 
-class DeliveryBaskedNew(DeliveryNew):
+class DeliveryBasketNew(DeliveryNew):
     model = DeliveryBasket
     form_class = DeliveryBasketForm
-    template_name = 'harvester/delivery-basket-edit'
+    template_name = 'harvester/delivery-basket-edit.html'
 
     def get_delivery_item_formset(self):
         return BasketItemFormSet ( instance=self.object )
 
-
 class CustomerCategoryList ( ListView ):
     model = CustomerCategory
-
 
 class CustomerCategoryEdit ( UpdateView ):
     model = CustomerCategory
 
-
 class CropList ( ListView ):
     model = Crop
-
     template_name = 'harvester/crop-list.html'
-
 
 class CropEdit ( UpdateView ):
     model = Crop
@@ -167,31 +208,43 @@ class DeliveryList ( ListView ):
     template_name = 'harvester/delivery-list.html'
     model = DeliverySingle
 
+class HarvestItemNew (CreateView):
+    model = HarvestItem
+    form_class = HarvestItemForm
+    template_name = 'harvester/delivery-edit-harvests.html'
+
+
+
+    def post(self, request, *args, **kwargs):
+        self.success_url =  unquote(self.kwargs['url'])
+
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+
+        id = self.kwargs['pk']
+        deliveryitem = get_object_or_404 ( DeliveryItem, pk=id )
+
+        # the actual modification of the form
+        form.instance.destination = deliveryitem
+
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+
+
+
+#class HarvestItemUpdate (UpdateView):
+   # model = HarvestItem
+  #  fields = ['harvested_length','culture','comment','destination','weight','count']
+   # template_name = 'harvester/delivery-edit-harvests.html'
+    #form = HarvestItemForm
+
 
 class DeliveryEditHarvests ( View ):
     template_name = 'harvester/delivery-edit-harvests.html'
-
-    def initial_data(self):
-        cultures = Culture.objects.filter ( crop=self.deliveryitem.crop_form.crop )
-        objects = []
-        for culture in cultures:
-            harvest_items_for_culture = HarvestItem.objects.filter ( destination=self.deliveryitem, culture=culture )
-
-            if harvest_items_for_culture.count ( ) == 0:
-                harvest_items_for_culture = [
-                    HarvestItem ( harvested_length=0, culture=culture, destination=self.deliveryitem, weight=0,
-                                  count=0 )]
-            for h in harvest_items_for_culture:
-                o = h.__dict__
-                o['culture'] = h.culture.id
-                o['culture_id'] = h.culture.id
-                o['culture_name'] = h.culture.bed.__str__ ( )
-                o['culture_state'] = h.culture.harvest_state
-                o['i'] = culture
-                o['id'] = h.id
-                objects.append ( o )
-
-        return objects
 
     def get_deliveryitem(self):
         id = self.kwargs['pk']
@@ -199,48 +252,12 @@ class DeliveryEditHarvests ( View ):
 
     def get(self, request, *args, **kwargs):
         self.get_deliveryitem ( )
-        formset = HarvestItemFormSet ( initial=self.initial_data ( ), )
-        form = DeliveryItemHarvestForm ( instance=self.deliveryitem )
+
+
+
         return render ( request, self.template_name,
                         {'d_pk': self.deliveryitem.id, 'delivery_item': self.deliveryitem, 'formset': formset,
                          'form': form} )
-
-    def update(self, data):
-        hi = HarvestItem.objects.get ( pk=data['id'] )
-        hi.weight = data['weight']
-        hi.count = data['count']
-        hi.comment = data['comment']
-        hi.harvested_length = data['harvested_length']
-        hi.save ( )
-
-    def create(self, data):
-        hi = HarvestItem ( )
-        hi.culture = Culture.objects.get ( pk=data['culture_id'] )
-        hi.weight = data['weight']
-        hi.count = data['count']
-        hi.comment = data['comment']
-        hi.harvested_length = data['harvested_length']
-        hi.destination = self.deliveryitem
-        hi.save ( )
-
-    def delete(self, data):
-        hi = HarvestItem.objects.get ( pk=data['id'] )
-        hi.delete ( )
-
-    def update_culture_state(self, data):
-        culture = Culture.objects.get ( pk=data['culture_id'] )
-        culture.harvest_state = data['culture_state']
-        culture.save ( )
-
-    def create_or_update(self, data):
-        if data['id']:
-            if data['weight'] == 0:
-                self.delete ( data )
-            else:
-                self.update ( data )
-        else:
-            if data['weight'] > 0:
-                self.create ( data )
 
     def post(self, request, *args, **kwargs):
         self.get_deliveryitem ( )

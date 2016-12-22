@@ -20,17 +20,7 @@ from django.urls import reverse_lazy
 
 
 
-class HarvestItemFormUpdate(ModelForm):
-    # fields = ['culture', 'weight','count','comment','time']
-    error_css_class = "uk-form-danger"
-    class Meta:
-        model = HarvestItem
-        fields = ['culture', 'harvested_length', 'comment', 'destination','weight','count']
-
-        widgets = {
-            'comment': forms.Textarea(attrs={'cols': 40, 'rows': 3}),
-        }
-
+ 
 class DeliverySingleForm(ModelForm):
 
     class Meta:
@@ -66,18 +56,31 @@ class DeliveryItemHarvestForm(ModelForm):
         model=DeliveryItem
         fields=['delivery_comment','closed']
 
+
 class HarvestItemForm(ModelForm):
-    id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
-    culture_id =  forms.IntegerField(widget=forms.HiddenInput())
-    culture_name = forms.CharField ( disabled=True,required=False)
-    culture_state = forms.TypedChoiceField(coerce=int, choices=Culture.HARVEST_CHOICES)
-    i = forms.ModelChoiceField(queryset=Culture.objects.all(), widget=forms.HiddenInput())
+
+    culture_state = forms.ChoiceField(choices=Culture.HARVEST_CHOICES)
+    harvest_state = forms.BooleanField(initial=False)
     class Meta:
+        widgets = {
+            'comment': forms.Textarea(attrs={'cols': 80, 'rows': 4}),
+        }
+
         model=HarvestItem
-        exclude=['destination','culture']
+        fields = ['harvested_length', 'culture', 'comment', 'weight', 'count']
+
+# class HarvestItemForm(ModelForm):
+#     id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+#     culture_id =  forms.IntegerField(widget=forms.HiddenInput())
+#     culture_name = forms.CharField ( disabled=True,required=False)
+#     culture_state = forms.TypedChoiceField(coerce=int, choices=Culture.HARVEST_CHOICES)
+#     i = forms.ModelChoiceField(queryset=Culture.objects.all(), widget=forms.HiddenInput())
+#     class Meta:
+#         model=HarvestItem
+#         exclude=['destination','culture']
 
 
-HarvestItemFormSet     = formset_factory(HarvestItemForm,  extra=200, max_num=1)
+# HarvestItemFormSet     = formset_factory(HarvestItemForm,  extra=200, max_num=1)
 BasketItemFormSet    = inlineformset_factory(DeliveryBasket, BasketItem,  form=BasketItemForm, exclude=[], extra=1)
 
 DeliveryItemFormSet    = inlineformset_factory(DeliverySingle, DeliveryItem,  form=DeliveryItemForm, exclude=[], extra=1)

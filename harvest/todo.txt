@@ -1,5 +1,3 @@
-- Delivery/Edit/Harvets: Kopiera rad (flera rader per skörd)
-
 - Delivery/Edit: Ta bort rad
 
 - Delivery/Edit: Värde. Prognos och utfall
@@ -28,3 +26,5 @@ Följesedel - utskrift
 Faktura
 Återtag och returer. Rabatter
 Lager/Kylrum/
+
+Sök efter alla <script> och städa upp. Flytta bort så mycket som möjligt fårn template.

@@ -43,7 +43,7 @@ Ny leverans
                     {{form2.crop.errors}}
                 </div>
                 <div class="col-xs-4">
-                    {{form2.crop_form|add_class:'form-control'}} {{form2.crop_form.errors}}
+                    {{form2.cropform|add_class:'form-control'}} {{form2.cropform.errors}}
                 </div>
 
                 <div class="col-xs-4">
@@ -162,14 +162,14 @@ $( document ).ready(function() {
 
     for (i=0;i<num_rows;i++) {
         prefix= "id_deliveryitem_set-"+i+"-";
-        ajax_populate_select('{% url 'deliveries_new_crop_form_for_crop'  %}', ['crop'],'crop_form',prefix);
-        ajax_populate_select('{% url 'deliveries_new_order_units_for_cropform'  %}', ['crop_form'],'order_unit',prefix,true);
-        ajax_populate_select('{% url 'deliveries_new_price_units_for_cropform'  %}', ['crop_form'],'price_type',prefix,true);
+        ajax_populate_select('{% url 'deliveries_new_cropform_for_crop'  %}', ['crop'],'cropform',prefix);
+        ajax_populate_select('{% url 'deliveries_new_order_units_for_cropform'  %}', ['cropform'],'order_unit',prefix,true);
+        ajax_populate_select('{% url 'deliveries_new_price_units_for_cropform'  %}', ['cropform'],'price_type',prefix,true);
     }
 
 $('form').on('submit', function() {
     $('[id $=crop]').prop('disabled', false);
-    $('[id $=crop_form]').prop('disabled', false);
+    $('[id $=cropform]').prop('disabled', false);
 });
 
 function fixRow(row) {
@@ -179,15 +179,15 @@ function fixRow(row) {
     row.find('[id $=crop]').prop('disabled', false);
     row.find('[id $=closed]').bootstrapSwitch();
     row.find('[id $=crop]')[0].selectedIndex = 0
-    row.find('[id $=crop_form]').prop('disabled', false);
+    row.find('[id $=cropform]').prop('disabled', false);
     row.find('[id $=discount]').val(0.0);
     id = row.find('[id $=crop]').attr('id');
     i =  /-(\d+)-crop/.exec(id)[1]
     prefix= "id_deliveryitem_set-"+i+"-";
 
-        ajax_populate_select('{% url 'deliveries_new_crop_form_for_crop'  %}', ['crop'],'crop_form',prefix,true);
-        ajax_populate_select('{% url 'deliveries_new_order_units_for_cropform'  %}', ['crop_form'],'order_unit',prefix,true);
-        ajax_populate_select('{% url 'deliveries_new_price_units_for_cropform'  %}', ['crop_form'],'price_type',prefix,true);
+        ajax_populate_select('{% url 'deliveries_new_cropform_for_crop'  %}', ['crop'],'cropform',prefix,true);
+        ajax_populate_select('{% url 'deliveries_new_order_units_for_cropform'  %}', ['cropform'],'order_unit',prefix,true);
+        ajax_populate_select('{% url 'deliveries_new_price_units_for_cropform'  %}', ['cropform'],'price_type',prefix,true);
 
 
 }

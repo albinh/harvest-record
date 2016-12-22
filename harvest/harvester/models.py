@@ -36,7 +36,7 @@ class Customer (models.Model):
 
 class PriceListItem (models.Model):
     category = models.ForeignKey(CustomerCategory, on_delete=models.CASCADE)
-    crop_form = models.ForeignKey(CropForm, on_delete=models.CASCADE)
+    cropform = models.ForeignKey(CropForm, on_delete=models.CASCADE)
 
     PRICE_CHOICES = (
         ('W', 'kr/kg'),
@@ -81,7 +81,7 @@ class DeliverySingle (models.Model):
 
 
 class DeliveryItem (models.Model):
-    crop_form = models.ForeignKey(CropForm)
+    cropform = models.ForeignKey(CropForm)
     delivery = models.ForeignKey(DeliverySingle)
     order_amount = models.DecimalField(max_digits=5,decimal_places=1)
 
@@ -101,6 +101,9 @@ class DeliveryItem (models.Model):
     discount =   models.FloatField(default=0.0)
     order_comment = models.CharField(max_length=100, default="", blank=True)
     delivery_comment = models.CharField(max_length=100, default="", blank=True)
+
+    def harvest_relation(self):
+        return self.harvested_amount()-self.order_amount
 
     NOTHING    = 0
     TOO_LITTLE = 1
@@ -136,7 +139,7 @@ class DeliveryItem (models.Model):
         if self.order_unit=="W":
             return "kg"
         elif self.order_unit=="U":
-            return self.crop_form.form_name
+            return self.cropform.form_name
         else:
             raise
 

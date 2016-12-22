@@ -5,10 +5,8 @@
 
 }
 
-input[type="text"],input[type="number"], select {
-    width:100%;
-      box-sizing: border-box;
-  #height:1.5em;
+.autowidth {
+width: auto !important;
 
 }
 
@@ -17,6 +15,10 @@ input[type="text"],input[type="number"], select {
 }
 .row > div[class*="col-"] > .row > div[class*="col-"] {
   padding:5px;
+}
+
+.form-control {
+    font-size:18px; !important;
 }
 
 input[type="checkbox"] {
@@ -35,4 +37,9 @@ input[type="checkbox"] {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+.editable-empty {
+    color:#CCCCCC; !important;
+    border-bottom: dashed 1px #CCCCCC !important;
 }

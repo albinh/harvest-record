@@ -87,16 +87,19 @@ function reload_harvest_button(id) {
                 color="danger";
                 break;
                }
-        text=result.harvested_amount + "/"+result.target_amount+" "+result.unit;
-        btn.getElementsByClassName("harvested")[0].innerHTML=result.harvested_amount ;
-        btn.getElementsByClassName("target")[0].innerHTML=result.target_amount ;
-        btn.getElementsByClassName("unit")[0].innerHTML=result.unit ;
+        try {
+        	h=btn.getElementsByClassName("harvested")[0]
+        if (h) {h.innerHTML=result.harvested_amount ;}
+        } finally {}
+        try {
+        btn.getElementsByClassName("relation")[0].innerHTML=result.harvest_relation ;
+        } finally {}
         btn.classList.remove("btn-primary");
         btn.classList.remove("btn-warning");
         btn.classList.remove("btn-success");
         btn.classList.remove("btn-danger");
         btn.classList.remove("btn-default");
-        btn.classList.add("btn-"+color)
+        //btn.classList.add("btn-"+color)
 
 
     }
