@@ -1,83 +1,28 @@
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.utils import timezone
 from django.views.generic import CreateView, UpdateView, ListView, View,RedirectView
 from extra_views import ModelFormSetView
-from django import template
-
-register = template.Library()
-
-
-
 
 from .forms import *
 from .models import *
+
 from urllib.parse import quote, unquote
 import simplejson
 
-class Beds (ModelFormSetView):
+
+class BedListView ( ModelFormSetView ):
     template_name = 'harvester/beds.html'
     model = Bed
     exclude =[]
 
-class Cultures (ModelFormSetView):
+class CultureListView ( ModelFormSetView ):
     template_name = 'harvester/cultures.html'
     model=Culture
     exclude = []
     initial = [{'offset':0}]
-
-class DeliveryNew(RedirectView):
-    def get_redirect_url(self, *args, **kwargs):
-        customer = get_object_or_404 ( Customer, pk=self.request.POST['customer'] )
-        delivery_date = self.request.POST['date']
-        d=DeliverySingle()
-        d.delivery_date=delivery_date
-        d.customer=customer
-        d.save()
-        return reverse('delivery-edit', args=[d.pk])
-
-class Delivery(View):
-    def get(self, request,pk):
-        delivery = get_object_or_404(DeliverySingle,pk=int(pk))
-        template = 'harvester/delivery-edit.html'
-
-        cropform_data = {}
-        crops = Crop.objects.all()
-        crop_data = [{'name':'välj gröda'}]+[{'pk:':crop.pk, 'name':crop.crop} for crop in crops]
-        for crop in crops:
-            print(dir(crop))
-            cropforms = CropForm.objects.filter(crop=crop.pk)
-
-            cf=[]
-            for cropform in cropforms.all():
-                cf.append({'pk':cropform.pk, 'name':cropform.form_name,'countable':cropform.countable})
-            cropform_data[crop.pk]=cf
-        context  = {'delivery':delivery, 'crops':[{'pk':None,'crop':'Välj gröda'}]+list(crops), 'cropform_data':simplejson.dumps(cropform_data)}
-
-
-        return render ( request,
-                        template,
-                       context )
-
-
-    def post(self, request, pk):
-        cf=get_object_or_404(CropForm, pk=int(request.POST['cropform']))
-        d =get_object_or_404(DeliverySingle, pk=pk)
-        di = DeliveryItem(delivery=d,
-                          cropform = cf,
-                          order_amount = float(request.POST['amount']),
-                          order_unit   = request.POST['unit'],
-                          price=0,
-                          price_type="W"
-                          )
-        di.save()
-
-        print(request.POST)
-        return HttpResponseRedirect ( request.path )
-
 
 class CropList ( ListView ):
     model = Crop
@@ -130,6 +75,78 @@ class CropEdit ( UpdateView ):
 
     def get_initial(self):
         return {'time': timezone.now ( )}
+
+class DeliveryNew ( RedirectView ):
+    def get_redirect_url(self, *args, **kwargs):
+        customer = get_object_or_404 ( Customer, pk=self.request.POST['customer'] )
+        delivery_date = self.request.POST['date']
+        d = DeliverySingle ( )
+        d.delivery_date = delivery_date
+        d.customer = customer
+        d.save ( )
+        return reverse ( 'delivery-edit', args=[d.pk] )
+
+
+# Delivery - View to edit a DeliverySingle
+class Delivery(View):
+    def crops(self):
+        return [{'pk': None, 'name': 'välj gröda'}] \
+                + [{'pk': crop.pk, 'name': crop.crop} for crop in Crop.objects.all ( )]
+
+    def cropforms(self):
+        cropform_data = {}
+
+        for crop in Crop.objects.all():
+            cropform_data[crop.pk] =  [{'pk':cropform.pk,
+                                        'name':cropform.form_name,
+                                        'countable':cropform.countable}
+                                        for cropform in CropForm.objects.filter(crop=crop.pk)
+                                    ]
+        return cropform_data
+
+    def get(self, request,pk):
+        delivery = get_object_or_404(DeliverySingle,pk=int(pk))
+        template = 'harvester/delivery-edit.html'
+
+
+        context  = {'delivery':delivery,
+                    'crops':self.crops(),
+                    'cropform_data':simplejson.dumps(self.cropforms())
+                    }
+
+        return render ( request,
+                        template,
+                       context )
+
+
+    # Skapa en ny DeliveryItem
+    def post(self, request, pk):
+        # TODO: ska skapa DeliveryItem verkligen vara här?
+
+        cropform=get_object_or_404(CropForm, pk=int(request.POST['cropform']))
+        delivery =get_object_or_404(DeliverySingle, pk=pk)
+
+        di = DeliveryItem(delivery=delivery,
+                          cropform = cropform,
+                          order_amount = float(request.POST['amount']),
+                          order_unit   = request.POST['unit'],
+                          price=0,
+                          price_type="W"  # TODO: sätt pris och pristyp efter prislista
+                          )
+
+        di.save()
+
+        # skicka tillbaka till föregående
+        return HttpResponseRedirect ( request.path )
+
+
+# TODO: Vy för att ta bort leverans
+# TODO: Vy för att ta bort harvestitem
+
+
+
+
+
 
 
 

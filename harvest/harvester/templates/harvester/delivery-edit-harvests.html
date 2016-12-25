@@ -4,108 +4,113 @@
 {%block container-type %}container{%endblock%}
 {% block content %}
 <h1>Registrera skörd</h1>
+<!-- TODO: Statisk text -->
 Morötter (knippe) till Granö beckasin (2016-01-01)
 <form method="post" action="">
     {% if form.non_field_errors %}
-  <div class="alert alert-danger">
-    {% for err in form.non_field_errors %}
-      <p class="form-error">{{ err }}</p>
-    {% endfor %}
-  </div>
+    <div class="alert alert-danger">
+        {% for err in form.non_field_errors %}
+            <p class="form-error">{{ err }}</p>
+            <!-- TODO: bättre felhantering -->
+        {% endfor %}
+    </div>
     {% endif %}
-        {% for hidden in form.hidden_fields %}
-    {{ hidden }}
+
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
     {% endfor %}
     {% csrf_token %}
+
     <div class="row">
-<div class="col-md-4">
-        <div class="form-group ">
-            <legend>Mängd</legend>
-            <label>
-                vikt
-            </label>
+        <div class="col-md-4">
+            <div class="form-group ">
+                <legend>Mängd</legend>
+                <label>
+                    vikt
+                </label>
 
 
-            <div class="input-group">
-                <span class="input-group-addon" id="basic-addon2"><b>4</b>/18</span>
-                {{form.weight|add_class:'form-control'}}{{form.weight.errors}}
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon2"><b>4</b>/18</span>
+                    {{form.weight|add_class:'form-control'}}{{form.weight.errors}}
 
 
-                <span class="input-group-addon" id="basic-addon2">kg</span>
+                    <span class="input-group-addon" id="basic-addon2">kg</span>
+                </div>
             </div>
-        </div>
-        <div class="form-group ">
-            <label>
-                Antal
-            </label>
-            <div class="input-group">
-                {{form.count|add_class:'form-control'}}
+            <div class="form-group ">
+                <label>
+                    Antal
+                </label>
+                <div class="input-group">
+                    {{form.count|add_class:'form-control'}}
 
-                <span class="input-group-addon"">st knippen</span>
+                    <span class="input-group-addon"">st knippen</span>
+                </div>
             </div>
-        </div>
         </div>
         <div class="col-md-4">
 
-        <legend>Källa</legend>
+            <legend>Källa</legend>
 
-        <div class="form-group ">
-            <label>
-                Kultur
-            </label>
-            {{form.culture|add_class:'form-control'}}
-        </div>
-        <div class="form-group ">
-            <label>
-                Skördestatus
-            </label>
-{{form.culture_state|add_class:'form-control'}}
-
-        </div>
-
-
-        <div class="form-group ">
-
-            <label>
-                Skördad mängd
-            </label>
-            <div class="input-group">
-                {{form.harvested_length|add_class:'form-control'}}
-                <span class="input-group-addon"">bäddmeter</span>
-            </div>
-        </div>
-
-        <div class="form-group ">
-            <label>
-                {{form.harvest_state|add_class:'form-control'}}
-
-
-                Kommer att skörda mer av denna gröda till denna leverans
-            </label>
-
-        </div>
-
-    </div>
-
-            <div class="col-md-4">
-
-                <legend>Kommentar/avvikelse</legend>
+            <div class="form-group ">
                 <label>
-                    Avvikelser/kommentar (ej till kund)
+                    Kultur
                 </label>
-                {{form.comment|add_class:'form-control'}}
-
-
+                {{form.culture|add_class:'form-control'}}
+            </div>
+            <div class="form-group ">
+                <label>
+                    Skördestatus
+                </label>
+                {{form.culture_state|add_class:'form-control'}}
 
             </div>
 
+
+            <div class="form-group ">
+
+                <label>
+                    Skördad mängd
+                </label>
+                <div class="input-group">
+                    {{form.harvested_length|add_class:'form-control'}}
+                    <span class="input-group-addon"">bäddmeter</span>
+                </div>
+            </div>
+
+            <div class="form-group ">
+                <label>
+                    {{form.harvest_state|add_class:'form-control'}}
+
+
+                    Kommer att skörda mer av denna gröda till denna leverans
+                </label>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <legend>Kommentar/avvikelse</legend>
+            <label>
+                Avvikelser/kommentar (ej till kund)
+            </label>
+            {{form.comment|add_class:'form-control'}}
+
+
+        </div>
+
     </div>
-<div class="row">
-<div class="col-md-4 col-md-offset-8">
-    <input id="save_harvest_item" class="btn-primary btn btn-block" type="submit" value="Lägg till skörd"/>
-</div>
-</div>
+    <div class="row">
+        <div class="col-md-4 col-md-offset-8">
+            <input id="save_harvest_item" class="btn-primary btn btn-block" type="submit" value="Lägg till skörd"/>
+        </div>
+    </div>
 </form>
+
+<!-- Lista tidigare leveranser -->
 <h2>tidigare registrerade</h2>
 <div id="prev-harvested">
     <table class="table">

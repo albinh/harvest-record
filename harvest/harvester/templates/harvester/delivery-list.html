@@ -1,82 +1,77 @@
 {% extends "harvester/base.html" %}
 {% block content %}
-{% include "harvester/harvest-item-modal.html" %}
+
 <div class="container">
-<div id="d-list">
+    <div id="d-list">
 
-    <table id="data-table" class="table" cellspacing="0" >
-        <thead>
-        <tr>
-            <th style="width:10em">Kund</th>
-            <th style="width:10em">Önskat leveransdatum</th>
-            <th>Grödor</th>
-            <th style="width:10em"></th>
-        </tr>
+        <table id="data-table" class="table" cellspacing="0">
+            <thead>
+                <tr>
+                    <th style="width:10em">Kund</th>
+                    <th style="width:10em">Önskat leveransdatum</th>
+                    <th>Grödor</th>
+                    <th style="width:10em"></th>
+                </tr>
 
-        </thead>
-        <tbody>
-        {% for delivery in object_list %}
+            </thead>
+            <tbody>
+            {% for delivery in object_list %}
 
-        <tr>
+                <tr>
 
-            <td class="customer"><a href="{% url 'delivery-edit' delivery.id %}">{{ delivery.customer}}</a></td>
-            <td class="date">{{delivery.target_date}}</td>
-            <td class="crop">
+                    <td class="customer"><a href="{% url 'delivery-edit' delivery.id %}">{{ delivery.customer}}</a></td>
+                    <td class="date">{{delivery.target_date}}</td>
+                    <td class="crop">
+                        {% for i in delivery.deliveryitem_set.all %}
+                            {%if i.pk%}
+                                <a class="" role="button"
+                                   href="{%url "delivery-edit-harvests" i.pk request.get_full_path|urlencode:"" %}" >
+
+                                <div id="harvest-button-{{i.pk}}" data-id="{{i.pk}}"
+                                     data-query-url="{% url 'deliveries_harvest_for_delivery' %}"
+                                     style="margin-right:1em;display:inline;width:auto;padding-left:5px;padding-right:5px">
+                                    {{i.cropform.crop.crop}}
+                                    <span class="harvested">0</span>/<span class="target">0</span> <span class="unit">kg</span>
+                                </div>
+                                </a>
 
 
 
-                {% for i in delivery.deliveryitem_set.all %}
-                               {%if i.pk%}
-<a class="" role="button"
-                            href="{%url "delivery-edit-harvests" i.pk request.get_full_path|urlencode:""  %}"                   >
+                            {%endif%}
+                            <script>
+                                {%if i.pk%}
+                                $( document ).ready(function() {
+                                    reload_harvest_button("harvest-button-{{i.pk}}");
+                                    })
+                                    {%endif%}
 
-    <div id="harvest-button-{{i.pk}}"  data-id="{{i.pk}}" data-query-url="{% url 'deliveries_harvest_for_delivery' %}" style="margin-right:1em;display:inline;width:auto;padding-left:5px;padding-right:5px">
-  {{i.cropform.crop.crop}}
-    <span class="harvested">0</span>/<span class="target">0</span> <span class="unit">kg</span>
-        </div>
-            </a>
-                {%endif%}
-                <script>
-                {%if i.pk%}
-                $( document ).ready(function() {
-                    reload_harvest_button("harvest-button-{{i.pk}}");
-                    })
-                    {%endif%}
-                </script>
-
+                            </script>
                         {% endfor %}
-            </td>
-            <td>
-                <span class="glyphicon glyphicon-trash"></span>
+                    </td>
 
-<span class="glyphicon glyphicon-pencil"></span>
-                <span class="glyphicon glyphicon-print"></span>
-                <span class="glyphicon glyphicon-ok"></span>
-            </td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<script>
-
-
-
-$(document).ready(function() {
-    $('#data-table').DataTable(
-        {
-            "paging":false
-        }
-    );
-
-} );
-
-
-
-</script>
-
-
-
+                    <td>
+                        <span class="glyphicon glyphicon-trash"></span>  <!--TODO: ta bort delivery -->
+                        <span class="glyphicon glyphicon-pencil"></span> <!--TODO: länk till redigera  -->
+                        <span class="glyphicon glyphicon-print"></span> <!--TODO: Skriv ut följesdel -->
+                        <span class="glyphicon glyphicon-ok"></span>    <!--TODO: Markera som färdig för leverans -->
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#data-table').DataTable(
+                {
+                    "paging":false
+                }
+            );
+
+        } );
+    </script>
+
+
+</div>
 {% endblock %}
