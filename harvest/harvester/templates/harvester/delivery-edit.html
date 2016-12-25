@@ -132,7 +132,7 @@ $("#crop-select").trigger("change");
 
 
 
-                    <a
+                    <a data-id="{{i.pk}}"
                             href="{%url "delivery-edit-harvests" di.pk request.get_full_path|urlencode:""  %}"                   >
                     <span class="glyphicon glyphicon-download-alt"> </span><span class="relation">{{di.harvest_relation}}</span></a>
 
@@ -190,7 +190,7 @@ $("#crop-select").trigger("change");
     ></a>
 
     </td>
-    <td><span class="discount">0%</span></td>
+
 <td> <a href="#"
             class="editable delivery_comment"
             data-pk="{{di.pk}}"

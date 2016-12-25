@@ -22,11 +22,18 @@
             <td class="customer"><a href="{% url 'delivery-edit' delivery.id %}">{{ delivery.customer}}</a></td>
             <td class="date">{{delivery.target_date}}</td>
             <td class="crop">
+
+
+
                 {% for i in delivery.deliveryitem_set.all %}
                                {%if i.pk%}
-<a class="btn btn-primary btn-sm" role="button" id="harvest-button-{{i.pk}}"
+<a class="" role="button"
                             href="{%url "delivery-edit-harvests" i.pk request.get_full_path|urlencode:""  %}"                   >
-{{i.cropform.crop.crop}} <span class="harvested">0</span>/<span class="target">0</span> <span class="unit">kg</span>
+
+    <div id="harvest-button-{{i.pk}}"  data-id="{{i.pk}}" data-query-url="{% url 'deliveries_harvest_for_delivery' %}" style="margin-right:1em;display:inline;width:auto;padding-left:5px;padding-right:5px">
+  {{i.cropform.crop.crop}}
+    <span class="harvested">0</span>/<span class="target">0</span> <span class="unit">kg</span>
+        </div>
             </a>
                 {%endif%}
                 <script>
@@ -40,17 +47,11 @@
                         {% endfor %}
             </td>
             <td>
-                <div class="dropdown" >
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"">Ändra <span class="caret"></span></button></i></button>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Redigera leverans</a></li>
-                            <li><a href="#">Markera som levererad</a></li>
-                            <li><a href="#">Skriv ut följesedel</a></li>
-                            <li><a href="#">Markera som levererad</a></li>
-                            <li><a href="#">Ta bort leverans</a></li>
-                        </ul>
+                <span class="glyphicon glyphicon-trash"></span>
 
-                </div>
+<span class="glyphicon glyphicon-pencil"></span>
+                <span class="glyphicon glyphicon-print"></span>
+                <span class="glyphicon glyphicon-ok"></span>
             </td>
         </tr>
         {% endfor %}
@@ -63,7 +64,11 @@
 
 
 $(document).ready(function() {
-    $('#data-table').DataTable();
+    $('#data-table').DataTable(
+        {
+            "paging":false
+        }
+    );
 
 } );
 

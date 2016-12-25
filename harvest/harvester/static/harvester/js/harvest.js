@@ -75,7 +75,7 @@ function reload_harvest_button(id) {
 
         switch (result.status) {
             case 0:
-                color="primary"
+                color="info"
                 break;
              case 1:
                 color="warning"
@@ -100,12 +100,12 @@ function reload_harvest_button(id) {
             h=btn.getElementsByClassName("relation")[0]
             if (h) {h.innerHTML=result.harvest_relation ; };
         } finally {}
-        btn.classList.remove("btn-primary");
-        btn.classList.remove("btn-warning");
-        btn.classList.remove("btn-success");
-        btn.classList.remove("btn-danger");
-        btn.classList.remove("btn-default");
-        btn.classList.add("btn-"+color)
+        btn.classList.remove("bg-primary");
+        btn.classList.remove("bg-warning");
+        btn.classList.remove("bg-success");
+        btn.classList.remove("bg-danger");
+        btn.classList.remove("bg-default");
+        btn.classList.add("bg-"+color)
 
 
     }
