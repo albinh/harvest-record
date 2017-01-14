@@ -80,18 +80,32 @@ class DeliveryNew ( RedirectView ):
     def get_redirect_url(self, *args, **kwargs):
         customer = get_object_or_404 ( Customer, pk=self.request.POST['customer'] )
         delivery_date = self.request.POST['date']
-        d = DeliverySingle ( )
+        type = self.request.POST['type']
+        d = Delivery ( )
         d.delivery_date = delivery_date
         d.customer = customer
+        d.type=type
         d.save ( )
         return reverse ( 'delivery-edit', args=[d.pk] )
 
+class DeliveryVariantNew(RedirectView):
+    def get_redirect_url(self,*args,**kwargs):
+        delivery = get_object_or_404 ( Delivery, id = self.kwargs['pk'])
 
-# Delivery - View to edit a DeliverySingle
-class Delivery(View):
+        v = DeliveryVariant()
+        v.count=0
+        v.delivery=delivery
+        v.save()
+        return reverse ( 'delivery-edit', args=[delivery.pk] )
+
+
+class DeliveryView(View):
     def crops(self):
         return [{'pk': None, 'name': 'välj gröda'}] \
                 + [{'pk': crop.pk, 'name': crop.crop} for crop in Crop.objects.all ( )]
+
+    def get(self,request,pk):
+        delivery = get_object_or_404(Delivery,pk=int(pk))
 
     def cropforms(self):
         cropform_data = {}
@@ -103,20 +117,23 @@ class Delivery(View):
                                         for cropform in CropForm.objects.filter(crop=crop.pk)
                                     ]
         return cropform_data
-
     def get(self, request,pk):
-        delivery = get_object_or_404(DeliverySingle,pk=int(pk))
+        delivery = get_object_or_404(Delivery,pk=int(pk))
         template = 'harvester/delivery-edit.html'
 
+        v=[{'name':chr(ord('A')+i),'variant':v} for i,v in enumerate(delivery.deliveryvariant_set.all())]
+
+        d=dir(delivery)
 
         context  = {'delivery':delivery,
                     'crops':self.crops(),
-                    'cropform_data':simplejson.dumps(self.cropforms())
+                    'cropform_data':simplejson.dumps(self.cropforms()),
+                    'variants':v
                     }
 
         return render ( request,
                         template,
-                       context )
+                        context )
 
 
     # Skapa en ny DeliveryItem
@@ -124,7 +141,7 @@ class Delivery(View):
         # TODO: ska skapa DeliveryItem verkligen vara här?
 
         cropform=get_object_or_404(CropForm, pk=int(request.POST['cropform']))
-        delivery =get_object_or_404(DeliverySingle, pk=pk)
+        delivery =get_object_or_404(Delivery, pk=pk)
 
         di = DeliveryItem(delivery=delivery,
                           cropform = cropform,
@@ -140,30 +157,69 @@ class Delivery(View):
         return HttpResponseRedirect ( request.path )
 
 
-# TODO: Vy för att ta bort leverans
-# TODO: Vy för att ta bort harvestitem
-
-
-
-
-
-
-
-
 
 
 class DeliveryList ( ListView ):
     template_name = 'harvester/delivery-list.html'
-    model = DeliverySingle
+    model = Delivery
 
 
+class HarvestItemDelete(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        id = self.kwargs['pk']
+        harvestitem = get_object_or_404 ( HarvestItem, pk=id )
+        deliveryitem = harvestitem.destination
+        harvestitem.delete()
+        return reverse("delivery-edit-harvests", args=[deliveryitem.pk, ""])
 
 
+class DeliverySingleDelete(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        id = self.kwargs['pk']
+        deliverysingle = get_object_or_404 ( Delivery, pk=id )
+        deliverysingle.delete()
+        return reverse("delivery-list")
+
+
+class DeliveryItemDelete(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        id = self.kwargs['pk']
+        deliveryitem=get_object_or_404 ( DeliveryItem, pk=id )
+        delivery = deliveryitem.delivery
+        deliveryitem.delete()
+        return reverse("delivery-edit", args=[delivery.pk])
+
+
+class HarvestItemUpdate(UpdateView):
+    model = HarvestItem
+    form_class = HarvestItemForm
+    template_name = 'harvester/delivery-edit-harvests.html'
+
+    def deliveryitem(self):
+        id = self.kwargs['pk']
+        return get_object_or_404 ( HarvestItem, pk=id ).destination
+
+    def prev_harvests(self):
+        pk = self.kwargs['pk']
+        return HarvestItem.objects.filter(destination_id=pk)
+
+    def get_success_url(self):
+        return unquote ( self.kwargs['url'] )
 
 class HarvestItemNew (CreateView):
     model = HarvestItem
     form_class = HarvestItemForm
     template_name = 'harvester/delivery-edit-harvests.html'
+
+
+    def deliveryitem(self):
+        id = self.kwargs['pk']
+        return get_object_or_404 ( DeliveryItem, pk=id )
+
+    def prev_harvests(self):
+        pk = self.kwargs['pk']
+        return HarvestItem.objects.filter(destination_id=pk)
+
 
     def post(self, request, *args, **kwargs):
         self.success_url =  unquote(self.kwargs['url'])
@@ -172,13 +228,10 @@ class HarvestItemNew (CreateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
 
-        id = self.kwargs['pk']
-        deliveryitem = get_object_or_404 ( DeliveryItem, pk=id )
-
         # the actual modification of the form
-        form.instance.destination = deliveryitem
+        form.instance.destination = self.deliveryitem()
 
         if form.is_valid():
             return self.form_valid(form)
         else:
-            return self.form_invalid(form)
+             return self.form_invalid(form)

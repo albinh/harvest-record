@@ -1,5 +1,5 @@
 {% extends "harvester/base.html" %}
-{% load static  placeholder widget_tweaks %}
+{% load static l10n placeholder widget_tweaks %}
 
 {%block container-type %}container{%endblock%}
 {% block title %}
@@ -81,31 +81,78 @@ Dialog för att lägga till grödor
 <!-- Här börjar huvudsidan -->
 
 <!-- Allmänn info -->
+
 <table class="table autowidth">
+
+
+
     <tr>
         <td>Kund:</td>
         <td>{{delivery.customer}}</td>
     </tr>
     <tr>
         <td>Leveransdatum:</td>
-        <td>{{delivery.target_date}}</td>
+        <td><a href="#"
+               class="editable"
+               data-type="combodate"
+               data-value="{{delivery.target_date|unlocalize}}"
+               data-combodate="{maxYear:2017}"
+               data-pk="{{delivery.pk}}"
+               data-url="{%url "delivery_edit_target_date" %}"
+            >
+                {{delivery.target_date}}</a>
+
+        </td>
     </tr>
-    <tr>
-        <td>Uppskattat värde:</td>
-        <td>2100kr</td>
-    </tr>
-    <tr>
-        <td>Värde skördat:</td>
-        <td>1932kr</td>
-    </tr>
+
 </table>
 
 
 <!-- Innehåll i leverans -->
-<table class="table autowidth">
+<table id="deliveryitemtable" class=" responsive data-table  table autowidth">
+
+    <thead>
+        <tr>
+            <td>Gröda</td>
+            <td>Återstår</td>
+
+            <td>Pris</td>
+            {%if delivery.type == 'B' %}<td>Mängd totalt</td>{%endif%}
+            <td>{%if delivery.type == 'B' %}Mängd / kasse {% else %}Mängd{%endif%}</td>
+            {% if delivery.type == 'B' %}
+
+                {% for v in variants %}
+                    <td>{{v.name}}<br/>
+                        <a href="#"
+               class="editable"
+               data-pk="{{v.variant.pk}}"
+               data-value="{{v.variant.count}}"
+               data-type="number"
+               data-url='/harvester/ajax/delivery_variant_edit_count'
+               data-name="delivery_variant_count"
+               data-emptytext="avvikelser"
+        ></a> st</td>
+                {% endfor %}
+            {% endif%}
+            <td><a href="{% url 'delivery_variant_new' delivery.pk %}"> <span class="glyphicon glyphicon-plus"></span></a></td>
+     <td>Värde/kasse</td>
+                        <td>Värde beställt</td>
+            <td>Värde skördat</td>
+            <td>Önskemål</td>
+            <td>Avvikelse</td>
+
+
+            <td></td>
+        </tr>
+
+    </thead>
+
+
+
     {% for di in delivery.deliveryitem_set.all %}
-    <tr>
+    <tr data-pk="{{di.pk}}">
         <td><b>{{di.cropform.crop}}</b> ({{di.cropform}})</td>
+
         <td>
 
 
@@ -117,28 +164,9 @@ Dialog för att lägga till grödor
                     {{di.harvest_relation}}
                 </span>
             </a>
-
-
         </td>
 
-        <td>
-            <a
-                    href="#"
-                    class="editable amount"
-                    data-type="amount_and_unit"
-                    data-pk="{{di.pk}}"
-                    data-value="{'amount': '{{di.order_amount}}','unit': '{{di.order_unit}}'}"
-                    {%if di.cropform.countable %}
-                    data-units='{"W":"kg","U":"{{di.cropform.form_name}}" }'
-                    {% else %}
-                    data-units='{"W":"kg" }'
-                    {% endif %}
-                    data-title="Ange mängd"
-                    data-url='/harvester/ajax/delivery_item_edit_amount'
-            >
-            </a>
 
-        </td>
         <td>
             <a
                     href="#"
@@ -158,6 +186,65 @@ Dialog för att lägga till grödor
 
             </a>
         </td>
+
+{% if delivery.type == 'B' %}
+        <td>
+            <span class="total_order_amount">-</span>
+        </td>
+        {%endif%}
+        <td>
+            <a
+                    href="#"
+                    class="editable amount"
+                    data-type="amount_and_unit"
+                    data-pk="{{di.pk}}"
+                    data-value="{'amount': '{{di.order_amount}}','unit': '{{di.order_unit}}'}"
+                    {%if di.cropform.countable %}
+                    data-units='{"W":"kg","U":"{{di.cropform.form_name}}" }'
+                    {% else %}
+                    data-units='{"W":"kg" }'
+                    {% endif %}
+                    data-title="Ange mängd"
+                    data-url='/harvester/ajax/delivery_item_edit_amount'
+            >
+            </a>
+
+        </td>
+            {% if delivery.type == 'B' %}
+                {% for v in di.variants %}
+                    <td>
+                        <a href="#"
+               class="editable"
+               data-pk="{{v.variant.pk}},{{di.pk}}"
+               data-value="1" data-source="[{ value:{{v.included}},text:'{{v.name}}'}]"
+               data-type="checklist"
+               data-title="ingår i kasse"
+               data-url='/harvester/ajax/delivery_variant_included'
+               data-name="delivery_variant_included"
+                           data-emptytext="-"
+        ></a> </td>
+                {% endfor %}
+
+                    <td></td>
+                                <td>
+                <span class="box_value">0</span> kr
+            </td>
+
+
+            {% endif%}
+
+
+
+        <td style="text-align:right">
+            <span class="ordered_value">0</span> kr
+        </td>
+
+
+        <td style="text-align:right">
+            <span class="harvested_value">0</span> kr
+        </td>
+
+
         <td><a href="#"
                class="editable order_comment"
                data-pk="{{di.pk}}"
@@ -183,16 +270,44 @@ Dialog för att lägga till grödor
         ></a>
 
         </td>
-        <td><span class="glyphicon glyphicon-trash"></span></td>
+
+        <td> <a data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "delivery-item-delete" di.pk %}"> <span class="glyphicon glyphicon-trash"></span></a></td>
     </tr>
 
     {%endfor%}
+    <tfoot>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            {%if delivery.type == 'B' %}
+            <td></td>
+                {% for v in variants %}
+                    <td>
+                        <span id="box_sum_value-{{v.variant.pk}}"> </span> kr<br>
+                        <span id="box_sum_count-{{v.variant.pk}}"></span> grödor
+
+                        <!--TODO: Uppdatera med AJAX-->
+                    </td>
+                {%endfor%}
+            {%endif%}
+
+            <td></td>
+            <td></td>
+            <td style="text-align:right"><span id="order_sum">0</span> kr</td>
+            <td style="text-align:right"><span id="harvested_sum">0</span> kr</td>
+        </tr>
+
+    </tfoot>
+
 </table>
 
 <a href="#" data-toggle="modal" data-target="#add_modal">
     <span class="glyphicon glyphicon-plus"></span>Lägg till gröda i beställning</a>
 
 <script src="{%static "harvester/js/pages/delivery-edit.js"%}"></script>
+
 
 
 

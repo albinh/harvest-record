@@ -52,11 +52,12 @@ $(function(){
                 $(element).empty();
                 return; 
             }
-
+            
 
             var units=JSON.parse(this.options.scope.dataset['units'])
             var unit = units[value.unit]
-            var html = $('<div>').text(value.amount).html() + ' ' + $('<div>').text(unit).html() ;
+            var pk = parseInt(this.options.scope.dataset['pk'])
+            var html = '<span class="amount">' +$('<div>').text(value.amount).html() + '</span><span class="unit">' + $('<div>').text(unit).html() +'</span><script>setTimeout(function(){recalc('+pk+')},200)</script>';
             $(element).html(html); 
         },
         
@@ -123,11 +124,11 @@ $(function(){
            if(!value) {
              return;
            }
-           this.$input.filter('[name="amount"]').val(value.amount);
+           this.$input.filter('[name="amount"]').val(parseFloat(value.amount));
 
            var units=JSON.parse(this.options.scope.dataset['units'])
            console.log(units)
-           if (Object.keys(units).length>1) {
+           if (Object.keys(units).length>0) {
                 var html = '<select name="unit" class="form-control">'
                 for (var key in units) {
                     var option = '<option value="W">'+units[key]+'</option>'

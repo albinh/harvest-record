@@ -1,11 +1,11 @@
 {% extends "harvester/base.html" %}
-{% load static  placeholder widget_tweaks %}
+{% load l10n static  placeholder widget_tweaks %}
 {% load widget_tweaks %}
 {%block container-type %}container{%endblock%}
 {% block content %}
 <h1>Registrera skörd</h1>
 <!-- TODO: Statisk text -->
-Morötter (knippe) till Granö beckasin (2016-01-01)
+{{view.deliveryitem.cropform.crop}} ({{ view.deliveryitem.cropform }}) till {{ view.deliveryitem.delivery.customer }} ({{ view.deliveryitem.delivery.target_date }})
 <form method="post" action="">
     {% if form.non_field_errors %}
     <div class="alert alert-danger">
@@ -31,22 +31,33 @@ Morötter (knippe) till Granö beckasin (2016-01-01)
 
 
                 <div class="input-group">
-                    <span class="input-group-addon" id="basic-addon2"><b>4</b>/18</span>
+                    <!-- TODO: visa beställt/skördat i rätt fällt vikt/st -->
+                    {% ifequal view.deliveryitem.order_unit "W" %}
+                        <span class="input-group-addon" id="basic-addon2"><b>{{  view.deliveryitem.harvest_relation }}</b>/ {{view.deliveryitem.total_order_amount}}</span>
+                    {% endifequal %}
                     {{form.weight|add_class:'form-control'}}{{form.weight.errors}}
 
 
-                    <span class="input-group-addon" id="basic-addon2">kg</span>
+                    <span class="input-group-addon" id="basic-addon2">kg {{view.deliveryitem.cropform.crop}}</span>
                 </div>
             </div>
             <div class="form-group ">
+                {% if view.deliveryitem.cropform.countable %}
+
                 <label>
                     Antal
                 </label>
                 <div class="input-group">
+                    {% ifequal view.deliveryitem.order_unit "U" %}
+                        <span class="input-group-addon" id="basic-addon2"><b>{{  view.deliveryitem.harvest_relation }}</b>/ {{view.deliveryitem.total_order_amount}}</span>
+                    {% endifequal %}
+
                     {{form.count|add_class:'form-control'}}
 
-                    <span class="input-group-addon"">st knippen</span>
+                    <span class="input-group-addon"">st {{view.deliveryitem.cropform}}</span>
                 </div>
+                {% endif %}
+                {{form.count.errors}}
             </div>
         </div>
         <div class="col-md-4">
@@ -57,6 +68,7 @@ Morötter (knippe) till Granö beckasin (2016-01-01)
                 <label>
                     Kultur
                 </label>
+                <!-- TODO: om det bara finns en kultur, använd den. -->
                 {{form.culture|add_class:'form-control'}}
             </div>
             <div class="form-group ">
@@ -64,7 +76,7 @@ Morötter (knippe) till Granö beckasin (2016-01-01)
                     Skördestatus
                 </label>
                 {{form.culture_state|add_class:'form-control'}}
-
+                <!-- Skördeklar bör vara standard -->
             </div>
 
 
@@ -82,8 +94,6 @@ Morötter (knippe) till Granö beckasin (2016-01-01)
             <div class="form-group ">
                 <label>
                     {{form.harvest_state|add_class:'form-control'}}
-
-
                     Kommer att skörda mer av denna gröda till denna leverans
                 </label>
 
@@ -105,12 +115,13 @@ Morötter (knippe) till Granö beckasin (2016-01-01)
     </div>
     <div class="row">
         <div class="col-md-4 col-md-offset-8">
-            <input id="save_harvest_item" class="btn-primary btn btn-block" type="submit" value="Lägg till skörd"/>
+            <input id="save_harvest_item" class="btn-primary btn btn-block" type="submit"
+                   value="{% if view.object.pk %}Ändra skörd{%else%}Lägg till skörd{%endif%}"/>
+
         </div>
     </div>
 </form>
 
-<!-- Lista tidigare leveranser -->
 <h2>tidigare registrerade</h2>
 <div id="prev-harvested">
     <table class="table">
@@ -118,21 +129,55 @@ Morötter (knippe) till Granö beckasin (2016-01-01)
         <tr>
             <th>Kultur</th>
             <th>kg</th>
+            {% if view.deliveryitem.cropform.countable %}
             <th>st</th>
+            {% endif %}
             <th>m</th>
             <th>d</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
+
+        {% for harvest in view.prev_harvests %}
+
+
+
+
         <tr>
-            <td>B1</td>
-            <td>2.0kg</td>
-            <td>4st</td>
-            <td>5m</td>
-            <td>16-01-01</td>
+            <td>{{harvest.culture}}</td>
+            <td>{{harvest.weight}} kg</td>
+            {% if view.deliveryitem.cropform.countable %}
+            <td>{{harvest.count}} st</td>
+            {% endif %}
+            <td>{{harvest.harvested_length}}</td>
+            <td>{{harvest.time}}</td>
+            <td>        <a data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "harvest-item-delete" harvest.pk %}"><span class="glyphicon glyphicon-trash"></span></a>
+                        <a href="{%url "delivery-edit-harvests-update" harvest.pk request.get_full_path|urlencode:"" %}"><span class="glyphicon glyphicon-pencil"></span></a> </td>
+        </tr>
+
+        {% endfor %}
+
+
+
+        </tbody>
+        <tfoot>
+                <tr>
+            <td>
+                skördat
+            </td>
+            <td>
+                {{view.deliveryitem.harvested_weight}} kg
+            </td>
+                        {% if view.deliveryitem.cropform.countable %}
+            <td> {{view.deliveryitem.harvested_count}} st</td>
+                    {% endif %}
+                    <td></td>
+                    <td></td>
+
 
         </tr>
-        </tbody>
+</tfoot>
     </table>
 </div>
 {%endblock%}

@@ -2,7 +2,6 @@ from django.db import models
 from datetime import datetime
 from django.db.models import Sum, Max, Min
 
-
 class Crop (models.Model):
     crop    = models.CharField(max_length=100)
     def __str__(self):
@@ -18,21 +17,16 @@ class CropForm(models.Model):
 
     is_default = models.BooleanField(default=False)
 
-
-
-
 class CustomerCategory (models.Model):
     name= models.CharField(max_length=50)
     def __str__(self):
         return self.name
-
 
 class Customer (models.Model):
     name = models.CharField(max_length=100)
     def __str__(self):
         return self.name
     category = models.ForeignKey(CustomerCategory, on_delete=models.CASCADE)
-
 
 class PriceListItem (models.Model):
     category = models.ForeignKey(CustomerCategory, on_delete=models.CASCADE)
@@ -68,21 +62,49 @@ class Culture (models.Model):
     harvest_state = models.IntegerField(choices=HARVEST_CHOICES, default=1)
 
 
-class DeliverySingle (models.Model):
+class Delivery (models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     target_date = models.DateField(default=datetime.now)
     delivery_date = models.DateField(null=True, blank=True)
     def __str__(self):
         return '%s (%s)' % (self.customer.name, self.target_date.strftime("%B %d"))
 
+    DELIVERY_TYPES = (
+        ('N','normal'),
+        ('B','box')
+    )
 
+    type = models.CharField(max_length=1,choices=DELIVERY_TYPES,default='N')
 
+    def save(self, force_insert=False, force_update=False):
+        is_new = self.pk is None
+        super(Delivery, self).save(force_insert, force_update)
+        if is_new:
+            DeliveryVariant.objects.create(delivery=self, count=1)
 
+    def total_order_value(self):
+        sum=0
+        for di in self.deliveryitem_set.all():
+            sum=sum+di.ordered_value()
+        return sum
+    def total_harvested_value(self):
+        sum=0
+        for di in self.deliveryitem_set.all():
+            sum=sum+di.harvested_value()
+        return sum
 
+    def box_values_and_counts(self):
+        d=[]
+        for v in self.deliveryvariant_set.all():
+            d.append({ 'count':v.crop_count(),'value':v.value(),'pk':v.pk   })
+        return d
+
+    def variant_count(self):
+        return self.deliveryvariant_set.count()
 
 class DeliveryItem (models.Model):
     cropform = models.ForeignKey(CropForm)
-    delivery = models.ForeignKey(DeliverySingle)
+    delivery = models.ForeignKey(Delivery)
     order_amount = models.DecimalField(max_digits=5,decimal_places=1)
 
     PRICE_CHOICES = (
@@ -102,8 +124,39 @@ class DeliveryItem (models.Model):
     order_comment = models.CharField(max_length=100, default="", blank=True)
     delivery_comment = models.CharField(max_length=100, default="", blank=True)
 
+    def ordered_value(self):
+        if self.order_unit=='W':
+            if self.price_type=='W':
+                return self.total_order_amount()*self.price
+            elif self.price_type=='U':
+                return self.total_order_amount()/self.cropform.weight_of_one_unit*self.price
+        elif self.order_unit=='U':
+            if self.price_type=='W':
+                return self.total_order_amount()*self.cropform.weight_of_one_unit*self.price
+            elif self.price_type=='U':
+                return self.total_order_amount()*self.price
+
+    def harvested_value(self):
+        if self.price_type=='W':
+            return self.harvested_amount()*self.price
+        elif self.price_type=='U':
+            return self.harvested_count()*self.price
+
+    def box_value(self):
+        if self.order_unit == 'W':
+            if self.price_type == 'W':
+                return self.order_amount  * self.price
+            elif self.price_type == 'U':
+                return self.order_amount / self.cropform.weight_of_one_unit * self.price
+        elif self.order_unit == 'U':
+            if self.price_type == 'W':
+                return self.order_amount  * self.cropform.weight_of_one_unit * self.price
+            elif self.price_type == 'U':
+                return self.order_amount  * self.price
+
+
     def harvest_relation(self):
-        return self.harvested_amount()-self.order_amount
+        return self.harvested_amount()-self.total_order_amount()
 
     NOTHING    = 0
     TOO_LITTLE = 1
@@ -111,7 +164,7 @@ class DeliveryItem (models.Model):
     TOO_MUCH   = 3
 
     def status(self):
-        q = self.harvested_amount()/self.order_amount
+        q = self.harvested_amount()/self.total_order_amount()
         if self.order_unit=="W":
             h=0.1 # allow 10% differ if calculated in weight
         else:
@@ -143,7 +196,6 @@ class DeliveryItem (models.Model):
         else:
             raise
 
-
     def harvested_amount(self):
         if self.order_unit=="W":
             a= self.harvested_weight()
@@ -166,28 +218,49 @@ class DeliveryItem (models.Model):
         if a==None:
             return 0
         return a
+    def total_order_amount(self):
+        count = 0
+        variants = DeliveryVariant.objects.filter(delivery=self.delivery)
+        for variant in variants:
+            if not variant.extempt.filter(id=self.pk).exists():
+                count = count + variant.count
+        return self.order_amount*count
 
-class BasketItem (DeliveryItem):
-    in_1 = models.BooleanField ( )
-    in_2 = models.BooleanField ( )
-    in_3 = models.BooleanField ( )
-    in_4 = models.BooleanField ( )
-    in_5 = models.BooleanField ( )
-    in_6 = models.BooleanField ( )
-    in_7 = models.BooleanField ( )
-    in_8 = models.BooleanField ( )
-    each_amount = models.DecimalField(max_digits=5,decimal_places=1)
 
-class DeliveryBasket(DeliverySingle):
-    c_1 = models.PositiveSmallIntegerField(default=0)
-    c_2 = models.PositiveSmallIntegerField ( default=0 )
-    c_3 = models.PositiveSmallIntegerField ( default=0 )
-    c_4 = models.PositiveSmallIntegerField ( default=0 )
-    c_5 = models.PositiveSmallIntegerField ( default=0 )
-    c_6 = models.PositiveSmallIntegerField ( default=0 )
-    c_7 = models.PositiveSmallIntegerField ( default=0 )
-    c_8 = models.PositiveSmallIntegerField ( default=0 )
+    def variants(self):
+        variants = self.delivery.deliveryvariant_set.all()
+        v=[]
+        j=0
+        for variant in variants:
+            i=0
+            if not variant.extempt.filter ( id=self.pk ).exists ( ):
+                i=1
 
+            c=chr(ord('A')+j)
+            j=j+1
+            v.append({'name':c,'included':i,'variant':variant})
+        return v
+
+
+class DeliveryVariant (models.Model):
+    delivery     = models.ForeignKey(Delivery)
+    count        = models.DecimalField(max_digits=5, decimal_places=0)
+    extempt      = models.ManyToManyField(DeliveryItem)
+    def value(self):
+        value=0
+        for di in self.delivery.deliveryitem_set.all():
+            if not di in self.extempt.all():
+                value=value+di.box_value()
+
+        return value
+
+    def crop_count(self):
+        count=0
+        for di in self.delivery.deliveryitem_set.all():
+            if not di in self.extempt.all():
+                count=count+1
+
+        return count
 
 class HarvestItem (models.Model):
     harvested_length = models.DecimalField(max_digits=4, decimal_places=1)
@@ -195,4 +268,5 @@ class HarvestItem (models.Model):
     comment = models.CharField(max_length=500, blank=True)
     destination = models.ForeignKey(DeliveryItem)
     weight = models.DecimalField(max_digits=5,decimal_places=1)
-    count = models.DecimalField(max_digits=5, decimal_places=0)
+    count = models.DecimalField(max_digits=5, decimal_places=0,blank=True,null=True)
+    time = models.DateTimeField(auto_now_add=True)

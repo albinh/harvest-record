@@ -1,5 +1,10 @@
 // Vid förändring av någon av element i arrayen from skicka ett ajax-request till url.
-
+$(function() {
+$('[data-toggle=confirmation]').confirmation({
+  rootSelector: '[data-toggle=confirmation]',
+  // other options
+});
+})
 function ajax_populate_select(url, froms, to, prefix="",initial=false) {
 
 	function setCallback(f) {
@@ -134,3 +139,4 @@ $.fn.animateHighlight = function(highlightColor, duration) {
         setTimeout( function() { notLocked = true; }, animateMs);
     }
 };
+
