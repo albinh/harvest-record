@@ -7,6 +7,11 @@ class Crop (models.Model):
     def __str__(self):
         return '%s' % (self.crop)
 
+class CustomerCategory (models.Model):
+    name= models.CharField(max_length=50)
+    def __str__(self):
+        return self.name
+
 class CropForm(models.Model):
     crop = models.ForeignKey(Crop, on_delete=models.CASCADE,related_name="cropforms")
     form_name = models.CharField(max_length=40)
@@ -16,11 +21,9 @@ class CropForm(models.Model):
     countable = models.BooleanField()
 
     is_default = models.BooleanField(default=False)
+    prices = models.ManyToManyField ( CustomerCategory, through='PriceItem' )
 
-class CustomerCategory (models.Model):
-    name= models.CharField(max_length=50)
-    def __str__(self):
-        return self.name
+
 
 class Customer (models.Model):
     name = models.CharField(max_length=100)
@@ -196,6 +199,23 @@ class DeliveryItem (models.Model):
         else:
             raise
 
+    def harvested_unit_text(self):
+        if self.order_unit=="W":
+            return "kg"
+        elif self.order_unit=="U":
+            return self.cropform.form_name
+        else:
+            raise
+
+    def price_unit_text(self):
+        if self.order_unit=="W":
+            return "kr/kg"
+        elif self.order_unit=="U":
+            return "kr/"+self.cropform.form_name
+        else:
+            raise
+
+
     def harvested_amount(self):
         if self.order_unit=="W":
             a= self.harvested_weight()
@@ -240,6 +260,29 @@ class DeliveryItem (models.Model):
             j=j+1
             v.append({'name':c,'included':i,'variant':variant})
         return v
+    def listed_price(self):
+        try:
+            pi=PriceItem.objects.get(customercategory=self.delivery.customer.category, cropform=self.cropform)
+        except:
+            pi=PriceItem(price=0,unit="W")
+        return pi
+    def is_price_as_listed(self):
+        pi=self.listed_price()
+        return pi.price==self.price and pi.unit==self.price_type
+
+        
+
+
+class PriceItem (models.Model):
+    customercategory = models.ForeignKey(CustomerCategory)
+    cropform         = models.ForeignKey(CropForm)
+    price            = models.DecimalField(max_digits=5,decimal_places=2)
+
+    PRICE_CHOICES = (
+        ('W', 'kr/kg'),
+        ('U', 'kr/st')
+    )
+    unit     = models.CharField(max_length=1, choices=PRICE_CHOICES, default="W", null=True)
 
 
 class DeliveryVariant (models.Model):

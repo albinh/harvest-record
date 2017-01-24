@@ -24,10 +24,7 @@
           integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
 
-    <!-- Datatables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css"/>
-    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-confirmation/1.0.5/bootstrap-confirmation.js"></script>
 
@@ -43,7 +40,6 @@
     <script src="{% static "harvester/js/editable/amount_and_unit.js" %}"> </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment-with-locales.min.js"></script>
-    <script src="https://cdn.datatables.net/plug-ins/1.10.13/sorting/num-html.js"></script>
 
     <link rel="stylesheet" href="{% static "harvester/css/harvester.css" %}" />
 </head>
@@ -73,7 +69,7 @@
                 <ul class="nav navbar-nav">
                     <li><a data-toggle="modal" data-target="#add_delivery_modal" >Registrera ny leverans</a></li>
                     <li><a href="{% url "delivery-list" %}">Lista leveranser</a></li>
-
+                    <li><a href="{%url "crops-prices"%}">Grödor/priser</a></li>
                 </ul>
 
             </div><!-- /.navbar-collapse -->

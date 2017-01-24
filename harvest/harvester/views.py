@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.utils import timezone
 from django.views.generic import CreateView, UpdateView, ListView, View,RedirectView
+from django.views.generic import DetailView
 from extra_views import ModelFormSetView
 
 from .forms import *
@@ -79,10 +80,10 @@ class CropEdit ( UpdateView ):
 class DeliveryNew ( RedirectView ):
     def get_redirect_url(self, *args, **kwargs):
         customer = get_object_or_404 ( Customer, pk=self.request.POST['customer'] )
-        delivery_date = self.request.POST['date']
+        target_date = self.request.POST['date']
         type = self.request.POST['type']
         d = Delivery ( )
-        d.delivery_date = delivery_date
+        d.target_date = target_date
         d.customer = customer
         d.type=type
         d.save ( )
@@ -125,6 +126,8 @@ class DeliveryView(View):
 
         d=dir(delivery)
 
+
+
         context  = {'delivery':delivery,
                     'crops':self.crops(),
                     'cropform_data':simplejson.dumps(self.cropforms()),
@@ -134,6 +137,7 @@ class DeliveryView(View):
         return render ( request,
                         template,
                         context )
+
 
 
     # Skapa en ny DeliveryItem
@@ -150,12 +154,92 @@ class DeliveryView(View):
                           price=0,
                           price_type="W"  # TODO: sätt pris och pristyp efter prislista
                           )
-
+        p = di.listed_price()
+        di.price=p.price
+        di.price_type=p.unit
         di.save()
 
         # skicka tillbaka till föregående
         return HttpResponseRedirect ( request.path )
 
+class DeliverySetDelivered( RedirectView):
+    def get_redirect_url(self, *args, **kwargs ):
+        id = self.kwargs['pk']
+        delivery = get_object_or_404 ( Delivery, pk=id )
+        date = type = self.request.POST['date']
+
+        delivery.delivery_date=date
+        delivery.save()
+        return reverse("delivery-spec", args=[delivery.pk])
+
+
+class CropNew(RedirectView):
+    def get_redirect_url(self,*args,**kwargs):
+        name = self.request.POST['name']
+
+        cf=Crop.objects.create(crop=name)
+        return(reverse('crops-prices'))
+
+class CustomerCategoryNew(RedirectView):
+    def get_redirect_url(self,*args,**kwargs):
+        name = self.request.POST['name']
+
+        cf=CustomerCategory.objects.create(name=name)
+        return(reverse('crops-prices'))
+
+
+class cropform_new(RedirectView):
+    def get_redirect_url(self,*args,**kwargs):
+        crop = get_object_or_404( Crop, pk=self.request.POST['cropid'])
+        name = self.request.POST['name']
+        countable = self.request.POST['countable']=="on"
+        weight_of_one_unit = float(self.request.POST['weightofoneunit'])
+
+        cf=CropForm.objects.create(form_name=name, countable=countable, weight_of_one_unit=weight_of_one_unit, crop=crop)
+        return(reverse('crops-prices'))
+
+class CropsPrices(View):
+    def get(self,request):
+        template = "harvester/cropsprices.html"
+        categories = []
+        crops = []
+        for category in CustomerCategory.objects.all():
+            categories.append({'category':category.name,
+                               'customers':category.customer_set.all()
+                               })
+
+        for crop in Crop.objects.all():
+            cropforms = []
+            for cropform in crop.cropforms.all():
+                prices = []
+                for category in CustomerCategory.objects.all():
+                    pi = PriceItem.objects.filter(customercategory=category,cropform=cropform).first()
+                    prices.append( {'priceitem':pi, 'category':category } )
+                cropforms.append (
+                    {
+                        "prices":prices,
+                        "cropform":cropform
+                    }
+
+                )
+            crops.append ( {
+                "crop":crop,
+                "cropforms":cropforms
+            })
+        context  = {
+                    'categories':categories,
+                    'crops':crops,
+
+                    }
+
+        return render ( request,
+                        template,
+                        context )
+
+
+class DeliverySpec ( DetailView ):
+    model = Delivery
+    template_name = "harvester/delivery-spec.html"
 
 
 
@@ -235,3 +319,5 @@ class HarvestItemNew (CreateView):
             return self.form_valid(form)
         else:
              return self.form_invalid(form)
+
+class BedsAndCultures (View):

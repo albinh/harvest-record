@@ -43,3 +43,17 @@ input[type="checkbox"] {
     color:#CCCCCC; !important;
     border-bottom: dashed 1px #CCCCCC !important;
 }
+
+.pricetable {
+border-width:0 !important;
+}
+
+
+
+
+tr.cropstart>td {
+    padding-bottom:5em !important;
+    border-collapse:separate;
+    border-collapse:separate;
+    border-spacing:5em;
+}

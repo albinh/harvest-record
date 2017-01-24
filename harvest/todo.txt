@@ -1,24 +1,15 @@
-- Delivery/Edit: Ta bort rad
-
-- Delivery/Edit: Värde. Prognos och utfall
 - Delivery/Edit: Markera skörden skickad. / lås
-
-
 - Delivery/Edit: Varning vid ändring av mängd om redan skördat
 
-- Delivery/List: Färger på knappar.
-
 - Prislista
-
-- CSA-skördeplanering
 
 - Skördschema
 
 - kasserat/Eget uttag
 
-Prislista
+- Prislista
 
-Följesedel - utskrift
+- Följesedel - utskrift
 
 - Markera aktuella kulturer
 

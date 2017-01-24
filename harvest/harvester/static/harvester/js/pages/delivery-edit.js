@@ -4,6 +4,7 @@ function recalc(pk ) {
         	result = JSON.parse(response);
 
             if (result) {
+                $('tr[data-pk='+result.pk+'] .price_state').toggleClass('bg-danger', !result.is_price_as_listed)
                 $('tr[data-pk='+result.pk+'] .ordered_value' ).html(result.ordered_value )
                 $('tr[data-pk='+result.pk+'] .harvested_value').html(result.harvested_value)
                 $('tr[data-pk='+result.pk+'] .box_value').html(result.box_value)
@@ -38,8 +39,11 @@ function recalc(pk ) {
 
 $(function(){
     $.fn.editable.defaults.placement = 'auto top';
-
+    if (is_delivered) {
+    $.fn.editable.defaults.disabled = true;
+    }
     $.fn.editable.defaults.params = {csrfmiddlewaretoken:csrf_token}
+    console.log("test")
     $('.editable').editable();
 });
 

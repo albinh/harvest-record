@@ -1,69 +1,66 @@
 {% extends "harvester/base.html" %}
 {% block content %}
 <!--
-// TODO: fix formating.
 // TODO: fix delete/add
 // TODO: fix default.
 -->
-<form action="" method="POST" class="uk-form uk-form-horizontal" novalidate>
-  {% csrf_token %}
+    <form action="" method="POST" class="uk-form uk-form-horizontal" novalidate>
+      {% csrf_token %}
 
 
-{% if form.instance.pk %}
-    <h1>Redigera gröda: {{object.crop}} </h1>
-{% else %}
+        {% if form.instance.pk %}
+            <h1>Redigera gröda: {{object.crop}} </h1>
+        {% else %}
 
-<h1>Ny gröda</h1>
-<div class="uk-form-row">
-<label class="uk-form-label">Namn</label>{{ form.crop.errors }}
+            <h1>Ny gröda</h1>
+            <div class="uk-form-row">
+                <label class="uk-form-label">Namn</label>{{ form.crop.errors }}
 
-<div class="uk-form-controls">{{ form.crop}}</div>
-  </div>
-{% endif %}
-    {% for hidden in form.hidden_fields %}
-{{ hidden }}
-{% endfor %}
+                <div class="uk-form-controls">{{ form.crop}}</div>
+            </div>
+        {% endif %}
+        {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+        {% endfor %}
 
-                {{ cropform_form.management_form }}
-                {{ cropform_form.non_form_errors }}
-<div class="table">
-<table class="uk-table" >
+        {{ cropform_form.management_form }}
+        {{ cropform_form.non_form_errors }}
+        <div class="table">
+            <table class="uk-table" >
 
+                <tr>
+                    <th>Beteckning</th>
+                    <th>vikt/enhet</th>
+                    <th>Kan räknas</th>
+                    <th>Förstahandsval</th>
+                    <th>Radera</th>
+                </tr>
 
+                {% for cropform in cropform_form %}
 
+                    <tr>
+                        <td>{{cropform.form_name}} {{cropform.form_name.errors}} </td>
+                        <td>{{cropform.weight_of_one_unit}} {{cropform.weight_of_one_unit.errors}} </td>
+                        <td>{{cropform.countable}} {{cropform.countable.errors}} </td>
 
-    <tr>
-        <th>Beteckning</th>
-        <th>vikt/enhet</th>
-    <th>Kan räknas</th>
-    <th>Förstahandsval</th>
-<th>Radera</th>
-</tr>
-
-{% for cropform in cropform_form %}
-
-<tr>
-<td>{{cropform.form_name}} {{cropform.form_name.errors}} </td>
-<td>{{cropform.weight_of_one_unit}} {{cropform.weight_of_one_unit.errors}} </td>
-<td>{{cropform.countable}} {{cropform.countable.errors}} </td>
-
-<td>{{cropform.is_default}} {{cropform.is_default.errors}} </td>
+                        <td>{{cropform.is_default}} {{cropform.is_default.errors}} </td>
 
 
-<td>            {% if cropform.can_delete %}
-                asdf{{ cropform.DELETE }}
-            {% endif %}
-</td>
+                        <td>
+                            {% if cropform.can_delete %}
+                                asdf{{ cropform.DELETE }}
+                            {% endif %}
+                        </td>
 
-    {% for hidden in cropform.hidden_fields %}
-{{ hidden }}
-{% endfor %}
-</tr>
-{% endfor %}
+                        {% for hidden in cropform.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
 
-</table>
-</div>
-  <input id="save_harvest_item" type="submit" value="Save" />
+            </table>
+        </div>
+        <input id="save_harvest_item" type="submit" value="Save" />
 
-</form>
+    </form>
 {% endblock %}

@@ -51,7 +51,7 @@
 
                     <td>
                         <a data-toggle="confirmation" data-title="Ta bort leverans?" data-href="{%url "delivery-delete" delivery.pk %}"> <span class="glyphicon glyphicon-trash"></span></a>
-                        <span class="glyphicon glyphicon-pencil"></span> <!--TODO: länk till redigera  -->
+                        <a href="{% url 'delivery-edit' delivery.id %}"><span class="glyphicon glyphicon-pencil"></span></a> <!--TODO: länk till redigera  -->
                         <span class="glyphicon glyphicon-print"></span> <!--TODO: Skriv ut följesdel -->
                         <span class="glyphicon glyphicon-ok"></span>    <!--TODO: Markera som färdig för leverans -->
                     </td>

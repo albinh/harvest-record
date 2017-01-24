@@ -24,7 +24,7 @@ class DeliveryItemInline(admin.TabularInline):
     model=DeliveryItem
 
 
-
+admin.site.register(Delivery)
 admin.site.register(PriceListItem)
 admin.site.register(Culture)
 admin.site.register(Bed)

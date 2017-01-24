@@ -4,7 +4,7 @@
 {%block container-type %}container{%endblock%}
 {% block content %}
 <h1>Registrera skörd</h1>
-<!-- TODO: Statisk text -->
+
 {{view.deliveryitem.cropform.crop}} ({{ view.deliveryitem.cropform }}) till {{ view.deliveryitem.delivery.customer }} ({{ view.deliveryitem.delivery.target_date }})
 <form method="post" action="">
     {% if form.non_field_errors %}
@@ -31,7 +31,6 @@
 
 
                 <div class="input-group">
-                    <!-- TODO: visa beställt/skördat i rätt fällt vikt/st -->
                     {% ifequal view.deliveryitem.order_unit "W" %}
                         <span class="input-group-addon" id="basic-addon2"><b>{{  view.deliveryitem.harvest_relation }}</b>/ {{view.deliveryitem.total_order_amount}}</span>
                     {% endifequal %}

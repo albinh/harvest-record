@@ -14,6 +14,39 @@ Ny leverans
     cropform_data = JSON.parse('{{cropform_data|safe}}');
 </script>
 
+    <!-- Modal för att skapa ny leverans -->
+    <div  id="set_delivered_modal"  class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Marekera som levererad</h4>
+                    <strong>Går ej att ångra - inga fler ändringar kan göras på beställningen efter detta.</strong>
+                </div>
+
+                <form method="post" action="{%url "delivery-setdelivered" delivery.pk %}">
+                {%csrf_token%}
+                <div class="modal-body">
+
+                    <label>Leveransdatum</label>
+
+                    <input name="date" class="form-control" type="date"/>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Markera som levererad</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
 <!--
 Dialog för att lägga till grödor
 -->
@@ -35,7 +68,7 @@ Dialog för att lägga till grödor
                                 <label>Gröda</label>
                                 <select name="crop" id="crop-select" class="form-control">
                                     {% for crop in crops %}
-                                    <option value="{{crop.pk}}">{{crop.name}}</option>
+                                        <option value="{{crop.pk}}">{{crop.name}}</option>
                                     {%endfor%}
                                 </select>
                             </div>
@@ -82,6 +115,16 @@ Dialog för att lägga till grödor
 
 <!-- Allmänn info -->
 
+<script>
+    {% if delivery.delivery_date %}
+        var is_delivered=true
+    {%else%}
+        var is_delivered=false
+    {%endif%}
+</script>
+<div class="row">
+<div class="col-md-6">
+
 <table class="table autowidth">
 
 
@@ -91,7 +134,7 @@ Dialog för att lägga till grödor
         <td>{{delivery.customer}}</td>
     </tr>
     <tr>
-        <td>Leveransdatum:</td>
+        <td>Måldatum:</td>
         <td><a href="#"
                class="editable"
                data-type="combodate"
@@ -104,10 +147,16 @@ Dialog för att lägga till grödor
 
         </td>
     </tr>
-
 </table>
-
-
+</div>
+<div class="col-md-6">
+    {% if delivery.delivery_date %}
+        <a href="{%url "delivery-spec" delivery.pk%}">Levererad {{delivery.delivery_date}}. Visa följsesedel</a>
+    {%else%}
+    <button type="button" data-toggle="modal" data-target="#set_delivered_modal"  class="btn btn-default">Markera som levererad</button>
+    {%endif%}
+</div>
+</div>
 <!-- Innehåll i leverans -->
 <table id="deliveryitemtable" class=" responsive data-table  table autowidth">
 
@@ -133,9 +182,11 @@ Dialog för att lägga till grödor
                data-emptytext="avvikelser"
         ></a> st</td>
                 {% endfor %}
-            {% endif%}
+
             <td><a href="{% url 'delivery_variant_new' delivery.pk %}"> <span class="glyphicon glyphicon-plus"></span></a></td>
+
      <td>Värde/kasse</td>
+               {% endif%}
                         <td>Värde beställt</td>
             <td>Värde skördat</td>
             <td>Önskemål</td>
@@ -167,7 +218,7 @@ Dialog för att lägga till grödor
         </td>
 
 
-        <td>
+        <td><div class="price_state">
             <a
                     href="#"
                     class="editable price"
@@ -185,6 +236,7 @@ Dialog för att lägga till grödor
             >
 
             </a>
+            </div>
         </td>
 
 {% if delivery.type == 'B' %}
@@ -287,8 +339,6 @@ Dialog för att lägga till grödor
                     <td>
                         <span id="box_sum_value-{{v.variant.pk}}"> </span> kr<br>
                         <span id="box_sum_count-{{v.variant.pk}}"></span> grödor
-
-                        <!--TODO: Uppdatera med AJAX-->
                     </td>
                 {%endfor%}
             {%endif%}

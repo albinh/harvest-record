@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
 
-from .models import Delivery, DeliveryVariant
+from .models import Delivery, DeliveryVariant, PriceItem, CustomerCategory
 from .models import DeliveryItem
 from .models import CropForm
 from .models import Culture
@@ -21,7 +21,6 @@ class Option:
         self.name=name
     def __str__(self):
         return self.name
-
 
 
 
@@ -44,7 +43,7 @@ class deliveries_harvest_for_delivery(View):
 class delivery_item_edit_price(View):
     def post(self,request):
         delivery_item = get_object_or_404(DeliveryItem, pk=request.POST['pk'])
-        price = int(request.POST['value[amount]'])
+        price = float(request.POST['value[amount]'])
         delivery_item.price = price
 
         if 'value[unit]' in request.POST:
@@ -73,6 +72,7 @@ class values_for_deliveryitem(View):
     def post(self,request):
         delivery_item = get_object_or_404 ( DeliveryItem, pk=request.POST['pk'] )
         data={'pk':request.POST['pk'],
+              'is_price_as_listed':delivery_item.is_price_as_listed(),
               'box_value':delivery_item.box_value(),
               'total_order_amount':delivery_item.total_order_amount(),
               'ordered_value':delivery_item.ordered_value(),
@@ -100,6 +100,21 @@ class delivery_variant_edit_count(View):
         variant.count=count
         variant.save()
         return HttpResponse ("")
+
+
+class cropform_price(View):
+    def post(self,request):
+        pk_cropform,pk_category=request.POST['pk'].split(",")
+        cropform = get_object_or_404(CropForm,pk=pk_cropform)
+        category = get_object_or_404(CustomerCategory,pk= pk_category)
+        price =    float(request.POST['value[amount]'])
+        unit="W"
+        if 'value[unit]' in request.POST:
+            unit = request.POST['value[unit]']
+
+        p = PriceItem(cropform=cropform, customercategory=category,unit=unit, price=price )
+        p.save()
+        return HttpResponse("")
 
 
 class delivery_variant_included(View):
