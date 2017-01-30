@@ -22,13 +22,6 @@ urlpatterns = [
 	url ( r'^harvests/(?P<pk>\d+)/(?P<url>.*)$', 						  views.HarvestItemUpdate.as_view ( ),  name='delivery-edit-harvests-update', ),
 	url ( r'^harvests/delete/(?P<pk>\d+)$', 	  						  views.HarvestItemDelete.as_view ( ),  name='harvest-item-delete', ),
 
-	url(r'^beds/', views.BedListView.as_view( ), name='beds' ),
-
-	url(r'^crops/$',                                views.CropList.as_view(),                       name='crops'),
-	url(r'^crops/(?P<pk>\d+)/$',                    views.CropEdit.as_view(),                       name='crop-edit'),
-
-	url(r'cultures/$', views.CultureListView.as_view( ), name='cultures' ),
-
 	url(r'ajax/deliveries_harvest_for_delivery', ajax_views.deliveries_harvest_for_delivery.as_view(), name ='deliveries_harvest_for_delivery'),
 	url(r'ajax/delivery_item_edit_price', ajax_views.delivery_item_edit_price.as_view(), name='delivery_item_edit_price'),
 	url(r'ajax/delivery_item_edit_amount', ajax_views.delivery_item_edit_amount.as_view(), name='delivery_item_edit_amount'),
@@ -39,8 +32,9 @@ urlpatterns = [
 	url(r'ajax/delivery_variant_edit_count', ajax_views.delivery_variant_edit_count.as_view(), name='delivery_variant_edit_count'),
 	url(r'ajax/delivery_variant_included', ajax_views.delivery_variant_included.as_view(), name='delivery_variant_included'),
 	url(r'ajax/cropform_price/', ajax_views.cropform_price.as_view(),name='ajax_cropform_price'),
-
+    url(r'ajax/edit_harvest_state', ajax_views.edit_harvest_state.as_view(),name='ajax-edit-harvest-state'),
 	url(r'cropform_new/', views.cropform_new.as_view(), name='cropform-new'),
 	url(r'crop_new',views.CropNew.as_view(),name='crop-new'),
-	url(r'customercategory_new', views.CustomerCategoryNew.as_view(),name='customercategory-new')
+	url(r'customercategory_new', views.CustomerCategoryNew.as_view(),name='customercategory-new'),
+	url(r'bedsandcultures/',views.BedsAndCultures.as_view(),name='bedsandcultures')
 ]

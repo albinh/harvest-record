@@ -13,70 +13,6 @@ from .models import *
 from urllib.parse import quote, unquote
 import simplejson
 
-
-class BedListView ( ModelFormSetView ):
-    template_name = 'harvester/beds.html'
-    model = Bed
-    exclude =[]
-
-class CultureListView ( ModelFormSetView ):
-    template_name = 'harvester/cultures.html'
-    model=Culture
-    exclude = []
-    initial = [{'offset':0}]
-
-class CropList ( ListView ):
-    model = Crop
-    template_name = 'harvester/crop-list.html'
-
-class CropEdit ( UpdateView ):
-    model = Crop
-    form_class = CropFormForm
-    template_name = 'harvester/crop-edit.html'
-
-    def get_obj(self):
-        return self.get_object ( )
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_obj ( )
-        form_class = self.get_form_class ( )
-        form = self.get_form ( form_class )
-        cropform_form = CropFormFormSet ( instance=self.object )
-
-        return self.render_to_response (
-            self.get_context_data ( form=form,
-                                    cropform_form=cropform_form,
-                                    ) )
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_obj ( )
-        form_class = self.get_form_class ( )
-        form = self.get_form ( form_class )
-        cropform_form = CropFormFormSet ( self.request.POST )
-        if (form.is_valid ( ) and cropform_form.is_valid ( )):
-            return self.form_valid ( form, cropform_form )
-        else:
-            return self.form_invalid ( form, cropform_form )
-
-    def form_valid(self, form, cropform_form):
-        self.object = form.save ( )
-        cropform_form.instance = self.object
-        cropform_form.save ( )
-        return HttpResponseRedirect ( self.get_success_url ( ) )
-
-    def form_invalid(self, form, cropform_form):
-
-        return self.render_to_response (
-            self.get_context_data ( form=form,
-                                    cropform_form=cropform_form
-                                    ) )
-
-    def get_success_url(self):
-        return reverse ( 'harvest-new' )
-
-    def get_initial(self):
-        return {'time': timezone.now ( )}
-
 class DeliveryNew ( RedirectView ):
     def get_redirect_url(self, *args, **kwargs):
         customer = get_object_or_404 ( Customer, pk=self.request.POST['customer'] )
@@ -102,6 +38,11 @@ class DeliveryVariantNew(RedirectView):
 
 class DeliveryView(View):
     def crops(self):
+
+        #todo: sortera med grödor som har aktiva kulturer först, därefter grödor
+        #todo: som är ännu ej skördade, därefter slutskördade
+
+
         return [{'pk': None, 'name': 'välj gröda'}] \
                 + [{'pk': crop.pk, 'name': crop.crop} for crop in Crop.objects.all ( )]
 
@@ -109,6 +50,8 @@ class DeliveryView(View):
         delivery = get_object_or_404(Delivery,pk=int(pk))
 
     def cropforms(self):
+        #todo: sortera cropforms. Först de som har ett pris i prislistan. Sedan övriga med parantes runt.
+        #todo: finns det bara en med pris - sätt den som default.
         cropform_data = {}
 
         for crop in Crop.objects.all():
@@ -166,7 +109,7 @@ class DeliverySetDelivered( RedirectView):
     def get_redirect_url(self, *args, **kwargs ):
         id = self.kwargs['pk']
         delivery = get_object_or_404 ( Delivery, pk=id )
-        date = type = self.request.POST['date']
+        date = self.request.POST['date']
 
         delivery.delivery_date=date
         delivery.save()
@@ -192,7 +135,7 @@ class cropform_new(RedirectView):
     def get_redirect_url(self,*args,**kwargs):
         crop = get_object_or_404( Crop, pk=self.request.POST['cropid'])
         name = self.request.POST['name']
-        countable = self.request.POST['countable']=="on"
+        countable = 'countable' in self.request.POST
         weight_of_one_unit = float(self.request.POST['weightofoneunit'])
 
         cf=CropForm.objects.create(form_name=name, countable=countable, weight_of_one_unit=weight_of_one_unit, crop=crop)
@@ -321,3 +264,16 @@ class HarvestItemNew (CreateView):
              return self.form_invalid(form)
 
 class BedsAndCultures (View):
+    def get(self,request):
+        template = "harvester/bedsandcultures.html"
+        beds = Bed.objects.all()
+
+        context  = {
+                    'beds':beds,
+                    'harvest_states':Culture.HARVEST_CHOICES
+                   }
+
+        return render ( request,
+                        template,
+                        context )
+

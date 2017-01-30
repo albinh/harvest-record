@@ -1,0 +1,91 @@
+{% extends "harvester/base.html" %}
+{% load static l10n placeholder widget_tweaks %}
+
+{%block container-type %}container{%endblock%}
+{% block title %}
+{% if form.instance.pk %}
+Leverans till {{form.instance}}
+{% else %}
+Ny leverans
+{% endif %}
+{% endblock %}
+{% block content %}
+<table class="table">
+    <thead>
+        <tr>
+            <td>Bädd</td>
+
+            <td>Längd</td>
+            <td>Ta bort bädd</td>
+            <td>Gröda</td>
+            <td>Sort</td>
+            <td>Längd</td>
+            <td>Tillstånd</td>
+            <td>Skördat kg</td>
+            <td>Skördat antal</td>
+            <td>Ta bort kultur</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bed in beds %}
+
+
+                <tr>
+                    <td>
+                        {{bed.location}}
+
+                        {{bed.index}}
+                    </td>
+                    <td>
+                        {{bed.length}} m
+                    </td>
+                    <td></td>
+                    </tr>
+                    {% for culture in bed.culture_set.all %}
+        <tr>
+
+            <td></td>
+            <td></td><td></td>
+                    <td>{{culture.crop}}</td>
+                    <td>{{culture.variety}}</td>
+                    <td>{{culture.length}} m</td>
+                    <td><a class="editable"
+                            href="#"
+                           data-value="{{culture.harvest_state}}"
+                           data-type="select"
+                           data-pk="{{culture.pk}}"
+                           data-url="{%url "ajax-edit-harvest-state"%}"
+                           data-title="Välj kulturstatus"
+                           data-source="[{%for h in harvest_states%}{value:{{h.0}},text:'{{h.1}}'}{%if not forloop.last%},{%endif%}{%endfor%}]"></a>
+</td>
+                    <td>{{cutlure.harvested_weight}}</td>
+                    <td>{% for harvested in culture.harvested_counts %}
+                            {{harvested.count}} st {{harvested.unit}},
+                            {%empty%}
+                        -
+                        {% endfor%}
+
+                    </td>
+                </tr>
+            {% endfor %}
+                <tr>
+                                <td></td>
+
+            <td></td><td></td>
+                    <td>Lägg till kultur</td>
+                </tr>
+
+        {% endfor %}
+    </tbody>
+    <tfoot>
+    <tr>
+        <td>Lägg till bäddar</td>
+    </tr>
+    </tfoot>
+</table>
+<script>
+$(function(){
+    $('.editable').editable({ })
+    })
+</script>
+{%endblock%}

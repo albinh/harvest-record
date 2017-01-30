@@ -132,3 +132,5 @@ class delivery_variant_included(View):
         return HttpResponse ("")
 
 
+class edit_harvest_state(View):
+    pass
