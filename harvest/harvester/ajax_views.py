@@ -74,14 +74,15 @@ class values_for_deliveryitem(View):
         data={'pk':request.POST['pk'],
               'is_price_as_listed':delivery_item.is_price_as_listed(),
               'box_value':delivery_item.box_value(),
-              'total_order_amount':delivery_item.total_order_amount(),
+              'total_order_amount':str(delivery_item.total_order_amount())+" "+delivery_item.harvested_unit_text()  ,
               'ordered_value':delivery_item.ordered_value(),
               'harvested_value':delivery_item.harvested_value(),
               'unit':delivery_item.order_unit_text(),
               'sum_ordered_value':delivery_item.delivery.total_order_value(),
               'sum_box_values_and_counts':delivery_item.delivery.box_values_and_counts(),
               'sum_harvested_value':delivery_item.delivery.total_harvested_value(),
-              'box_num':delivery_item.delivery.variant_count()
+              'box_num':str(delivery_item.delivery.variant_count()),
+              'relation':str(delivery_item.harvest_relation())+" "+delivery_item.harvested_unit_text()
               }
         return HttpResponse ( simplejson.dumps ( data ) )
 

@@ -4,6 +4,7 @@ function recalc(pk ) {
         	result = JSON.parse(response);
 
             if (result) {
+                $('tr[data-pk='+result.pk+'] .relation').html(result.relation )
                 $('tr[data-pk='+result.pk+'] .price_state').toggleClass('bg-danger', !result.is_price_as_listed)
                 $('tr[data-pk='+result.pk+'] .ordered_value' ).html(result.ordered_value )
                 $('tr[data-pk='+result.pk+'] .harvested_value').html(result.harvested_value)
@@ -51,18 +52,44 @@ $(function(){
 // Uppdatera cropform när crop ändras
 $(function() {
 $("#crop-select").change(function() {
+    crop_id=parseInt(($(this).val()))
 
- cropforms = cropform_data[$(this).val()]
 
- var selectbox = $("#crop-form")
- selectbox.empty();
- var list = '';
- var i = cropform_data[$(this).val()]
+    var selectbox = $("#crop-form")
+    selectbox.empty();
+
+    if (crop_id<0)
+     {return;
+     }
+    var list = '';
+    var i = cropform_data[crop_id].priced
+        console.log(i)
+       function o(cf) {
+       return '<option data-crop="'+cf.name+'" data-countable="'+cf.countable+'" value="' + cf.pk + '">' + cf.name + "</option>";
+       }
  if (i) {
+     if (i.length>1) {
+        list += '<option>Välj form</option>'
+     }
      for (var j = 0; j < i.length; j++) {
-         list += "<option value='" + i[j].pk + "'>" + i[j].name + "</option>";
+         list += o(i[j])
      }
  }
+
+ var i = cropform_data[crop_id].not_priced
+
+ if (i) {
+    if (i.length>0) {
+    list+='<optgroup label="Ej i prislista">'
+     for (var j = 0; j < i.length; j++) {
+         list += o(i[j]);
+     }
+     list+='</optgroup>'
+     }
+ }
+
+
+
  selectbox.html(list);
  selectbox.trigger("change");
 
@@ -71,25 +98,21 @@ $("#crop-select").change(function() {
 // Uppdatera enhet när cropform ändras
 $("#crop-form").change(function() {
  pk = parseInt($(this).val())
+
  if (!pk) {
      return
  };
- c_pk = parseInt($("#crop-select").val())
- for (var j = 0; j < cropform_data[c_pk].length; j++) {
-     if (cropform_data[c_pk][j].pk == pk) {
-         list = '';
-         list += '<option value="W">kg</option>'
-         if (cropform_data[c_pk][j].countable) {
-             list += '<option value="U">st ' + cropform_data[c_pk][j].name + '</option>';
-         }
+
+  list = '';
+  list += '<option value="W">kg</option>'
+  if ($("option:selected", this).data("countable")) {
+    list += '<option value="U">st ' +$("option:selected", this).data("crop") + '</option>';
+  }
 
          var selectbox = $("#units")
          selectbox.empty();
          selectbox.html(list);
 
-
-     }
- }
 
 })
 

@@ -12,6 +12,10 @@ class CustomerCategory (models.Model):
     def __str__(self):
         return self.name
 
+    def has_price_for(self,cropform):
+        return PriceItem.objects.filter(customercategory=self, cropform=cropform).exists()
+
+
 class CropForm(models.Model):
     crop = models.ForeignKey(Crop, on_delete=models.CASCADE,related_name="cropforms")
     form_name = models.CharField(max_length=40)
@@ -203,7 +207,7 @@ class DeliveryItem (models.Model):
         if self.order_unit=="W":
             return "kg"
         elif self.order_unit=="U":
-            return self.cropform.form_name
+            return "st "+self.cropform.form_name
         else:
             raise
 

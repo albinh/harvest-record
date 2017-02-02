@@ -9,7 +9,7 @@ from extra_views import ModelFormSetView
 
 from .forms import *
 from .models import *
-
+from datetime import datetime, timedelta
 from urllib.parse import quote, unquote
 import simplejson
 
@@ -41,10 +41,32 @@ class DeliveryView(View):
 
         #todo: sortera med grödor som har aktiva kulturer först, därefter grödor
         #todo: som är ännu ej skördade, därefter slutskördade
+        HARVEST_CHOICES = ((1, 'Ej skördeklar'),
+                           (2, 'Skördeklar'),
+                           (3, 'Övermogen/slutskördad'))
+        def a(cultures):
+            c=[]
+            for culture in cultures:
+                if not culture.crop in ready_crops:
+                    c.append ( {'pk': culture.crop.pk, 'name': culture.crop.crop} )
+            return c
 
+        ready_crops = a(Culture.objects.filter(harvest_state=2))
 
-        return [{'pk': None, 'name': 'välj gröda'}] \
-                + [{'pk': crop.pk, 'name': crop.crop} for crop in Crop.objects.all ( )]
+        not_ready_all = a(Culture.objects.filter(harvest_state=1))
+
+        finished_all = a(Culture.objects.filter(harvest_state=2))
+
+        if not_ready_all==None:
+            not_ready_all=[]
+
+        if finished_all==None:
+            finished_all=[]
+
+        not_ready = [i for i in not_ready_all if i not in ready_crops]
+        finished = [i for i in finished_all if i not in ready_crops]
+
+        return {'not_ready':not_ready,'ready':ready_crops,'finished':finished}
 
     def get(self,request,pk):
         delivery = get_object_or_404(Delivery,pk=int(pk))
@@ -55,23 +77,33 @@ class DeliveryView(View):
         cropform_data = {}
 
         for crop in Crop.objects.all():
-            cropform_data[crop.pk] =  [{'pk':cropform.pk,
-                                        'name':cropform.form_name,
-                                        'countable':cropform.countable}
-                                        for cropform in CropForm.objects.filter(crop=crop.pk)
-                                    ]
+            cropforms = CropForm.objects.filter(crop=crop.pk)
+
+            priced = [cf for cf in cropforms if self.delivery.customer.category.has_price_for(cf) ]
+            not_priced = [cf for cf  in cropforms if cf not in priced]
+
+            def a(l):
+                return [{'pk': cropform.pk,
+                  'name': cropform.form_name,
+                  'countable': cropform.countable}
+                 for cropform in l]
+
+
+
+            cropform_data[crop.pk] =  {'priced':a(priced),'not_priced':a(not_priced)}
         return cropform_data
     def get(self, request,pk):
-        delivery = get_object_or_404(Delivery,pk=int(pk))
+        self.delivery = get_object_or_404(Delivery,pk=int(pk))
+
         template = 'harvester/delivery-edit.html'
 
-        v=[{'name':chr(ord('A')+i),'variant':v} for i,v in enumerate(delivery.deliveryvariant_set.all())]
+        v=[{'name':chr(ord('A')+i),'variant':v} for i,v in enumerate(self.delivery.deliveryvariant_set.all())]
 
-        d=dir(delivery)
+        d=dir(self.delivery)
 
 
 
-        context  = {'delivery':delivery,
+        context  = {'delivery':self.delivery,
                     'crops':self.crops(),
                     'cropform_data':simplejson.dumps(self.cropforms()),
                     'variants':v
@@ -190,6 +222,22 @@ class DeliveryList ( ListView ):
     template_name = 'harvester/delivery-list.html'
     model = Delivery
 
+    def filter(self):
+        return self.request.GET.get ( 'filter', 'none' )
+
+    def get_queryset(self):
+        q=Delivery.objects
+        f=self.request.GET.get('filter','none')
+        if f=='none':
+            q=Delivery.objects.all()
+        elif f=='delivered':
+            q=Delivery.objects.exclude(delivery_date__isnull=True)
+        elif f=='not_delivered':
+            q=Delivery.objects.exclude ( delivery_date__isnull=False)
+
+        elif f=='not_delivered7':
+            q=Delivery.objects.exclude( delivery_date__isnull=False).filter(target_date__lt=datetime.now()+timedelta(days=7) )
+        return q
 
 class HarvestItemDelete(RedirectView):
     def get_redirect_url(self, *args, **kwargs):

@@ -32,7 +32,7 @@
 
                 <div class="input-group">
                     {% ifequal view.deliveryitem.order_unit "W" %}
-                        <span class="input-group-addon" id="basic-addon2"><b>{{  view.deliveryitem.harvest_relation }}</b>/ {{view.deliveryitem.total_order_amount}}</span>
+                        <span class="input-group-addon" id="basic-addon2"><b>{{  view.deliveryitem.harvest_relation }}</b> av {{view.deliveryitem.total_order_amount}} återstår</span>
                     {% endifequal %}
                     {{form.weight|add_class:'form-control'}}{{form.weight.errors}}
 
@@ -82,7 +82,7 @@
             <div class="form-group ">
 
                 <label>
-                    Skördad mängd
+                    Skördad längd
                 </label>
                 <div class="input-group">
                     {{form.harvested_length|add_class:'form-control'}}

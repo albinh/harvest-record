@@ -2,6 +2,14 @@
 {% block content %}
 
 <div class="container">
+
+    <ul class="nav nav-pills">
+        <li role="presentation" {%if view.filter == "none"%}class="active"{%endif%}><a href="?filter=none">Alla</a></li>
+        <li role="presentation" {%if view.filter == "delivered"%}class="active"{%endif%}><a href="?filter=delivered">Levererade</a></li>
+        <li role="presentation" {%if view.filter == "not_delivered"%}class="active"{%endif%}><a href="?filter=not_delivered">Kommande</a></li>
+        <li role="presentation" {%if view.filter == "not_delivered7"%}class="active"{%endif%}><a href="?filter=not_delivered7">Kommande (närmaste veckan)</a></li>
+    </ul>
+
     <div id="d-list">
 
         <table id="data-table" class="table data-table" cellspacing="0">
@@ -9,6 +17,7 @@
                 <tr>
                     <th style="width:10em">Kund</th>
                     <th style="width:10em">Önskat leveransdatum</th>
+                    <th>Levererat datum</th>
                     <th>Grödor</th>
                     <th style="width:10em"></th>
                 </tr>
@@ -21,6 +30,15 @@
 
                     <td class="customer"><a href="{% url 'delivery-edit' delivery.id %}">{{ delivery.customer}}</a></td>
                     <td class="date">{{delivery.target_date}}</td>
+                    <td class="date">
+                    {%if delivery.delivery_date %}
+                        {{delivery.delivery_date }}
+                        <a href="{%url "delivery-spec" delivery.pk%}"><span class="glyphicon glyphicon-print"></span> </a>
+                        {%else %}
+                            -
+                        {%endif%}
+
+                    </td>
                     <td class="crop">
                         {% for i in delivery.deliveryitem_set.all %}
                             {%if i.pk%}
@@ -52,8 +70,8 @@
                     <td>
                         <a data-toggle="confirmation" data-title="Ta bort leverans?" data-href="{%url "delivery-delete" delivery.pk %}"> <span class="glyphicon glyphicon-trash"></span></a>
                         <a href="{% url 'delivery-edit' delivery.id %}"><span class="glyphicon glyphicon-pencil"></span></a> <!--TODO: länk till redigera  -->
-                        <span class="glyphicon glyphicon-print"></span> <!--TODO: Skriv ut följesdel -->
-                        <span class="glyphicon glyphicon-ok"></span>    <!--TODO: Markera som färdig för leverans -->
+
+
                     </td>
                 </tr>
             {% endfor %}

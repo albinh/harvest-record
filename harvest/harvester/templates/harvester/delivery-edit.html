@@ -67,9 +67,27 @@ Dialog för att lägga till grödor
                             <div class="form-group">
                                 <label>Gröda</label>
                                 <select name="crop" id="crop-select" class="form-control">
-                                    {% for crop in crops %}
+
+                                    <option value="-1">välj gröda</option>
+
+                                    <optgroup label="skördeklara">
+                                    {% for crop in crops.ready %}
                                         <option value="{{crop.pk}}">{{crop.name}}</option>
                                     {%endfor%}
+                                        </optgroup>
+
+                                    <optgroup label="ej skördemogna">
+                                    {% for crop in crops.not_ready %}
+                                        <option value="{{crop.pk}}">{{crop.name}}</option>
+                                    {%endfor%}
+                                        </optgroup>
+
+                                    <optgroup label="slutskördade">
+                                    {% for crop in crops.finished %}
+                                        <option value="{{crop.pk}}">{{crop.name}}</option>
+                                    {%endfor%}
+                                        </optgroup>
+
                                 </select>
                             </div>
                         </div>
@@ -163,11 +181,13 @@ Dialog för att lägga till grödor
     <thead>
         <tr>
             <td>Gröda</td>
-            <td>Återstår</td>
+
 
             <td>Pris</td>
             {%if delivery.type == 'B' %}<td>Mängd totalt</td>{%endif%}
             <td>{%if delivery.type == 'B' %}Mängd / kasse {% else %}Mängd{%endif%}</td>
+
+            <td>Att skörda</td>
             {% if delivery.type == 'B' %}
 
                 {% for v in variants %}
@@ -204,18 +224,7 @@ Dialog för att lägga till grödor
     <tr data-pk="{{di.pk}}">
         <td><b>{{di.cropform.crop}}</b> ({{di.cropform}})</td>
 
-        <td>
 
-
-            <a data-id="{{i.pk}}"
-               href="{%url "delivery-edit-harvests" di.pk request.get_full_path|urlencode:"" %}"
-            >
-                <span class="glyphicon glyphicon-download-alt"> </span>
-                <span class="relation">
-                    {{di.harvest_relation}}
-                </span>
-            </a>
-        </td>
 
 
         <td><div class="price_state">
@@ -260,7 +269,22 @@ Dialog för att lägga till grödor
                     data-url='/harvester/ajax/delivery_item_edit_amount'
             >
             </a>
+<td>
 
+{% if not delivery.delivery_date %}
+            <a data-id="{{i.pk}}"
+               href="{%url "delivery-edit-harvests" di.pk request.get_full_path|urlencode:"" %}"
+            >
+
+                <span class="glyphicon glyphicon-download-alt"> </span>
+                        {%endif%}
+                <span class="relation">
+                    {{di.harvest_relation}}
+                </span>
+       {% if delivery.delivery_date %}
+            </a>
+            {%endif%}
+        </td>
         </td>
             {% if delivery.type == 'B' %}
                 {% for v in di.variants %}
@@ -323,7 +347,9 @@ Dialog för att lägga till grödor
 
         </td>
 
-        <td> <a data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "delivery-item-delete" di.pk %}"> <span class="glyphicon glyphicon-trash"></span></a></td>
+        <td> {% if not delivery.delivery_date %}
+            <a data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "delivery-item-delete" di.pk %}"> <span class="glyphicon glyphicon-trash"></span></a></td>
+        {%endif%}
     </tr>
 
     {%endfor%}
@@ -331,9 +357,10 @@ Dialog för att lägga till grödor
         <tr>
             <td></td>
             <td></td>
-            <td></td>
-            <td></td>
+
             {%if delivery.type == 'B' %}
+            <td></td>
+            <td></td>
             <td></td>
                 {% for v in variants %}
                     <td>

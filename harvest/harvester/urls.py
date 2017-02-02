@@ -4,11 +4,14 @@ from . import views
 from . import ajax_views
 urlpatterns = [
 
+
 	url(r'cropsprices/$', views.CropsPrices.as_view(), name='crops-prices'),
 	url(r'^deliveries/$',                           views.DeliveryList.as_view(),                   name='delivery-list'),
     url(r'^deliveries/new$',                        views.DeliveryNew.as_view(),                    name='delivery-new'),
 	url(r'^deliveries/(?P<pk>\d+)/$',               views.DeliveryView.as_view(),                   name='delivery-edit', ),
 	url(r'^deliveries/delete/(?P<pk>\d+)/$',               views.DeliverySingleDelete.as_view(),                   name='delivery-delete', ),
+
+
 
 	url(r'deliveries/set_deliveried/(?P<pk>\d+)/$', views.DeliverySetDelivered.as_view(), name='delivery-setdelivered',),
 	url(r'deliveries/spec/(?P<pk>\d+)/$', views.DeliverySpec.as_view(),name='delivery-spec'),
