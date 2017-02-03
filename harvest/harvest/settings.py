@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 	'harvester.apps.HarvesterConfig',
-    'crispy_forms',
+
     'widget_tweaks',
 ]
 
