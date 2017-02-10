@@ -222,21 +222,40 @@ class DeliveryList ( ListView ):
     template_name = 'harvester/delivery-list.html'
     model = Delivery
 
+    state_filter = [{'q':'none' , 'text':'Alla'},
+                    {'q': 'delivered', 'text': 'Levererade'},
+                    {'q': 'not_delivered', 'text': 'Ej Levererade'},
+                    {'q': 'not_delivered_2', 'text': 'Ej Levererade, kommande 2 dagarna'},
+                    {'q': 'not_delivered_7', 'text': 'Ej Levererade, kommande veckan'},
+                    ]
+
+
     def filter(self):
         return self.request.GET.get ( 'filter', 'none' )
 
+    def time_filter(self):
+        return self.request.GET.get ( 'time_filter', 'none' )
+
     def get_queryset(self):
         q=Delivery.objects
-        f=self.request.GET.get('filter','none')
+        f=self.filter()
+
+
         if f=='none':
             q=Delivery.objects.all()
         elif f=='delivered':
             q=Delivery.objects.exclude(delivery_date__isnull=True)
         elif f=='not_delivered':
             q=Delivery.objects.exclude ( delivery_date__isnull=False)
+        elif f=='not_delivered_2':
+            q = Delivery.objects.exclude ( delivery_date__isnull=False )\
+                    .filter(target_date__lte=datetime.now()+timedelta(days=2))
+        elif f=='not_delivered_7':
+            q = Delivery.objects.exclude ( delivery_date__isnull=False )\
+                    .filter(target_date__lte=datetime.now()+timedelta(days=7))
 
-        elif f=='not_delivered7':
-            q=Delivery.objects.exclude( delivery_date__isnull=False).filter(target_date__lt=datetime.now()+timedelta(days=7) )
+
+
         return q
 
 class HarvestItemDelete(RedirectView):
@@ -307,6 +326,13 @@ class HarvestItemNew (CreateView):
         form.instance.destination = self.deliveryitem()
 
         if form.is_valid():
+            if form.cleaned_data["harvest_state"]:
+                form.instance.destination.state='P'
+                form.instance.destination.save()
+            else:
+                form.instance.destination.state = 'C'
+                form.instance.destination.save ( )
+
             return self.form_valid(form)
         else:
              return self.form_invalid(form)

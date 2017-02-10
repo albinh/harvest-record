@@ -10,12 +10,26 @@ width: auto !important;
 
 }
 
+.di-completed {
+   text-decoration: line-through;
+}
+
+.di-progress {
+    font-weight:bold;
+
+}
+
+.crop-list {
+padding:0;
+  list-style-type: none;
+
+}
+.top-buffer { margin-bottom:20px; }
+
 .w-50 {
     width:50% !important;
 }
-.row > div[class*="col-"] > .row > div[class*="col-"] {
-  padding:5px;
-}
+
 
 .form-control {
     font-size:18px; !important;
@@ -57,3 +71,26 @@ tr.cropstart>td {
     border-collapse:separate;
     border-spacing:5em;
 }
+
+.order-item .order-amount {
+    font-size:1.5em;
+}
+
+.order-item .crop {
+    font-size:1.5em;
+     font-weight:bold;
+}
+
+.order-item .cropform {
+    font-size:1.5em;
+    font-style:italic;
+}
+
+      .gutter-10.row {
+        margin-right: -5px;
+        margin-left: -5px;
+      }
+      .gutter-10 > [class^="col-"], .gutter-10 > [class^=" col-"] {
+        padding-right: 5px;
+        padding-left: 5px;
+      }

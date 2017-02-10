@@ -39,12 +39,13 @@ function recalc(pk ) {
 }
 
 $(function(){
+
     $.fn.editable.defaults.placement = 'auto top';
     if (is_delivered) {
     $.fn.editable.defaults.disabled = true;
     }
     $.fn.editable.defaults.params = {csrfmiddlewaretoken:csrf_token}
-    console.log("test")
+
     $('.editable').editable();
 });
 

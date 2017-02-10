@@ -83,6 +83,14 @@ class Delivery (models.Model):
 
     type = models.CharField(max_length=1,choices=DELIVERY_TYPES,default='N')
 
+    def get_state(self):
+        if self.delivery_date:
+            return "delivered"
+        elif self.deliveryitem_set.exclude(state='N').exists():
+            return "in_progress"
+        else:
+            return "not_started"
+
     def save(self, force_insert=False, force_update=False):
         is_new = self.pk is None
         super(Delivery, self).save(force_insert, force_update)
@@ -109,6 +117,12 @@ class Delivery (models.Model):
     def variant_count(self):
         return self.deliveryvariant_set.count()
 
+    def completed_items(self):
+        return self.deliveryitem_set.filter(state='C')
+
+    def uncompleted_items(self):
+        return self.deliveryitem_set.exclude(state='C')
+
 class DeliveryItem (models.Model):
     cropform = models.ForeignKey(CropForm)
     delivery = models.ForeignKey(Delivery)
@@ -122,6 +136,13 @@ class DeliveryItem (models.Model):
     UNIT_CHOICES = (
                     ('W','kg'),
                     ('U','st') )
+
+    STATES = (
+        ('N','ej påbörjad'),
+        ('P','påbörjad'),
+        ('C','färdig')    )
+
+    state      = models.CharField(max_length=1, choices=STATES, default='N')
 
     price_type = models.CharField(max_length=1, choices=PRICE_CHOICES, default="W", null=True)
     order_unit = models.CharField(max_length=1, choices=UNIT_CHOICES,  default="W", null=True)
@@ -163,7 +184,7 @@ class DeliveryItem (models.Model):
 
 
     def harvest_relation(self):
-        return self.harvested_amount()-self.total_order_amount()
+        return str(self.total_order_amount()-self.harvested_amount())+" "+self.harvested_unit_text()
 
     NOTHING    = 0
     TOO_LITTLE = 1
@@ -207,7 +228,7 @@ class DeliveryItem (models.Model):
         if self.order_unit=="W":
             return "kg"
         elif self.order_unit=="U":
-            return "st "+self.cropform.form_name
+            return "st"
         else:
             raise
 
@@ -274,7 +295,7 @@ class DeliveryItem (models.Model):
         pi=self.listed_price()
         return pi.price==self.price and pi.unit==self.price_type
 
-        
+
 
 
 class PriceItem (models.Model):

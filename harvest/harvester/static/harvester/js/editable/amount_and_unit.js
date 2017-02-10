@@ -56,8 +56,9 @@ $(function(){
 
             var units=JSON.parse(this.options.scope.dataset['units'])
             var unit = units[value.unit]
+            if (value.unit=="U") {unit="st"}
             var pk = parseInt(this.options.scope.dataset['pk'])
-            var html = '<span class="amount">' +$('<div>').text(value.amount).html() + '</span><span class="unit">' + $('<div>').text(unit).html() +'</span><script>setTimeout(function(){recalc('+pk+')},200)</script>';
+            var html = '<span class="amount">' +$('<div>').text(value.amount).html() + '</span><span class="unit"> ' + $('<div> ').text(unit).html() +'</span><script>setTimeout(function(){recalc('+pk+')},200)</script>';
             $(element).html(html); 
         },
         
