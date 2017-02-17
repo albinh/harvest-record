@@ -165,7 +165,7 @@ Dialog för att lägga till grödor
     <h2>
             <span id="harvested_sum">0</span> kr (<span id="order_sum">0</span> kr)</h2>
 
-
+{% if delivery.type == "B" %}
         <div class="panel panel-default">
             <div class="panel-heading">Varianter kassar</div>
             <div class="panel-body">
@@ -249,7 +249,7 @@ Dialog för att lägga till grödor
 
             </div>
         </div>
-
+{%endif%}
 
 </div>
 
