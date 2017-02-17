@@ -1,254 +1,182 @@
+{% extends "harvester/base.html" %}
+{% load l10n static  placeholder widget_tweaks %}
 {% load widget_tweaks %}
-<div class="row">
-    <div class="col-md-6">
-        <div class="row">
-            <div class="col-xs-3">
+{%block container-type %}container{%endblock%}
+{% block content %}
+<h1>Registrera skörd</h1>
 
-                Kultur
-
-            </div>
-
-
-            <div class="col-xs-3 weight">
-                kg
-            </div>
-            <div class="col-xs-3">
-                {% if delivery_item.crop_form.countable is True%}
-                antal
-                {%endif%}
-            </div>
-            <div class="col-xs-3">
-                bäddmeter
-            </div>
-
-        </div>
+{{view.deliveryitem.cropform.crop}} ({{ view.deliveryitem.cropform }}) till {{ view.deliveryitem.delivery.customer }} ({{ view.deliveryitem.delivery.target_date }})
+<form method="post" action="">
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {% for err in form.non_field_errors %}
+            <p class="form-error">{{ err }}</p>
+            <!-- TODO: bättre felhantering -->
+        {% endfor %}
     </div>
-    <div class="col-md-6">
-        <div class="row mobile-hide collapse">
-            <div class="col-xs-3">
+    {% endif %}
 
-                kulturstatus
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
+    {% csrf_token %}
 
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group ">
+                <legend>Mängd</legend>
+                <label>
+                    vikt
+                </label>
+
+
+                <div class="input-group">
+                    {% ifequal view.deliveryitem.order_unit "W" %}
+                        <span class="input-group-addon" id="basic-addon2"><b>{{  view.deliveryitem.harvest_relation }}</b> av {{view.deliveryitem.total_order_amount}} återstår</span>
+                    {% endifequal %}
+                    {{form.weight|add_class:'form-control'}}{{form.weight.errors}}
+
+
+                    <span class="input-group-addon" id="basic-addon2">kg {{view.deliveryitem.cropform.crop}}</span>
+                </div>
             </div>
+            <div class="form-group ">
+                {% if view.deliveryitem.cropform.countable %}
 
-            <div class="col-xs-9">
-                kommentar
-            </div>
-        </div>
-    </div>
-</div>
+                <label>
+                    Antal
+                </label>
+                <div class="input-group">
+                    {% ifequal view.deliveryitem.order_unit "U" %}
+                        <span class="input-group-addon" id="basic-addon2"><b>{{  view.deliveryitem.harvest_relation }}</b>/ {{view.deliveryitem.total_order_amount}}</span>
+                    {% endifequal %}
 
-
-<form action="{% url "delivery-edit-harvests" pk=d_pk %}" method="POST" id="form2" class="">
-{% csrf_token %}
-
-{{ formset.management_form }}
-{{ formset.non_form_errors }}
-
-{% for form in formset %}
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="row">
-            <div class="col-xs-3">
-
-                {{form.culture_name|add_class:'form-control w-75'}}
-
-            </div>
-
-            <div class="col-xs-3 weight">
-                {{form.weight|add_class:'form-control'}}
-                {{form.weight.errors}}
-            </div>
-
-            <div class="col-xs-3 ">
-                <div class="count {% if delivery_item.crop_form.countable is False%}hidden{%endif%}">
                     {{form.count|add_class:'form-control'}}
-                    {{form.count.errors}}
+
+                    <span class="input-group-addon"">st {{view.deliveryitem.cropform}}</span>
                 </div>
-            </div>
-
-            <div class="col-xs-3 harvest">
-                {{form.harvested_length|add_class:'form-control'}}
-                {{form.harvested_length.errors}}
-            </div>
-
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="row mobile-hide collapse">
-            <div class="col-xs-3">
-
-                {{form.culture_state}}
-
-            </div>
-
-            <div class="col-xs-9">
-                {{form.comment}}
-                {{form.comment.errors}}
-            </div>
-        </div>
-    </div>
-</div>
-
-
-{% for field in form.hidden_fields %}
-{% if not forloop.last %}
-{{ field }}
-{% else %}
-{{ field }}
-{% endif %}
-{% endfor %}
-{% endfor %}
-<div class="row">
-    <div class="col-md-6">
-        <hr/>
-    </div>
-</div>
-
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="row">
-            <div class="col-xs-3">
-                skördat:
-
-
-            </div>
-
-
-            <div id="" class="col-xs-3 ">
-
-
-                <input id="weight_sum" class="form-control" type="number" readonly
-                       value="{{delivery_item.order_amount}}"/>
-            </div>
-            <div id="" class="col-xs-3">
-                <input id="count_sum" class="{% if delivery_item.crop_form.countable is False%}hidden{%endif%}"
-                       type="number" readonly value="{{delivery_item.order_amount}}"/>
-            </div>
-            <div id="" class="col-xs-3">
-                <input id="harvest_sum" class="" type="number" readonly value="{{delivery_item.order_amount}}"/>
-            </div>
-
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="row mobile-hide collapse">
-            <div class="col-xs-3">
-
-
-            </div>
-
-            <div class="col-xs-9">
-
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="row">
-            <div class="col-xs-3">
-                Beställning
-
-
-            </div>
-
-
-            <div class="col-xs-3 ">
-                {% if delivery_item.order_unit == 'W' %}
-                <input class="form-control" id="weight_target" type="number" readonly
-                       value="{{delivery_item.order_amount}}"/>
                 {% endif %}
+                {{form.count.errors}}
             </div>
-            <div id="" class="col-xs-3">
-                <div class="count_sum {% if delivery_item.crop_form.countable is False%}hidden{%endif%}">
-                    {% if delivery_item.order_unit == 'U' %}
-                    <input class="form-control" id="count_target" type="number" readonly
-                           value="{{delivery_item.order_amount}}"/>
-                    {% endif %}
+        </div>
+        <div class="col-md-4">
+
+            <legend>Källa</legend>
+
+            <div class="form-group ">
+                <label>
+                    Kultur
+                </label>
+                <!-- TODO: om det bara finns en kultur, använd den. -->
+                {{form.culture|add_class:'form-control'}}
+            </div>
+            <div class="form-group ">
+                <label>
+                    Skördestatus
+                </label>
+                {{form.culture_state|add_class:'form-control'}}
+                <!-- Skördeklar bör vara standard -->
+            </div>
+
+
+            <div class="form-group ">
+
+                <label>
+                    Skördad längd
+                </label>
+                <div class="input-group">
+                    {{form.harvested_length|add_class:'form-control'}}
+                    <span class="input-group-addon"">bäddmeter</span>
                 </div>
             </div>
 
+            <div class="form-group ">
+                <label>
+                    {{form.harvest_state|add_class:'form-control'}}
+                    Kommer att skörda mer av denna gröda till denna leverans
+                </label>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <legend>Kommentar/avvikelse</legend>
+            <label>
+                Avvikelser/kommentar (ej till kund)
+            </label>
+            {{form.comment|add_class:'form-control'}}
+
+
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-4 col-md-offset-8">
+            <input id="save_harvest_item" class="btn-primary btn btn-block" type="submit"
+                   value="{% if view.object.pk %}Ändra skörd{%else%}Lägg till skörd{%endif%}"/>
 
         </div>
     </div>
-</div>
-
-
-
-
-<button class="visible-xs btn btn-primary" type="button" data-toggle="collapse" data-target=".mobile-hide"
-        aria-expanded="false" aria-controls="collapseExample">
-    Vissa kulturstatus och kommentarer
-</button>
-{{form.delivery_comment}}
-{{form.closed}}
-<script>
-    function recalc(selector, target) {
-      var sum=0
-      $(selector).each(function(i,n){
-        sum += parseFloat($(n).val(),10);
-      });
-      $(target).val(sum);
-    }
-
-
-    function recalc_weight() {
-        recalc('.weight>input','#weight_sum')
-        t=parseFloat($('#weight_target').val())
-        s=parseFloat($('#weight_sum').val())
-        if (Math.abs((s/t)-1.0)<0.1)
-        {
-            console.log("asdf")
-            $('#weight_target').css('background-color','#c7edce');
-        } else
-        {
-            $('#weight_target').css('background-color','#f2a17b');
-        }
-    }
-    function recalc_count() {
-        console.log("123")
-        recalc('.count>input','#count_sum')
-
-                t=parseInt($('#count_target').val())
-        s=parseInt($('#count_sum').val())
-        if (t==s)
-        {
-            console.log("asdf")
-            $('#count_target').css('background-color','#c7edce');
-        } else
-        {
-            $('#count_target').css('background-color','#f2a17b');
-        }
-
-
-    }
-
-    function recalc_harvest () {
-        recalc('.harvest>input','#harvest_sum')
-    }
-
-    $( document ).ready(function() {
-        $('.weight>input').on('change', recalc_weight)
-        $('.count>input').on('change', recalc_count)
-        $('.harvest>input').on('change', recalc_harvest)
-        recalc_harvest();
-        recalc_count();
-        recalc_weight();
-    });
-
-    $('form').on('submit', function() {
-    $('[id $=culture_name]').prop('disabled', false);
-
-});
-
-
-
-
-
-
-</script>
 </form>
+
+<h2>tidigare registrerade</h2>
+<div id="prev-harvested">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Kultur</th>
+            <th>kg</th>
+            {% if view.deliveryitem.cropform.countable %}
+            <th>st</th>
+            {% endif %}
+            <th>m</th>
+            <th>d</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for harvest in view.prev_harvests %}
+
+
+
+
+        <tr>
+            <td>{{harvest.culture}}</td>
+            <td>{{harvest.weight}} kg</td>
+            {% if view.deliveryitem.cropform.countable %}
+            <td>{{harvest.count}} st</td>
+            {% endif %}
+            <td>{{harvest.harvested_length}}</td>
+            <td>{{harvest.time}}</td>
+            <td>        <a data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "harvest-item-delete" harvest.pk %}"><span class="glyphicon glyphicon-trash"></span></a>
+                        <a href="{%url "delivery-edit-harvests-update" harvest.pk request.get_full_path|urlencode:"" %}"><span class="glyphicon glyphicon-pencil"></span></a> </td>
+        </tr>
+
+        {% endfor %}
+
+
+
+        </tbody>
+        <tfoot>
+                <tr>
+            <td>
+                skördat
+            </td>
+            <td>
+                {{view.deliveryitem.harvested_weight}} kg
+            </td>
+                        {% if view.deliveryitem.cropform.countable %}
+            <td> {{view.deliveryitem.harvested_count}} st</td>
+                    {% endif %}
+                    <td></td>
+                    <td></td>
+
+
+        </tr>
+</tfoot>
+    </table>
+</div>
+{%endblock%}

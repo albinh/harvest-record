@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Följesedel</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <style>
+    body {
+    font-family: 'Lato', sans-serif;
+    }
+    table {
+    border-collapse: collapse;
+    }
+        td {
+            border:1px solid #AAAAAA;
+            border-collapse: collapse;
+            padding:0.5em;
+           }
+
+
+    </style>
+
+</head>
+<script>
+
+
+    $(document).ready(function () {
+        window.print();
+        setTimeout("closePrintView()", 3000);
+    });
+
+    function closePrintView() {
+        document.location.href = '/harvester/deliveries';
+    }
+
+</script>
+
+
+
+
+<body >
+<div class="content">
+    <h1>Följesedel</h1>
+
+    <p>Kund:{{delivery.customer}}</p>
+    <p>Leveransdatum: {{delivery.delivery_date}}</p>
+<table>
+    <thead>
+        <tr>
+            <td>
+                Gröda
+            </td>
+            <td>
+                Beställd mängd
+            </td>
+            <td>
+                Levererad mängd
+            </td>
+            <td>
+                Debiterad mängd
+            </td>
+            <td>
+                Pris
+            </td>
+            <td>
+                Summa
+            </td>
+
+
+    </tr></thead>
+    <tbody>
+    {% for deliveryitem in delivery.deliveryitem_set.all %}
+    <tr>
+        <td>{{deliveryitem.cropform.crop}} ({{deliveryitem.cropform}})</td>
+        <td>{{deliveryitem.order_amount}} {{deliveryitem.order_unit_text}}</td>
+        <td>{{deliveryitem.harvested_amount}} {{deliveryitem.harvested_unit_text}}</td>
+        <td> </td>
+        <td>{{deliveryitem.price}} {{deliveryitem.price_unit_text}}</td>
+        <td>{{deliveryitem.harvested_value|floatformat:2}} kr</td>
+
+    </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>{{delivery.total_harvested_value|floatformat:2}} kr</td>
+
+
+
+    </tr>
+    </tfoot>
+</table>
+
+</div>
+
+
+</body>
+</html>

@@ -1,37 +1,21 @@
-- Ta bort skörderegistreing
-
--Delivery/Edit: Knappar i leversn-redigering. Visa färg efter status. Ajax-vid redigering av skörd
-
-
-
-- Delivery/Edit: Dynamiskt antal rader
-- Delivery/Edit: Ta bort rad
-- Delivery/Edit: Värde. Prognos och utfall
-- Delivery/Edit/Harvets: Kopiera rad (flera rader per skörd)
 - Delivery/Edit: Markera skörden skickad. / lås
-
-
 - Delivery/Edit: Varning vid ändring av mängd om redan skördat
-
-- Delivery/List: Färger på knappar.
 
 - Prislista
 
-- CSA-skördeplanering
-
 - Skördschema
-
 
 - kasserat/Eget uttag
 
-- Lager/Kylrum/
+- Prislista
 
-Prislista
+- Följesedel - utskrift
 
-Följesedel - utskrift
-
+- Markera aktuella kulturer
 
 
 Faktura
 Återtag och returer. Rabatter
+Lager/Kylrum/
 
+Sök efter alla <script> och städa upp. Flytta bort så mycket som möjligt fårn template.

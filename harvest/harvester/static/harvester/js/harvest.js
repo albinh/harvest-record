@@ -1,5 +1,10 @@
 // Vid förändring av någon av element i arrayen from skicka ett ajax-request till url.
-
+$(function() {
+$('[data-toggle=confirmation]').confirmation({
+  rootSelector: '[data-toggle=confirmation]',
+  // other options
+});
+})
 function ajax_populate_select(url, froms, to, prefix="",initial=false) {
 
 	function setCallback(f) {
@@ -31,33 +36,26 @@ function ajax_populate_select(url, froms, to, prefix="",initial=false) {
 
 
             } else {
-                console.log("error");
+
             }
 
 	}
 
-	function change_callback() {
-	    console.log(url)
+	function change_callback(e) {
 
 	    from_elements = froms.map((x)=>$('#'+prefix+x).first())
-		console.log(from_elements)
-	    console.log(to)
 		params = {csrfmiddlewaretoken: csrf_token}
 		// Add parameters to AJAX-call
 
 		from_elements.forEach((f)=> {
-			console.log(f)
 
 			var id=f[0].id.replace(prefix,"");
 			var v=f[0].value[0];
-			console.log(v)
 			if (v==null) {
-			    console.log("exiting")
 			    return;
 			    }
-			params[without_prefix(id)]=v;
+			params[id]=v;
 		})
-		console.log(params);
 		$.post(
             url,
             params,
@@ -72,3 +70,73 @@ function ajax_populate_select(url, froms, to, prefix="",initial=false) {
         from_elements.forEach(trigger);
     }
 }
+
+function reload_harvest_button(id) {
+    function response_cb(btn, response) {
+        result = JSON.parse(response);
+
+        color=""
+
+
+        switch (result.status) {
+            case 0:
+                color="info"
+                break;
+             case 1:
+                color="warning"
+                break;
+             case 2:
+                color="success"
+                break;
+             case 3:
+                color="danger";
+                break;
+               }
+        try {
+        	h=btn.getElementsByClassName("harvested")[0]
+        if (h) {h.innerHTML=result.harvested_amount ;}
+        } finally {}
+        try {
+        	h=btn.getElementsByClassName("target")[0]
+        if (h) {h.innerHTML=result.target_amount ;}
+        } finally {}
+
+        try {
+            h=btn.getElementsByClassName("relation")[0]
+            if (h) {h.innerHTML=result.harvest_relation ; };
+        } finally {}
+        btn.classList.remove("bg-primary");
+        btn.classList.remove("bg-warning");
+        btn.classList.remove("bg-success");
+        btn.classList.remove("bg-danger");
+        btn.classList.remove("bg-default");
+        btn.classList.add("bg-"+color)
+
+
+    }
+
+    btn = document.getElementById(id);
+    id  = btn.dataset.id;
+    url = btn.dataset.queryUrl;
+    params = {csrfmiddlewaretoken: csrf_token, 'id':id}
+
+    $.post(
+        url,
+        params,
+        response_cb.bind(null, btn)
+    )
+ }
+
+ var notLocked = true;
+$.fn.animateHighlight = function(highlightColor, duration) {
+    var highlightBg = highlightColor || "#FFFF9C";
+    var animateMs = duration || 1500;
+    var originalBg = this.css("backgroundColor");
+    if (notLocked) {
+        notLocked = false;
+        this.stop().css("background-color", highlightBg)
+            .animate({backgroundColor: originalBg}, animateMs);
+        setTimeout( function() { notLocked = true; }, animateMs);
+    }
+};
+

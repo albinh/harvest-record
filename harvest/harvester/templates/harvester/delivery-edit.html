@@ -1,6 +1,7 @@
-
 {% extends "harvester/base.html" %}
-{% load static  placeholder widget_tweaks %}
+{% load static l10n placeholder widget_tweaks %}
+
+{%block container-type %}container{%endblock%}
 {% block title %}
 {% if form.instance.pk %}
 Leverans till {{form.instance}}
@@ -9,172 +10,392 @@ Ny leverans
 {% endif %}
 {% endblock %}
 {% block content %}
-{% include "harvester/harvest-item-modal.html" %}
-<h1>Leverans</h1>
-<form action="" method="POST" class="grid-form" novalidate>
-    {% csrf_token %}
-<div class="row">
-    <div class="col-md-12">
-    <div class="row">
-        <div class="col-xs-6">{{ form.customer|add_class:'form-control' }}{{ form.customer.errors }}</div>
-        <div class="col-xs-6">{{ form.target_date|add_class:'form-control' }}{{ form.target_date.errors }}</div>
-    </div>
+<script>
+    cropform_data = JSON.parse('{{cropform_data|safe}}');
+</script>
+
+    <!-- Modal för att skapa ny leverans -->
+    <div  id="set_delivered_modal"  class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Marekera som levererad</h4>
+                    <strong>Går ej att ångra - inga fler ändringar kan göras på beställningen efter detta.</strong>
+                </div>
+
+                <form method="post" action="{%url "delivery-setdelivered" delivery.pk %}">
+                {%csrf_token%}
+                <div class="modal-body">
+
+                    <label>Leveransdatum</label>
+
+                    <input name="date" class="form-control" type="date"/>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Markera som levererad</button>
+                </div>
+                </form>
+            </div>
         </div>
+    </div>
+
+
+
+
+<!--
+Dialog för att lägga till grödor
+-->
+<div class="modal fade" tabindex="-1" role="dialog" id="add_modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="delivery" value="{{delivery.pk}}">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Lägg till gröda i beställning</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Gröda</label>
+                                <select name="crop" id="crop-select" class="form-control">
+
+                                    <option value="-1">välj gröda</option>
+
+                                    <optgroup label="skördeklara">
+                                    {% for crop in crops.ready %}
+                                        <option value="{{crop.pk}}">{{crop.name}}</option>
+                                    {%endfor%}
+                                        </optgroup>
+
+                                    <optgroup label="ej skördemogna">
+                                    {% for crop in crops.not_ready %}
+                                        <option value="{{crop.pk}}">{{crop.name}}</option>
+                                    {%endfor%}
+                                        </optgroup>
+
+                                    <optgroup label="slutskördade">
+                                    {% for crop in crops.finished %}
+                                        <option value="{{crop.pk}}">{{crop.name}}</option>
+                                    {%endfor%}
+                                        </optgroup>
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Form</label>
+                                <select name="cropform" id="crop-form" class="form-control">
+
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Mängd</label>
+                                <input name="amount" class="form-control" type="number">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Enhet</label>
+                                <select name="unit" id="units" class="form-control">
+
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+                    <button type="submit" class="btn btn-primary">Lägg till gröda</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Här börjar huvudsidan -->
+
+<!-- Allmänn info -->
+
+<script>
+    {% if delivery.delivery_date %}
+        var is_delivered=true
+    {%else%}
+        var is_delivered=false
+    {%endif%}
+</script>
+<div class="row">
+<div class="col-md-3">
+
+
+    <h2>{{delivery.customer}}</h2>
+
+    <h2><a href="#"
+               class="editable"
+               data-type="combodate"
+               data-value="{{delivery.target_date|unlocalize}}"
+               data-combodate="{maxYear:2017}"
+               data-pk="{{delivery.pk}}"
+               data-url="{%url "delivery_edit_target_date" %}"
+            >
+                {{delivery.target_date}}</a></h2>
+
+        {% if delivery.delivery_date %}
+        <a href="{%url "delivery-spec" delivery.pk%}">Levererad {{delivery.delivery_date}}. Visa följsesedel</a>
+    {%else%}
+    <button type="button" data-toggle="modal" data-target="#set_delivered_modal"  class="btn btn-default">Markera som levererad</button>
+    {%endif%}
+    <p>Beställt:</p>
+    <h2>
+            <span id="harvested_sum">0</span> kr (<span id="order_sum">0</span> kr)</h2>
+
+{% if delivery.type == "B" %}
+        <div class="panel panel-default">
+            <div class="panel-heading">Varianter kassar</div>
+            <div class="panel-body">
+                <form>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th ></th>
+                        {% for v in variants %}
+                    <th>{{v.name}}</th>
+                        {% endfor %}
+<th><a href="{% url 'delivery_variant_new' delivery.pk %}"> <span class="glyphicon glyphicon-plus"></span></a></th>
+                        </tr>
+<tr><th>antal</th>
+    {% for v in variants %}
+                   <th>
+                        <a href="#"
+               class="editable"
+               data-pk="{{v.variant.pk}}"
+               data-value="{{v.variant.count}}"
+               data-type="number"
+               data-url='/harvester/ajax/delivery_variant_edit_count'
+               data-name="delivery_variant_count"
+               data-emptytext="avvikelser"
+        ></a> </th>
+                {% endfor %}
+                        </tr>
+                    <tbody>
+                    {% for di in delivery.deliveryitem_set.all %}
+                    <tr>
+                        <td><div style="text-overflow: ellipsis;  white-space: nowrap;
+  overflow: hidden;width:3em">{{di.cropform.crop}}</div></td>
+
+                        {% for v in di.variants %}
+                    <td>
+                        <a href="#"
+               class="editable"
+               data-pk="{{v.variant.pk}},{{di.pk}}"
+               data-value="1" data-source="[{ value:{{v.included}},text:'{{v.name}}'}]"
+               data-type="checklist"
+               data-title="ingår i kasse"
+               data-url='/harvester/ajax/delivery_variant_included'
+               data-name="delivery_variant_included"
+                           data-emptytext="-"
+        ></a> </td>
+                {% endfor %}
+
+                    </tr>
+                    {%endfor%}
+                <tfoot>
+                    <tr>
+                        <td>Grödor</td>
+                  {% for v in variants %}
+                    <td>
+
+                        <span id="box_sum_count-{{v.variant.pk}}"></span>
+                    </td>
+                {%endfor%}
+                    </tr>
+                <tr>
+
+                    <td>Värde</td>
+
+                                {% for v in variants %}
+                    <td>
+                        <span id="box_sum_value-{{v.variant.pk}}"> </span> <br>
+
+                    </td>
+                {%endfor%}
+
+
+                </tr>
+
+
+                </tfoot>
+                    </tbody>
+                    </thead>
+
+                </table>
+</form>
+
+            </div>
+        </div>
+{%endif%}
+
 </div>
 
 
 
-    {% for hidden in form.hidden_fields %}
-    {{ hidden }}
-    {% endfor %}
+<div class="col-md-9">
 
-    {{ delivery_item_form.management_form }}
-    {{ delivery_item_form.non_form_errors }}
+{% for di in delivery.deliveryitem_set.all %}
 
-    {% for form2 in delivery_item_form %}
-    <div class="visible-xs" style="height:5em"></div>
 
-    <div class="row">
-        <div class="col-md-3">
-            <div class="row">
-                <div class="col-xs-4">
-                    {{form2.crop|add_class:'form-control'}}
-                    {{form2.crop.errors}}
-                </div>
-                <div class="col-xs-4">
-                    {{form2.crop_form|add_class:'form-control'}} {{form2.crop_form.errors}}
-                </div>
+<div class="row gutter-10 alert alert-success order-item top-buffer">
+    <div class="col-xs-5">
 
-                <div class="col-xs-4">
-                    <div class="input-group">
-                    {{form2.order_amount|add_class:'form-control w-50'}}
-                        {{form2.order_unit|add_class:'form-control input-group-addon w-50'}}{{form2.order_unit.errors}}
-                        </div>
-                </div>
+<div class="order-amount" style="display:inline-block">
 
-            </div>
+            <a
+                    href="#"
+                    class="editable amount"
+                    data-type="amount_and_unit"
+                    data-pk="{{di.pk}}"
+                    data-value="{'amount': '{{di.order_amount}}','unit': '{{di.order_unit}}'}"
+                    {%if di.cropform.countable %}
+                    data-units='{"W":"kg","U":"{{di.cropform.form_name}}" }'
+                    {% else %}
+                    data-units='{"W":"kg" }'
+                    {% endif %}
+                    data-title="Ange mängd"
+                    data-url='/harvester/ajax/delivery_item_edit_amount'
+            >
+            </a>{% if not delivery.delivery_date %}
+
+            {%endif%}
+    </div >
+        <br class="visible-xs-block"/>
+    <div class="crop" style="display:inline-block">
+            <span style="font-weight:bold">
+
+            {{di.cropform.crop}}
+
+</span>
         </div>
-        <div class="col-md-1">
-            <div class="row">
-                <div class="col-xs-12">
-                    {{form2.order_comment|add_class:'form-control'}}{{form2.order_comment.errors}}
-                </div>
+<br class="visible-xs-block"/>
+    <div class="cropform" style="display:inline-block">
+<span style="font-weight:100">
+        {{di.cropform}}
+</span>
+</div>
+<br/>
+
+
+
+    </div>
+    <div class="col-xs-4">
+         <div class="row">
+         <div class="col-md-4">
+            <a
+                    href="#"
+                    class="editable price"
+                    data-type="amount_and_unit"
+                    data-pk="{{di.pk}}"
+                    data-value="{'amount': '{{di.price}}','unit': '{{di.price_type}}'}"
+                    {%if di.cropform.countable %}
+                    data-units='{"W":"kr/kg","U":"kr/{{di.cropform.form_name}}" }'
+                    {% else %}
+                    data-units='{"W":"kr/kg" }'
+                    {% endif %}
+                    data-title="Ange pris"
+                    data-name="price"
+                    data-url='/harvester/ajax/delivery_item_edit_price'
+            >
+                </a>
             </div>
+             <div class="col-md-4">
+            <span class="ordered_value">0</span> kr (best)
+                </div>
+             <div class="col-md-4">
+                 <span class="harvested_value">0</span> kr (skörd)
+             </div>
+            </div>
+        <div class="row">
+            <div class="col-md-4">
+
+             <a href="#"
+               class="editable order_comment"
+               data-pk="{{di.pk}}"
+               data-value="{{di.order_comment}}"
+               data-type="text"
+               data-url='/harvester/ajax/delivery_item_edit'
+               data-placeholder="önskemål"
+               data-name="order_comment"
+               data-emptytext="spec. önskemål"
+        ></a>
+</div><div class="col-md-4">
+       <a href="#"
+               class="editable delivery_comment"
+               data-pk="{{di.pk}}"
+               data-value="{{di.delivery_comment}}"
+               data-type="text"
+               data-url='/harvester/ajax/delivery_item_edit'
+               data-placeholder="avvikelser"
+               data-name="delivery_comment"
+               data-emptytext="avvikelser"
+        ></a></div>
+         <div class="col-md-4">
+
+             </div>
+</div>
         </div>
-        <div class="mobile-hide col-md-2">
-            <div class="row">
-                <div class="col-xs-8">
-                    <div class="input-group">
-                    {{form2.price|add_class:'form-control w-50'}}
-                    {{form2.price_type|add_class:'form-control input-group-addon w-50'}} {{form2.price_type.errors}} {{form2.price.errors}}
-                        </div>
-                </div>
+        <div class="col-xs-3">
+            <a data-id="{{i.pk}}"
+               href="{%url "delivery-edit-harvests" di.pk request.get_full_path|urlencode:"" %}"
+            >
+  <span style="font-size:2em" class="glyphicon glyphicon-download-alt"> </span>
+            <br/>
+ <span class="relation">
+                    {{di.harvest_relation}}
+                </span>
+            </a>
 
+            {% if not delivery.delivery_date %}
+            <a style="font-size:2em" data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "delivery-item-delete" di.pk %}"> <span class="glyphicon glyphicon-trash"></span></a></td>
+        {%endif%}
 
-
-                <div class="col-xs-4">
-                    <div class="input-group">
-                    {{form2.discount|add_class:' form-control '}} {{form2.discount.errors}}
-                        <span class="w-50 input-group-addon">%</span>
-                        </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="row">
-            <div class="col-xs-6">
-            <button style="width:100%" type="button" onClick="return false;" class="btn btn-danger" data-toggle="modal" data-load-url="/harvester/deliveries/harvests/{{form2.instance.pk}}" data-target="#harvest-item-modal">4/5kg skördat</button>
-                <script>
-                    $( document ).ready(function() {
-                        $('.edit-button).
-                    }
-
-                </script>
-            </div>
-                 <div class="col-xs-3">
-                     {{form2.closed}}
-                     </div>
-                <div class="col-xs-3">
-            <button style="width:100%" type="button" class="btn btn-danger">Ta bort</button>
-            </div>
-                </div>
-        </div>
-
-        <div class="mobile-hide col-md-2">
-            <div class="row">
-
-
-                <div class="col-xs-12">
-                    {{form2.delivery_comment|add_class:"form-control"}}
-                                        {% if delivery_item_form.can_delete %}
-                {{ form2.DELETE }}
-                {% endif %}
-
-
-                </div>
-
-            </div>
 
         </div>
-
-
     </div>
 
 
 
-    {% for hidden in form2.hidden_fields %}
-    {{ hidden }}
-    {% endfor %}
-
-    {% endfor %}
-
-    <script>
-
-
-    </script>
-
-    <input id="save_harvest_item" type="submit" value="Save"/>
-    <script>
 
 
 
+{%endfor%}
+    <a href="#" data-toggle="modal" data-target="#add_modal">
+    <div class="row gutter-10 alert alert-info" style="text-align:center;font-size:2em">
+        <span class="glyphicon glyphicon-plus"></span> Lägg till gröda
+    </div>
+        </a>
+</div>
+    </div>
 
-$( document ).ready(function() {
 
-    num_rows = parseInt(document.getElementById('id_deliveryitem_set-TOTAL_FORMS').value)
-
-
-    for (i=0;i<num_rows;i++) {
-        prefix= "id_deliveryitem_set-"+i+"-";
-
-        ajax_populate_select('{% url 'deliveries_new_crop_form_for_crop'  %}', ['crop'],'crop_form',prefix);
-        ajax_populate_select('{% url 'deliveries_new_order_units_for_cropform'  %}', ['crop_form'],'order_unit',prefix,true);
-
-        ajax_populate_select('{% url 'deliveries_new_price_units_for_cropform'  %}', ['crop_form'],'price_type',prefix,true);
+<script src="{%static "harvester/js/pages/delivery-edit.js"%}"></script>
 
 
 
 
-        //
-    }
 
-$('form').on('submit', function() {
-    $('[id $=crop]').prop('disabled', false);
-    $('[id $=crop_form]').prop('disabled', false);
-});
-
-
-
-$.fn.bootstrapSwitch.defaults.size = 'mini';
-$.fn.bootstrapSwitch.defaults.onText = "klar";
-$.fn.bootstrapSwitch.defaults.offText = "ej klar";
-$('[id $=closed]').bootstrapSwitch();
-
-});
-
-
-
-    </script>
-</form>
 {% endblock %}

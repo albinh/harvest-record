@@ -23,11 +23,8 @@ class CustomerCategoryAdmin (admin.ModelAdmin):
 class DeliveryItemInline(admin.TabularInline):
     model=DeliveryItem
 
-class DeliverySingleAdmin(admin.ModelAdmin):
-    inlines = [DeliveryItemInline]
 
-
-admin.site.register(DeliverySingle,DeliverySingleAdmin)
+admin.site.register(Delivery)
 admin.site.register(PriceListItem)
 admin.site.register(Culture)
 admin.site.register(Bed)

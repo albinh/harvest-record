@@ -1,0 +1,248 @@
+{% extends "harvester/base.html" %}
+{% load static l10n placeholder widget_tweaks %}
+
+{%block container-type %}container{%endblock%}
+{% block title %}
+{% if form.instance.pk %}
+Leverans till {{form.instance}}
+{% else %}
+Ny leverans
+{% endif %}
+{% endblock %}
+{% block content %}
+
+    <!-- Modal för att skapa ny leverans -->
+    <div  id="add_crop_modal"  class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Ny gröda></h4>
+                </div>
+                <form method="post" action="{%url "crop-new" %}">
+                {%csrf_token%}
+                <div class="modal-body">
+
+                    <label>Namn</label>
+                    <input name="name" class="form-control" type="text"/>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+                    <button type="submit" class="btn btn-primary">Lägg till gröda</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal för att skapa ny leverans -->
+    <div  id="add_category_modal"  class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Lägg till kundkategori</h4>
+                </div>
+                <form method="post" action="{%url "customercategory-new" %}">
+                {%csrf_token%}
+                <div class="modal-body">
+
+                    <label>Namn</label>
+                    <input name="name" class="form-control" type="text"/>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+                    <button type="submit" class="btn btn-primary">Lägg till kundkategori</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal för att skapa ny leverans -->
+    <div  id="add_cropform_modal"  class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Ny produkt för <span class="cropname">...</span></h4>
+                </div>
+                <form method="post" action="{%url "cropform-new" %}">
+                {%csrf_token%}
+                <div class="modal-body">
+
+                    <label>Namn</label>
+                    <input name="name" class="form-control" type="text"/>
+                    <label>Möjlig att räkna</label>
+                    <input name="countable" class="form-control" type="checkbox"/>
+                    <label>Vikt för en enhet</label>
+                    <input name="weightofoneunit" class="form-control" type="number" min="0.1" step="0.1"/>
+                    <input name="cropid" type="hidden"/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+                    <button type="submit" class="btn btn-primary">Lägg till produkt</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+    function recalc() {}
+        //triggered when modal is about to be shown
+        $('#add_cropform_modal').on('show.bs.modal', function(e) {
+
+        //get data-id attribute of the clicked element
+        var cropId = $(e.relatedTarget).data('cropid');
+
+        //populate the textbox
+        $(e.currentTarget).find('input[name="cropid"]').val(cropId);
+
+        //get data-id attribute of the clicked element
+        var cropName= $(e.relatedTarget).data('cropname');
+
+        //populate the textbox
+        $(e.currentTarget).find('span[class="cropname"]').html(cropName);
+
+});
+
+
+    </script>
+
+    <table class="table autowidth pricetable">
+        <thead>
+        <tr>
+            <td>
+                Gröda
+            </td>
+            <td>
+                Form
+            </td>
+            <td>
+                Vikt/enhet
+            </td>
+            <td>
+                Räkningsbar
+            </td>
+            {% for category in categories %}
+            <td>
+               {{category.category}}
+            </td>
+
+            {% endfor %}
+                        <td>
+                <a href="" data-toggle="modal"  data-target="#add_category_modal">Lägg till kategori</a>
+            </td>
+        </tr>
+        <tr>
+                        <td>
+
+            </td>
+            <td>
+
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            {% for category in categories %}
+            <td>
+               {% for customer in category.customers %}
+                    ({{customer.name}},)
+                {%empty%}
+                    inga kunder
+                {%endfor%}
+
+            </td>
+
+            {% endfor %}
+                        <td>
+            </td>
+
+        </tr>
+        </thead>
+        <tbody>
+        {% for crop in crops %}
+        {% for cropform in crop.cropforms %}
+            <tr class=" ">
+                <td>
+                    {% if forloop.first	%}
+                        {{crop.crop}}
+                    {%endif%}
+                </td>
+                <td>
+                    {{cropform.cropform.form_name}}
+
+                </td>
+                <td>
+                     {{cropform.cropform.weight_of_one_unit}}
+                </td>
+                <td>
+                    {{cropform.cropform.countable}}
+                </td>
+                {% for price in cropform.prices %}
+<td>
+                    <a
+                    href="#"
+                    class="editable price"
+                    data-type="amount_and_unit"
+                    data-pk="{{cropform.cropform.pk}},{{price.category.pk}}"
+
+                    {% if price.priceitem %}
+                        data-value="{'amount': '{{price.priceitem.price}}','unit': '{{price.priceitem.unit}}'}"
+                    {%else %}
+                        data-value={'amount':'-','unit':'W'}
+                    {%endif%}
+
+                    {%if cropform.cropform.countable %}
+                    data-units='{"W":"kr/kg","U":"kr/{{cropform.cropform.form_name}}" }'
+                    {% else %}
+                    data-units='{"W":"kr/kg" }'
+                    {% endif %}
+                    data-emptytext="saknas"
+                    data-title="Ange pris"
+                    data-name="price"
+                    data-url='/harvester/ajax/cropform_price/'
+            ></a>
+
+</td>
+                {% endfor %}
+
+            </tr>
+
+        {%endfor%}
+                <tr class="cropstart "><td> {% if not crop.cropforms %} {{crop.crop}} {%endif%}</td>
+        <td>
+
+            <a href="" data-toggle="modal" data-cropname="{{crop.crop}}" data-cropid="{{crop.crop.id}}" data-target="#add_cropform_modal"> lägg till produkt</a>
+        </td>
+        <td></td><td></td>  <td></td>          {% for category in categories %}
+
+{%endfor%}
+        </tr>
+        {%endfor%}
+        <tr>
+            <td>
+                <a href="" data-toggle="modal"  data-target="#add_crop_modal"> lägg till gröda</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+<script>
+    $(function(){
+        $.fn.editable.defaults.placement = 'auto top';
+        $.fn.editable.defaults.params = {csrfmiddlewaretoken:csrf_token}
+        console.log("test")
+        $('.editable').editable();
+});
+
+</script>
+{% endblock %}

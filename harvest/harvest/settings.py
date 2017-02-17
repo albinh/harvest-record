@@ -25,7 +25,7 @@ SECRET_KEY = '1-#ayhi3(g)1)hy%&veuf0)ee1_=35&cw^36aisig!cl6r-q)d'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["albin.pythonanywhere.com"]
 
 
 # Application definition
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 	'harvester.apps.HarvesterConfig',
-    'crispy_forms',
+
     'widget_tweaks',
 ]
 
@@ -108,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'sv-SE'
 
 TIME_ZONE = 'UTC'
 

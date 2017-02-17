@@ -1,293 +1,353 @@
-from django.shortcuts import render
-from django.http import HttpResponse
 from django.core.urlresolvers import reverse
-from django.views.generic import CreateView, UpdateView, ListView, TemplateView, View
-from django.utils import timezone
-from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render
+from django.utils import timezone
+from django.views.generic import CreateView, UpdateView, ListView, View,RedirectView
+from django.views.generic import DetailView
+from extra_views import ModelFormSetView
 
-from .models import *
 from .forms import *
+from .models import *
+from datetime import datetime, timedelta
+from urllib.parse import quote, unquote
+import simplejson
+
+class DeliveryNew ( RedirectView ):
+    def get_redirect_url(self, *args, **kwargs):
+        customer = get_object_or_404 ( Customer, pk=self.request.POST['customer'] )
+        target_date = self.request.POST['date']
+        type = self.request.POST['type']
+        d = Delivery ( )
+        d.target_date = target_date
+        d.customer = customer
+        d.type=type
+        d.save ( )
+        return reverse ( 'delivery-edit', args=[d.pk] )
+
+class DeliveryVariantNew(RedirectView):
+    def get_redirect_url(self,*args,**kwargs):
+        delivery = get_object_or_404 ( Delivery, id = self.kwargs['pk'])
+
+        v = DeliveryVariant()
+        v.count=0
+        v.delivery=delivery
+        v.save()
+        return reverse ( 'delivery-edit', args=[delivery.pk] )
 
 
-class DeliveryEdit ( UpdateView ):
-    model = DeliverySingle
-    form_class = DeliverySingleForm
-    template_name = 'harvester/delivery-edit.html'
+class DeliveryView(View):
+    def crops(self):
 
-    def get_obj(self):
-        return self.get_object ( )
+        #todo: sortera med grödor som har aktiva kulturer först, därefter grödor
+        #todo: som är ännu ej skördade, därefter slutskördade
+        HARVEST_CHOICES = ((1, 'Ej skördeklar'),
+                           (2, 'Skördeklar'),
+                           (3, 'Övermogen/slutskördad'))
+        def a(cultures):
+            c=[]
+            for culture in cultures:
+                if not culture.crop in ready_crops:
+                    c.append ( {'pk': culture.crop.pk, 'name': culture.crop.crop} )
+            return c
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_obj ( )
-        form_class = self.get_form_class ( )
-        form = self.get_form ( form_class )
-        delivery_item_form = DeliveryItemFormSet ( instance=self.object, )
+        ready_crops = a(Culture.objects.filter(harvest_state=2))
 
-        for form2 in delivery_item_form.forms:
-            print ( form2.instance.pk )
-            if form2.instance.pk:
-                form2.fields['crop'].disabled = True
-                form2.fields['crop_form'].disabled = True
-                form2.initial['crop'] = form2.instance.crop_form.crop
+        not_ready_all = a(Culture.objects.filter(harvest_state=1))
 
-        return self.render_to_response (
-            self.get_context_data ( form=form,
-                                    delivery_item_form=delivery_item_form,
-                                    ) )
+        finished_all = a(Culture.objects.filter(harvest_state=2))
 
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_obj ( )
-        form_class = self.get_form_class ( )
-        form = self.get_form ( form_class )
-        delivery_item_form = DeliveryItemFormSet ( self.request.POST, instance=self.object )
-        if (form.is_valid ( ) and delivery_item_form.is_valid ( )):
-            return self.form_valid ( form, delivery_item_form )
-        else:
-            return self.form_invalid ( form, delivery_item_form )
+        if not_ready_all==None:
+            not_ready_all=[]
 
-    def form_valid(self, form, delivery_item_form):
-        self.object = form.save ( )
-        delivery_item_form.instance = self.object
-        delivery_item_form.save ( )
-        return HttpResponseRedirect ( self.get_success_url ( ) )
+        if finished_all==None:
+            finished_all=[]
 
-    def form_invalid(self, form, delivery_item_form):
-        print ( "invalid" )
-        print ( form.is_valid ( ) )
-        print ( delivery_item_form.is_valid ( ) )
-        for f in delivery_item_form.forms:
-            c=f.changed_data
+        not_ready = [i for i in not_ready_all if i not in ready_crops]
+        finished = [i for i in finished_all if i not in ready_crops]
 
-        print ( form.errors )
-        print ( "A" )
+        return {'not_ready':not_ready,'ready':ready_crops,'finished':finished}
 
-        print ( delivery_item_form.errors )
-        print ( "B" )
-        return self.render_to_response (
-            self.get_context_data ( form=form,
-                                    delivery_item_form=delivery_item_form
-                                    ) )
+    def get(self,request,pk):
+        delivery = get_object_or_404(Delivery,pk=int(pk))
 
-    def get_success_url(self):
-        return reverse ( 'harvest-list' )
+    def cropforms(self):
+        #todo: sortera cropforms. Först de som har ett pris i prislistan. Sedan övriga med parantes runt.
+        #todo: finns det bara en med pris - sätt den som default.
+        cropform_data = {}
 
-    def get_initial(self):
-        return {'time': timezone.now ( )}
+        for crop in Crop.objects.all():
+            cropforms = CropForm.objects.filter(crop=crop.pk)
 
+            priced = [cf for cf in cropforms if self.delivery.customer.category.has_price_for(cf) ]
+            not_priced = [cf for cf  in cropforms if cf not in priced]
 
-class DeliveryNew ( CreateView ):
-    model = DeliverySingle
-    form_class = DeliverySingleForm
-    template_name = 'harvester/delivery-edit.html'
-
-    def get_obj(self):
-        return None
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_obj ( )
-        form_class = self.get_form_class ( )
-        form = self.get_form ( form_class )
-
-        delivery_item_form = DeliveryItemFormSet ( instance=self.object )
-
-        return self.render_to_response (
-            self.get_context_data ( form=form,
-                                    delivery_item_form=delivery_item_form,
-                                    ) )
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_obj ( )
-        form_class = self.get_form_class ( )
-        form = self.get_form ( form_class )
-        delivery_item_form = DeliveryItemFormSet ( self.request.POST )
-
-        if (form.is_valid ( ) and delivery_item_form.is_valid ( )):
-            return self.form_valid ( form, delivery_item_form )
-        else:
-            return self.form_invalid ( form, delivery_item_form )
-
-    def form_valid(self, form, delivery_item_form):
-        self.object = form.save ( )
-        delivery_item_form.instance = self.object
-        delivery_item_form.save ( )
-        return HttpResponseRedirect ( self.get_success_url ( ) )
-
-    def form_invalid(self, form, delivery_item_form):
-        print ( "invalid" )
-        print ( form.is_valid ( ) )
-        print ( delivery_item_form.is_valid ( ) )
-        print ( form.errors )
-        print ( delivery_item_form.errors )
-        return self.render_to_response (
-            self.get_context_data ( form=form,
-                                    delivery_item_form=delivery_item_form
-                                    ) )
-
-    def get_success_url(self):
-        return reverse ( 'harvest-list' )
-
-    def get_initial(self):
-        return {'time': timezone.now ( )}
+            def a(l):
+                return [{'pk': cropform.pk,
+                  'name': cropform.form_name,
+                  'countable': cropform.countable}
+                 for cropform in l]
 
 
 
-class CustomerCategoryList ( ListView ):
-    model = CustomerCategory
+            cropform_data[crop.pk] =  {'priced':a(priced),'not_priced':a(not_priced)}
+        return cropform_data
+    def get(self, request,pk):
+        self.delivery = get_object_or_404(Delivery,pk=int(pk))
+
+        template = 'harvester/delivery-edit.html'
+
+        v=[{'name':chr(ord('A')+i),'variant':v} for i,v in enumerate(self.delivery.deliveryvariant_set.all())]
+
+        d=dir(self.delivery)
 
 
-class CustomerCategoryEdit ( UpdateView ):
-    model = CustomerCategory
+
+        context  = {'delivery':self.delivery,
+                    'crops':self.crops(),
+                    'cropform_data':simplejson.dumps(self.cropforms()),
+                    'variants':v
+                    }
+
+        return render ( request,
+                        template,
+                        context )
 
 
-class CropList ( ListView ):
-    model = Crop
 
-    template_name = 'harvester/crop-list.html'
+    # Skapa en ny DeliveryItem
+    def post(self, request, pk):
+        # TODO: ska skapa DeliveryItem verkligen vara här?
+
+        cropform=get_object_or_404(CropForm, pk=int(request.POST['cropform']))
+        delivery =get_object_or_404(Delivery, pk=pk)
+
+        di = DeliveryItem(delivery=delivery,
+                          cropform = cropform,
+                          order_amount = float(request.POST['amount']),
+                          order_unit   = request.POST['unit'],
+                          price=0,
+                          price_type="W"  # TODO: sätt pris och pristyp efter prislista
+                          )
+        p = di.listed_price()
+        di.price=p.price
+        di.price_type=p.unit
+        di.save()
+
+        # skicka tillbaka till föregående
+        return HttpResponseRedirect ( request.path )
+
+class DeliverySetDelivered( RedirectView):
+    def get_redirect_url(self, *args, **kwargs ):
+        id = self.kwargs['pk']
+        delivery = get_object_or_404 ( Delivery, pk=id )
+        date = self.request.POST['date']
+
+        delivery.delivery_date=date
+        delivery.save()
+        return reverse("delivery-spec", args=[delivery.pk])
 
 
-class CropEdit ( UpdateView ):
-    model = Crop
-    form_class = CropFormForm
-    template_name = 'harvester/crop-edit.html'
+class CropNew(RedirectView):
+    def get_redirect_url(self,*args,**kwargs):
+        name = self.request.POST['name']
 
-    def get_obj(self):
-        return self.get_object ( )
+        cf=Crop.objects.create(crop=name)
+        return(reverse('crops-prices'))
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_obj ( )
-        form_class = self.get_form_class ( )
-        form = self.get_form ( form_class )
-        cropform_form = CropFormFormSet ( instance=self.object )
+class CustomerCategoryNew(RedirectView):
+    def get_redirect_url(self,*args,**kwargs):
+        name = self.request.POST['name']
 
-        return self.render_to_response (
-            self.get_context_data ( form=form,
-                                    cropform_form=cropform_form,
-                                    ) )
+        cf=CustomerCategory.objects.create(name=name)
+        return(reverse('crops-prices'))
 
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_obj ( )
-        form_class = self.get_form_class ( )
-        form = self.get_form ( form_class )
-        cropform_form = CropFormFormSet ( self.request.POST )
-        print ( cropform_form )
-        if (form.is_valid ( ) and cropform_form.is_valid ( )):
-            return self.form_valid ( form, cropform_form )
-        else:
-            return self.form_invalid ( form, cropform_form )
 
-    def form_valid(self, form, cropform_form):
-        self.object = form.save ( )
-        cropform_form.instance = self.object
-        cropform_form.save ( )
-        return HttpResponseRedirect ( self.get_success_url ( ) )
+class cropform_new(RedirectView):
+    def get_redirect_url(self,*args,**kwargs):
+        crop = get_object_or_404( Crop, pk=self.request.POST['cropid'])
+        name = self.request.POST['name']
+        countable = 'countable' in self.request.POST
+        weight_of_one_unit = float(self.request.POST['weightofoneunit'])
 
-    def form_invalid(self, form, cropform_form):
+        cf=CropForm.objects.create(form_name=name, countable=countable, weight_of_one_unit=weight_of_one_unit, crop=crop)
+        return(reverse('crops-prices'))
 
-        return self.render_to_response (
-            self.get_context_data ( form=form,
-                                    cropform_form=cropform_form
-                                    ) )
+class CropsPrices(View):
+    def get(self,request):
+        template = "harvester/cropsprices.html"
+        categories = []
+        crops = []
+        for category in CustomerCategory.objects.all():
+            categories.append({'category':category.name,
+                               'customers':category.customer_set.all()
+                               })
 
-    def get_success_url(self):
-        return reverse ( 'harvest-new' )
+        for crop in Crop.objects.all():
+            cropforms = []
+            for cropform in crop.cropforms.all():
+                prices = []
+                for category in CustomerCategory.objects.all():
+                    pi = PriceItem.objects.filter(customercategory=category,cropform=cropform).first()
+                    prices.append( {'priceitem':pi, 'category':category } )
+                cropforms.append (
+                    {
+                        "prices":prices,
+                        "cropform":cropform
+                    }
 
-    def get_initial(self):
-        return {'time': timezone.now ( )}
+                )
+            crops.append ( {
+                "crop":crop,
+                "cropforms":cropforms
+            })
+        context  = {
+                    'categories':categories,
+                    'crops':crops,
+
+                    }
+
+        return render ( request,
+                        template,
+                        context )
+
+
+class DeliverySpec ( DetailView ):
+    model = Delivery
+    template_name = "harvester/delivery-spec.html"
 
 
 
 class DeliveryList ( ListView ):
     template_name = 'harvester/delivery-list.html'
-    model = DeliverySingle
+    model = Delivery
+
+    state_filter = [{'q':'none' , 'text':'Alla'},
+                    {'q': 'delivered', 'text': 'Levererade'},
+                    {'q': 'not_delivered', 'text': 'Ej Levererade'},
+                    {'q': 'not_delivered_2', 'text': 'Ej Levererade, kommande 2 dagarna'},
+                    {'q': 'not_delivered_7', 'text': 'Ej Levererade, kommande veckan'},
+                    ]
 
 
-class DeliveryEditHarvests ( View ):
-    template_name = 'harvester/delivery-edit-harvests.html'
-    def initial_data(self):
-        cultures = Culture.objects.filter ( crop=self.deliveryitem.crop_form.crop )
-        objects = []
-        for culture in cultures:
-            harvest_items_for_culture = HarvestItem.objects.filter ( destination=self.deliveryitem, culture=culture )
+    def filter(self):
+        return self.request.GET.get ( 'filter', 'none' )
 
-            if harvest_items_for_culture.count ( ) == 0:
-                harvest_items_for_culture = [
-                    HarvestItem ( harvested_length=0, culture=culture, destination=self.deliveryitem, weight=0,
-                                  count=0 )]
-            for h in harvest_items_for_culture:
-                o = h.__dict__
-                o['culture'] = h.culture.id
-                o['culture_id'] = h.culture.id
-                o['culture_name'] = h.culture.bed.__str__ ( )
-                o['culture_state'] = h.culture.harvest_state
-                o['i'] = culture
-                o['id'] = h.id
-                objects.append ( o )
+    def time_filter(self):
+        return self.request.GET.get ( 'time_filter', 'none' )
 
-        return objects
-    def get_deliveryitem(self):
+    def get_queryset(self):
+        q=Delivery.objects
+        f=self.filter()
+
+
+        if f=='none':
+            q=Delivery.objects.all()
+        elif f=='delivered':
+            q=Delivery.objects.exclude(delivery_date__isnull=True)
+        elif f=='not_delivered':
+            q=Delivery.objects.exclude ( delivery_date__isnull=False)
+        elif f=='not_delivered_2':
+            q = Delivery.objects.exclude ( delivery_date__isnull=False )\
+                    .filter(target_date__lte=datetime.now()+timedelta(days=2))
+        elif f=='not_delivered_7':
+            q = Delivery.objects.exclude ( delivery_date__isnull=False )\
+                    .filter(target_date__lte=datetime.now()+timedelta(days=7))
+
+
+
+        return q
+
+class HarvestItemDelete(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
         id = self.kwargs['pk']
-        self.deliveryitem = get_object_or_404 ( DeliveryItem, pk=id )
-    def get(self, request, *args, **kwargs):
-        print ( self.kwargs )
-        self.get_deliveryitem()
-        formset = HarvestItemFormSet ( initial=self.initial_data(), )
-        form    = DeliveryItemHarvestForm(instance=self.deliveryitem)
-        return render ( request, self.template_name, {'d_pk':self.deliveryitem.id,'delivery_item':self.deliveryitem,'formset': formset,'form':form} )
+        harvestitem = get_object_or_404 ( HarvestItem, pk=id )
+        deliveryitem = harvestitem.destination
+        harvestitem.delete()
+        return reverse("delivery-edit-harvests", args=[deliveryitem.pk, ""])
 
-    def update(self,data):
-        hi=HarvestItem.objects.get(pk=data['id'])
-        hi.weight=data['weight']
-        hi.count=data['count']
-        hi.comment=data['comment']
-        hi.harvested_length = data['harvested_length']
-        hi.save()
-    def create(self,data):
-        hi=HarvestItem()
-        hi.culture=Culture.objects.get(pk=data['culture_id'])
-        hi.weight=data['weight']
-        hi.count=data['count']
-        hi.comment=data['comment']
-        hi.harvested_length = data['harvested_length']
-        hi.destination = self.deliveryitem
-        hi.save()
-    def delete(self,data):
-        hi = HarvestItem.objects.get ( pk=data['id'] )
-        hi.delete()
-    def update_culture_state(self,data):
-        culture = Culture.objects.get(pk=data['culture_id'])
-        culture.harvest_state=data['culture_state']
-        culture.save()
-    def create_or_update(self, data):
 
-        if data['id']:
-            if data['weight']==0:
-                self.delete(data)
+class DeliverySingleDelete(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        id = self.kwargs['pk']
+        deliverysingle = get_object_or_404 ( Delivery, pk=id )
+        deliverysingle.delete()
+        return reverse("delivery-list")
+
+
+class DeliveryItemDelete(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        id = self.kwargs['pk']
+        deliveryitem=get_object_or_404 ( DeliveryItem, pk=id )
+        delivery = deliveryitem.delivery
+        deliveryitem.delete()
+        return reverse("delivery-edit", args=[delivery.pk])
+
+
+class HarvestItemUpdate(UpdateView):
+    model = HarvestItem
+    form_class = HarvestItemForm
+    template_name = 'harvester/delivery-edit-harvests.html'
+
+    def deliveryitem(self):
+        id = self.kwargs['pk']
+        return get_object_or_404 ( HarvestItem, pk=id ).destination
+
+    def prev_harvests(self):
+        pk = self.kwargs['pk']
+        return HarvestItem.objects.filter(destination_id=pk)
+
+    def get_success_url(self):
+        return unquote ( self.kwargs['url'] )
+
+class HarvestItemNew (CreateView):
+    model = HarvestItem
+    form_class = HarvestItemForm
+    template_name = 'harvester/delivery-edit-harvests.html'
+
+
+    def deliveryitem(self):
+        id = self.kwargs['pk']
+        return get_object_or_404 ( DeliveryItem, pk=id )
+
+    def prev_harvests(self):
+        pk = self.kwargs['pk']
+        return HarvestItem.objects.filter(destination_id=pk)
+
+
+    def post(self, request, *args, **kwargs):
+        self.success_url =  unquote(self.kwargs['url'])
+
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+
+        # the actual modification of the form
+        form.instance.destination = self.deliveryitem()
+
+        if form.is_valid():
+            if form.cleaned_data["harvest_state"]:
+                form.instance.destination.state='P'
+                form.instance.destination.save()
             else:
-                self.update(data)
+                form.instance.destination.state = 'C'
+                form.instance.destination.save ( )
+
+            return self.form_valid(form)
         else:
-            if data['weight']>0:
-                self.create(data)
+             return self.form_invalid(form)
 
-    def post( self, request, *args, **kwargs ):
-        self.get_deliveryitem ( )
-        formset = HarvestItemFormSet ( request.POST, initial=self.initial_data() )
-        print (request.POST);
-        if formset.is_valid():
-            for form2 in formset.forms:
-                if form2.has_changed():
-                    print ("changed")
-                    print (form2.changed_data)
-                    print (form2.cleaned_data)
-                    self.create_or_update(form2.cleaned_data)
-                    if 'culture_state' in form2.changed_data:
-                        self.update_culture_state(form2.cleaned_data)
+class BedsAndCultures (View):
+    def get(self,request):
+        template = "harvester/bedsandcultures.html"
+        beds = Bed.objects.all()
 
-            print ("VALID!")
-            return HttpResponse ( "Here's the text of the Web page." )
-        else:
-            print ("invalid!")
-            print (formset.errors)
-            return HttpResponse(render(request,self.template_name,{'formset':formset}))
+        context  = {
+                    'beds':beds,
+                    'harvest_states':Culture.HARVEST_CHOICES
+                   }
 
+        return render ( request,
+                        template,
+                        context )
 
