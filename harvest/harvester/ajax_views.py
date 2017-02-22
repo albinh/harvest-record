@@ -86,11 +86,11 @@ class values_for_deliveryitem(View):
               }
         return HttpResponse ( simplejson.dumps ( data ) )
 
-class delivery_edit_target_date(View):
+class delivery_edit_date(View):
     def post(self,request):
         delivery = get_object_or_404(Delivery, pk=request.POST['pk'])
         d = datetime.strptime(request.POST['value'], '%Y-%m-%d')
-        delivery.target_date=d
+        delivery.date=d
         delivery.save()
         return HttpResponse ("")
 

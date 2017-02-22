@@ -32,11 +32,11 @@ Ny leverans
 
                     <label>Leveransdatum</label>
 
-                    <input name="date" class="form-control" type="date"/>
+                    <input name="date" class="form-control" type="date" value="{{delivery.date|date:"Y-m-d"}}"/>
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
                     <button type="submit" class="btn btn-primary">Markera som levererad</button>
                 </div>
                 </form>
@@ -134,7 +134,7 @@ Dialog för att lägga till grödor
 <!-- Allmänn info -->
 
 <script>
-    {% if delivery.delivery_date %}
+    {% if delivery.date %}
         var is_delivered=true
     {%else%}
         var is_delivered=false
@@ -150,18 +150,18 @@ Dialog för att lägga till grödor
             <a href="#"
                class="editable"
                data-type="combodate"
-               data-value="{{delivery.target_date|unlocalize}}"
+               data-value="{{delivery.date|unlocalize}}"
                data-combodate="{maxYear:2017}"
                data-pk="{{delivery.pk}}"
-               data-url="{%url "delivery_edit_target_date" %}"
+               data-url="{%url "delivery_edit_date" %}"
             >
-                {{delivery.target_date}}
+                {{delivery.date}}
             </a>
         </h2>
 
-        {% if delivery.delivery_date %}
+        {% if delivery.state == "D" %}
             <a href="{%url "delivery-spec" delivery.pk%}">
-                Levererad {{delivery.delivery_date}}. Visa följsesedel
+                Levererad {{delivery.date}}. Visa följsesedel
             </a>
         {%else%}
             <button type="button" data-toggle="modal" data-target="#set_delivered_modal"  class="btn btn-default">Markera som levererad</button>
@@ -272,7 +272,16 @@ Dialog för att lägga till grödor
         {% for di in delivery.deliveryitem_set.all %}
 
 
-<div class="row gutter-10 alert alert-success order-item top-buffer">
+<div class="row gutter-10 alert
+   {% if di.state == "C" %}
+    alert-success
+   {% elif di.state == "P" %}
+        alert-danger
+        {% else %}
+        alert-info
+        {%endif%}
+
+   order-item top-buffer">
     <div class="col-xs-5">
 
 <div class="order-amount" style="display:inline-block">
@@ -291,7 +300,7 @@ Dialog för att lägga till grödor
                     data-title="Ange mängd"
                     data-url='/harvester/ajax/delivery_item_edit_amount'
             >
-            </a>{% if not delivery.delivery_date %}
+            </a>{% if not delivery.date %}
 
             {%endif%}
     </div >
@@ -371,6 +380,9 @@ Dialog för att lägga till grödor
 </div>
         </div>
         <div class="col-xs-3">
+
+            {% if delivery.state != "D" %}
+
             <a data-id="{{i.pk}}"
                href="{%url "delivery-edit-harvests" di.pk request.get_full_path|urlencode:"" %}"
             >
@@ -380,8 +392,8 @@ Dialog för att lägga till grödor
                     {{di.harvest_relation}}
                 </span>
             </a>
-
-            {% if not delivery.delivery_date %}
+            {% endif %}
+            {% if delivery.state != "D" %}
             <a style="font-size:2em" data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "delivery-item-delete" di.pk %}"> <span class="glyphicon glyphicon-trash"></span></a></td>
         {%endif%}
 
@@ -395,11 +407,13 @@ Dialog för att lägga till grödor
 
 
 {%endfor%}
+    {%if delivery.state != "D" %}
     <a href="#" data-toggle="modal" data-target="#add_modal">
     <div class="row gutter-10 alert alert-info" style="text-align:center;font-size:2em">
         <span class="glyphicon glyphicon-plus"></span> Lägg till gröda
     </div>
         </a>
+    {% endif%}
 </div>
     </div>
 

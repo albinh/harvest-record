@@ -23,9 +23,9 @@
 
     {% for delivery in object_list %}
     <div class="row alert
-    {% if delivery.get_state == "delivered" %}
+    {% if delivery.state == "D" %}
         alert-success
-    {% elif delivery.get_state == "in_progress" %}
+    {% elif delivery.state == "P" %}
         alert-info
 {%else%}
 alert-warning
@@ -40,11 +40,11 @@ alert-warning
 
             <div class="col-md-5">
 
-            {%if delivery.delivery_date %}
-                        {{delivery.delivery_date |date:"M d"}}
+            {%if delivery.state == "D" %}
+                        {{delivery.date |date:"M d"}}
                         <a href="{%url "delivery-spec" delivery.pk%}"><span class="glyphicon glyphicon-print"></span> </a>
                         {%else %}
-                            {{delivery.target_date|date:"M d" }}
+                            {{delivery.date|date:"M d" }}
                         {%endif%}
                 </div>
                 <div class="col-md-2">

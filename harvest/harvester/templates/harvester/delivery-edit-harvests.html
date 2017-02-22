@@ -5,7 +5,11 @@
 {% block content %}
 <h1>Registrera skörd</h1>
 
-{{view.deliveryitem.cropform.crop}} ({{ view.deliveryitem.cropform }}) till {{ view.deliveryitem.delivery.customer }} ({{ view.deliveryitem.delivery.target_date }})
+<div class="alert alert-danger">
+    Denna del av beställningen är redan markerad som färdig. Registrera inte någon ny skörd om du inte är säker på vad du gör!
+</div>
+
+{{view.deliveryitem.cropform.crop}} ({{ view.deliveryitem.cropform }}) till {{ view.deliveryitem.delivery.customer }} ({{ view.deliveryitem.delivery.date }})
 <form method="post" action="">
     {% if form.non_field_errors %}
     <div class="alert alert-danger">

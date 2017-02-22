@@ -16,10 +16,10 @@ import simplejson
 class DeliveryNew ( RedirectView ):
     def get_redirect_url(self, *args, **kwargs):
         customer = get_object_or_404 ( Customer, pk=self.request.POST['customer'] )
-        target_date = self.request.POST['date']
+        date = self.request.POST['date']
         type = self.request.POST['type']
         d = Delivery ( )
-        d.target_date = target_date
+        d.date = date
         d.customer = customer
         d.type=type
         d.save ( )
@@ -47,15 +47,15 @@ class DeliveryView(View):
         def a(cultures):
             c=[]
             for culture in cultures:
-                if not culture.crop in ready_crops:
-                    c.append ( {'pk': culture.crop.pk, 'name': culture.crop.crop} )
+
+                c.append ( {'pk': culture.crop.pk, 'name': culture.crop.crop} )
             return c
 
-        ready_crops = a(Culture.objects.filter(harvest_state=2))
+        ready_crops =   a(Culture.objects.filter(harvest_state=2))
 
         not_ready_all = a(Culture.objects.filter(harvest_state=1))
 
-        finished_all = a(Culture.objects.filter(harvest_state=2))
+        finished_all =  a(Culture.objects.filter(harvest_state=2))
 
         if not_ready_all==None:
             not_ready_all=[]
@@ -143,8 +143,14 @@ class DeliverySetDelivered( RedirectView):
         delivery = get_object_or_404 ( Delivery, pk=id )
         date = self.request.POST['date']
 
-        delivery.delivery_date=date
+        delivery.date=date
+        delivery.state = "D"
         delivery.save()
+
+        for di in delivery.deliveryitem_set.all():
+            di.state="C"
+            di.save()
+
         return reverse("delivery-spec", args=[delivery.pk])
 
 
@@ -244,15 +250,15 @@ class DeliveryList ( ListView ):
         if f=='none':
             q=Delivery.objects.all()
         elif f=='delivered':
-            q=Delivery.objects.exclude(delivery_date__isnull=True)
+            q=Delivery.objects.filter (state="D")
         elif f=='not_delivered':
-            q=Delivery.objects.exclude ( delivery_date__isnull=False)
+            q=Delivery.objects.exclude ( state="D")
         elif f=='not_delivered_2':
-            q = Delivery.objects.exclude ( delivery_date__isnull=False )\
-                    .filter(target_date__lte=datetime.now()+timedelta(days=2))
+            q = Delivery.objects.exclude ( state="D")\
+                    .filter(date__lte=datetime.now()+timedelta(days=2))
         elif f=='not_delivered_7':
-            q = Delivery.objects.exclude ( delivery_date__isnull=False )\
-                    .filter(target_date__lte=datetime.now()+timedelta(days=7))
+            q = Delivery.objects.exclude ( state="D" )\
+                    .filter(date__lte=datetime.now()+timedelta(days=7))
 
 
 
@@ -332,6 +338,7 @@ class HarvestItemNew (CreateView):
         # the actual modification of the form
         form.instance.destination = self.deliveryitem()
 
+
         form.fields["culture"].queryset = Culture.objects.filter ( crop=form.instance.destination.cropform.crop )
 
         if form.is_valid():
@@ -341,7 +348,8 @@ class HarvestItemNew (CreateView):
             else:
                 form.instance.destination.state = 'C'
                 form.instance.destination.save ( )
-
+            form.instance.destination.delivery.state = 'P'
+            form.instance.destination.delivery.save()
             return self.form_valid(form)
         else:
              return self.form_invalid(form)

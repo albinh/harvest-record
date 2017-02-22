@@ -30,7 +30,7 @@ urlpatterns = [
 	url(r'ajax/delivery_item_edit_amount', ajax_views.delivery_item_edit_amount.as_view(), name='delivery_item_edit_amount'),
 
 	url(r'ajax/values_for_deliveryitem', ajax_views.values_for_deliveryitem.as_view(), name='values_for_deliveryitem'),
-	url(r'ajax/delivery_edit_target_date', ajax_views.delivery_edit_target_date.as_view(), name='delivery_edit_target_date'),
+	url(r'ajax/delivery_edit_date', ajax_views.delivery_edit_date.as_view(), name='delivery_edit_date'),
 
 	url(r'ajax/delivery_variant_edit_count', ajax_views.delivery_variant_edit_count.as_view(), name='delivery_variant_edit_count'),
 	url(r'ajax/delivery_variant_included', ajax_views.delivery_variant_included.as_view(), name='delivery_variant_included'),

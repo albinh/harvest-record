@@ -71,25 +71,26 @@ class Culture (models.Model):
 
 class Delivery (models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    target_date = models.DateField(default=datetime.now)
-    delivery_date = models.DateField(null=True, blank=True)
+    date = models.DateField(default=datetime.now)
+
     def __str__(self):
-        return '%s (%s)' % (self.customer.name, self.target_date.strftime("%B %d"))
+        return '%s (%s)' % (self.customer.name, self.date.strftime("%B %d"))
 
     DELIVERY_TYPES = (
         ('N','normal'),
         ('B','box')
     )
 
+    DELIVERY_STATES = (
+        ('N', 'ej påbörjad',),
+        ('P', 'påbörjad'),
+        ('D', 'levererad')
+    )
+
+    state = models.CharField(max_length=1, choices=DELIVERY_STATES,default='N')
+
     type = models.CharField(max_length=1,choices=DELIVERY_TYPES,default='N')
 
-    def get_state(self):
-        if self.delivery_date:
-            return "delivered"
-        elif self.deliveryitem_set.exclude(state='N').exists():
-            return "in_progress"
-        else:
-            return "not_started"
 
     def save(self, force_insert=False, force_update=False):
         is_new = self.pk is None
