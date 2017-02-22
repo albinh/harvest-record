@@ -314,6 +314,13 @@ class HarvestItemNew (CreateView):
         pk = self.kwargs['pk']
         return HarvestItem.objects.filter(destination_id=pk)
 
+    def get_form_kwargs(self):
+        kwargs = super(HarvestItemNew, self).get_form_kwargs()
+        kwargs['di'] = self.deliveryitem()
+        return kwargs
+
+
+
 
     def post(self, request, *args, **kwargs):
         self.success_url =  unquote(self.kwargs['url'])
