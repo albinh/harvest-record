@@ -1,13 +1,7 @@
-#logo {
-	height:10em;
-	right:0px;
-	position:absolute;
 
-}
 
 .autowidth {
-width: auto !important;
-
+    width: auto !important;
 }
 
 .di-completed {
@@ -20,38 +14,19 @@ width: auto !important;
 }
 
 .crop-list {
-padding:0;
-  list-style-type: none;
-
-}
-.top-buffer { margin-bottom:20px; }
-
-.w-50 {
-    width:50% !important;
+    padding:0;
+    list-style-type: none;
 }
 
 
-.form-control {
-    font-size:18px; !important;
+.delivery {
+    margin-bottom:20px;
 }
 
 input[type="checkbox"] {
     width:1em;
 }
 
-.loader {
-    border: 16px solid #f3f3f3; /* Light grey */
-    border-top: 16px solid #3498db; /* Blue */
-    border-radius: 50%;
-    width: 120px;
-    height: 120px;
-    animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
 
 .editable-empty {
     color:#CCCCCC; !important;
@@ -59,7 +34,7 @@ input[type="checkbox"] {
 }
 
 .pricetable {
-border-width:0 !important;
+    border-width:0 !important;
 }
 
 
@@ -86,11 +61,14 @@ tr.cropstart>td {
     font-style:italic;
 }
 
-      .gutter-10.row {
-        margin-right: -5px;
-        margin-left: -5px;
-      }
-      .gutter-10 > [class^="col-"], .gutter-10 > [class^=" col-"] {
-        padding-right: 5px;
-        padding-left: 5px;
-      }
+
+// Används för att minska padding
+.gutter-10.row {
+    margin-right: -5px;
+    margin-left: -5px;
+}
+
+.gutter-10 > [class^="col-"], .gutter-10 > [class^=" col-"] {
+    padding-right: 5px;
+    padding-left: 5px;
+}

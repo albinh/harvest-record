@@ -14,7 +14,7 @@ class CropFormForm(ModelForm):
         exclude=[]
 
 class HarvestItemForm(ModelForm):
-    culture_state = forms.ChoiceField(choices=Culture.HARVEST_CHOICES)
+    culture_state = forms.ChoiceField(choices=Culture.HARVEST_CHOICES,initial=2)
     harvest_state = forms.BooleanField(required=False)
     class Meta:
         widgets = {

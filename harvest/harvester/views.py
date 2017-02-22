@@ -325,6 +325,8 @@ class HarvestItemNew (CreateView):
         # the actual modification of the form
         form.instance.destination = self.deliveryitem()
 
+        form.fields["culture"].queryset = Culture.objects.filter ( crop=form.instance.destination.cropform.crop )
+
         if form.is_valid():
             if form.cleaned_data["harvest_state"]:
                 form.instance.destination.state='P'

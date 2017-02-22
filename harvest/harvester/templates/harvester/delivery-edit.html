@@ -141,12 +141,13 @@ Dialog för att lägga till grödor
     {%endif%}
 </script>
 <div class="row">
-<div class="col-md-3">
+    <div class="col-md-3">
 
 
-    <h2>{{delivery.customer}}</h2>
+        <h2>{{delivery.customer}}</h2>
 
-    <h2><a href="#"
+        <h2>
+            <a href="#"
                class="editable"
                data-type="combodate"
                data-value="{{delivery.target_date|unlocalize}}"
@@ -154,110 +155,121 @@ Dialog för att lägga till grödor
                data-pk="{{delivery.pk}}"
                data-url="{%url "delivery_edit_target_date" %}"
             >
-                {{delivery.target_date}}</a></h2>
+                {{delivery.target_date}}
+            </a>
+        </h2>
 
         {% if delivery.delivery_date %}
-        <a href="{%url "delivery-spec" delivery.pk%}">Levererad {{delivery.delivery_date}}. Visa följsesedel</a>
-    {%else%}
-    <button type="button" data-toggle="modal" data-target="#set_delivered_modal"  class="btn btn-default">Markera som levererad</button>
-    {%endif%}
-    <p>Beställt:</p>
-    <h2>
-            <span id="harvested_sum">0</span> kr (<span id="order_sum">0</span> kr)</h2>
+            <a href="{%url "delivery-spec" delivery.pk%}">
+                Levererad {{delivery.delivery_date}}. Visa följsesedel
+            </a>
+        {%else%}
+            <button type="button" data-toggle="modal" data-target="#set_delivered_modal"  class="btn btn-default">Markera som levererad</button>
+        {%endif%}
 
-{% if delivery.type == "B" %}
+        <p>Beställt:</p>
+        <h2>
+            <span id="harvested_sum">0</span> kr (<span id="order_sum">0</span> kr)
+        </h2>
+
+        {% if delivery.type == "B" %}
         <div class="panel panel-default">
             <div class="panel-heading">Varianter kassar</div>
-            <div class="panel-body">
-                <form>
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th ></th>
-                        {% for v in variants %}
-                    <th>{{v.name}}</th>
-                        {% endfor %}
-<th><a href="{% url 'delivery_variant_new' delivery.pk %}"> <span class="glyphicon glyphicon-plus"></span></a></th>
-                        </tr>
-<tr><th>antal</th>
-    {% for v in variants %}
-                   <th>
-                        <a href="#"
-               class="editable"
-               data-pk="{{v.variant.pk}}"
-               data-value="{{v.variant.count}}"
-               data-type="number"
-               data-url='/harvester/ajax/delivery_variant_edit_count'
-               data-name="delivery_variant_count"
-               data-emptytext="avvikelser"
-        ></a> </th>
-                {% endfor %}
-                        </tr>
-                    <tbody>
-                    {% for di in delivery.deliveryitem_set.all %}
-                    <tr>
-                        <td><div style="text-overflow: ellipsis;  white-space: nowrap;
-  overflow: hidden;width:3em">{{di.cropform.crop}}</div></td>
-
-                        {% for v in di.variants %}
-                    <td>
-                        <a href="#"
-               class="editable"
-               data-pk="{{v.variant.pk}},{{di.pk}}"
-               data-value="1" data-source="[{ value:{{v.included}},text:'{{v.name}}'}]"
-               data-type="checklist"
-               data-title="ingår i kasse"
-               data-url='/harvester/ajax/delivery_variant_included'
-               data-name="delivery_variant_included"
-                           data-emptytext="-"
-        ></a> </td>
-                {% endfor %}
-
-                    </tr>
-                    {%endfor%}
-                <tfoot>
-                    <tr>
-                        <td>Grödor</td>
-                  {% for v in variants %}
-                    <td>
-
-                        <span id="box_sum_count-{{v.variant.pk}}"></span>
-                    </td>
-                {%endfor%}
-                    </tr>
-                <tr>
-
-                    <td>Värde</td>
-
+                <div class="panel-body">
+                    <form>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th ></th>
                                 {% for v in variants %}
-                    <td>
-                        <span id="box_sum_value-{{v.variant.pk}}"> </span> <br>
+                                    <th>{{v.name}}</th>
+                                {% endfor %}
+                                <th>
+                                    <a href="{% url 'delivery_variant_new' delivery.pk %}">
+                                        <span class="glyphicon glyphicon-plus"></span>
+                                    </a>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th>antal</th>
+                                {% for v in variants %}
+                                    <th>
+                                        <a href="#"
+                                            class="editable"
+                                            data-pk="{{v.variant.pk}}"
+                                            data-value="{{v.variant.count}}"
+                                           data-type="number"
+                                           data-url='/harvester/ajax/delivery_variant_edit_count'
+                                           data-name="delivery_variant_count"
+                                           data-emptytext="avvikelser"
+                                        ></a>
+                                    </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for di in delivery.deliveryitem_set.all %}
+                                 <tr>
+                                    <td>
+                                        <div
+                                                style="text-overflow: ellipsis;  white-space: nowrap;
+  overflow: hidden;width:3em">{{di.cropform.crop}}
+                                        </div>
+                                    </td>
 
-                    </td>
-                {%endfor%}
+                                    {% for v in di.variants %}
+                                        <td>
+                                            <a href="#"
+                                               class="editable"
+                                               data-pk="{{v.variant.pk}},{{di.pk}}"
+                                               data-value="1" data-source="[{ value:{{v.included}},text:'{{v.name}}'}]"
+                                               data-type="checklist"
+                                               data-title="ingår i kasse"
+                                               data-url='/harvester/ajax/delivery_variant_included'
+                                               data-name="delivery_variant_included"
+                                               data-emptytext="-" >
+                                            </a>
+                                        </td>
+                                    {% endfor %}
+
+                                 </tr>
+                            {%endfor%}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td>Grödor</td>
+                                {% for v in variants %}
+                                    <td>
+
+                                        <span id="box_sum_count-{{v.variant.pk}}"></span>
+                                    </td>
+                                {%endfor%}
+                            </tr>
+                            <tr>
+                                <td>Värde</td>
+                                {% for v in variants %}
+                                    <td>
+                                        <span id="box_sum_value-{{v.variant.pk}}"> </span> <br>
+
+                                    </td>
+                                {%endfor%}
 
 
-                </tr>
+                            </tr>
 
 
-                </tfoot>
-                    </tbody>
-                    </thead>
-
-                </table>
-</form>
-
+                        </tfoot>
+                    </table>
+                    </form>
+                 </div>
             </div>
-        </div>
-{%endif%}
-
-</div>
+        {%endif%}
+    </div>
 
 
 
-<div class="col-md-9">
-
-{% for di in delivery.deliveryitem_set.all %}
+    <div class="col-md-9">
+        {% for di in delivery.deliveryitem_set.all %}
 
 
 <div class="row gutter-10 alert alert-success order-item top-buffer">
