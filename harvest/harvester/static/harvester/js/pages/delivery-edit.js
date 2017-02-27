@@ -99,8 +99,7 @@ function recalc(pk ) {
 
 $(function(){
 
-        $('.inlinesparkline').sparkline('html',{width:'80%', type:'bullet', borderWidth:1, targetColor: '#000000',
-        performanceColor: '#666666',});
+        
 
         $.fn.editable.defaults.placement = 'auto top';
         if (is_delivered) {
