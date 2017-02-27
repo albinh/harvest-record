@@ -99,9 +99,8 @@ function recalc(pk ) {
 
 $(function(){
 
-        
 
-        $.fn.editable.defaults.placement = 'auto top';
+         $.fn.editable.defaults.placement = 'auto top';
         if (is_delivered) {
              $.fn.editable.defaults.disabled = true;
         }
