@@ -1,0 +1,177 @@
+
+<div data-pk="{{di.pk}}" class="row gutter-10 alert    order-item top-buffer
+   {% if di.state == "C" %}
+alert-success
+{% elif di.state == "P" %}
+alert-warning
+{% else %}
+alert-info
+{%endif%}
+">
+
+    <div class="col-md-5">
+        <div class="row">
+            <div class="col-xs-5">
+
+                <div class="crop" style="display:inline-block">
+                <span style="font-weight:bold">
+
+                    {{di.cropform.crop}}
+
+                </span>
+                </div>
+
+                <div class="cropform" style="display:inline-block">
+                <span style="font-weight:100">
+                    {{di.cropform}}
+                </span>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <a
+                        href="#"
+                        class="editable price price_state"
+                        data-type="amount_and_unit"
+                        data-pk="{{di.pk}}"
+                        data-value="{'amount': '{{di.price}}','unit': '{{di.price_type}}'}"
+                        {%if di.cropform.countable %}
+                        data-units='{"W":"kr/kg","U":"kr/{{di.cropform.form_name}}" }'
+                        {% else %}
+                        data-units='{"W":"kr/kg" }'
+                        {% endif %}
+                        data-title="Ange pris"
+                        data-name="price"
+                        data-url='/harvester/ajax/delivery_item_edit_price'
+                >
+                </a>
+
+
+                                {% if delivery.type == "B" %}
+
+                <a
+                        href="#"
+                        class="editable amount"
+                        data-type="amount_and_unit"
+                        data-pk="{{di.pk}}"
+                        data-value="{'amount': '{{di.order_amount}}','unit': '{{di.order_unit}}'}"
+                        {%if di.cropform.countable %}
+                        data-units='{"W":"kg","U":"{{di.cropform.form_name}}" }'
+                        {% else %}
+                        data-units='{"W":"kg" }'
+                        {% endif %}
+                        data-title="Ange mängd"
+                        data-url='/harvester/ajax/delivery_item_edit_amount'
+                >
+                </a>
+                {% endif %}
+
+
+            </div>
+            <div class="col-xs-3">
+                {% if delivery.state != "D" %}
+                <a style="font-size:1.5em" data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "delivery-item-delete" di.pk %}"> <span class="glyphicon glyphicon-trash"></span></a></td>
+                {%endif%}
+                <a data-id="{{i.pk}}"
+                   href="{%url "delivery-edit-harvests" di.pk request.get_full_path|urlencode:"" %}">
+                <span style="font-size:1.5em" class="glyphicon glyphicon-download-alt"> </span>
+                <br/>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+
+        <div class="ordered-text" style="width:75%;text-align:right">
+            <span style="" >
+                Beställt
+
+
+                (<span class="ordered_value">0</span> kr)
+
+                {% if delivery.type == "N" %}
+
+                <a
+                        href="#"
+                        class="editable amount"
+                        data-type="amount_and_unit"
+                        data-pk="{{di.pk}}"
+                        data-value="{'amount': '{{di.order_amount}}','unit': '{{di.order_unit}}'}"
+                        {%if di.cropform.countable %}
+                        data-units='{"W":"kg","U":"{{di.cropform.form_name}}" }'
+                        {% else %}
+                        data-units='{"W":"kg" }'
+                        {% endif %}
+                        data-title="Ange mängd"
+                        data-url='/harvester/ajax/delivery_item_edit_amount'
+                >
+                </a>
+                {% else %}
+                <span class="ordered_amount"></span>
+
+                {% endif %}
+            </span>
+        </div>
+
+
+
+
+
+        <div class="harvested area" style="width:70%">
+            <div class="marker">
+                &nbsp;
+            </div>
+        </div><div class="remaining area" style="width:5%">
+            <div class="marker" >
+                &nbsp;
+            </div>
+        </div><div class="overflow area" style="width:24%">
+            <div class="marker">
+                &nbsp;
+            </div>
+        </div>
+        <div class="harvested-text" >
+            <span class="harvested_amount">85 kg</span>  skördat (<span class="harvested_value">0</span> kr)
+        </div><div class="under" style="text-align:right;width:35%;display:inline-block">
+            återstår: <span class="under">85 kg</span>
+        </div><div class="over" style="text-align:left;width:25%;display:inline-block">
+            <span class="over">85 kg</span> över!
+        </div>
+    </div>
+
+    <div class="col-md-2">
+
+        <div class="row">
+            <div class="col-md-12 col-xs-6">
+
+                <a href="#"
+                   class="editable order_comment"
+                   data-pk="{{di.pk}}"
+                   data-value="{{di.order_comment}}"
+                   data-type="text"
+                   data-url='/harvester/ajax/delivery_item_edit'
+                   data-placeholder="önskemål"
+                   data-name="order_comment"
+                   data-emptytext="spec. önskemål"
+                ></a>
+            </div>
+            <div class="col-md-12 col-xs-6">
+                <a href="#"
+                   class="editable delivery_comment"
+                   data-pk="{{di.pk}}"
+                   data-value="{{di.delivery_comment}}"
+                   data-type="text"
+                   data-url='/harvester/ajax/delivery_item_edit'
+                   data-placeholder="avvikelser"
+                   data-name="delivery_comment"
+                   data-emptytext="avvikelser"
+                ></a>
+            </div>
+            <div class="col-md-4">
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+

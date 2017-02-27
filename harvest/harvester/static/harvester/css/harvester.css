@@ -29,7 +29,7 @@ input[type="checkbox"] {
 
 
 .editable-empty {
-    color:#CCCCCC; !important;
+    color:#777; !important;
     border-bottom: dashed 1px #CCCCCC !important;
 }
 
@@ -71,4 +71,65 @@ tr.cropstart>td {
 .gutter-10 > [class^="col-"], .gutter-10 > [class^=" col-"] {
     padding-right: 5px;
     padding-left: 5px;
+}
+
+.text-overflow-center {
+    margin-left: -100%;
+    margin-right: -100%;
+    text-align: center;
+}
+
+.area {
+margin:0;
+display:inline-block;
+
+text-align:center;
+overflow:visible;
+white-space : nowrap;
+vertical-align:top;
+}
+
+
+
+.harvested>.marker {
+	background-color:rgb(49, 112, 143);
+	border:thin solid black;
+}
+.harvested-text {
+    width:40%;
+    display:inline-block;
+}
+
+.remaining-text {
+       width:35%;
+        display:inline-block;
+}
+
+.harvested_amount {
+
+    font-weight:bold;
+}
+
+.remaining_amount {
+    font-weight:bold;
+}
+
+.amount {
+    font-weight:bold;
+}
+
+.remaining>.marker {
+	//background-color:#a8314a;
+	border:thin solid black;
+}
+
+.overflow>.marker {
+	background-color:#a8314a;
+	border:thin solid black;
+}
+
+.target>.marker {
+	background-color:#000;
+	margin-left:-1;
+	width:2
 }

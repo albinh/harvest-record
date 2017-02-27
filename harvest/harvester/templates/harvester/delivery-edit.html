@@ -22,7 +22,7 @@ Ny leverans
 
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Marekera som levererad</h4>
+                    <h4 class="modal-title">Markera som levererad</h4>
                     <strong>Går ej att ångra - inga fler ändringar kan göras på beställningen efter detta.</strong>
                 </div>
 
@@ -134,7 +134,7 @@ Dialog för att lägga till grödor
 <!-- Allmänn info -->
 
 <script>
-    {% if delivery.date %}
+    {% if delivery.state == "D" %}
         var is_delivered=true
     {%else%}
         var is_delivered=false
@@ -160,17 +160,17 @@ Dialog för att lägga till grödor
         </h2>
 
         {% if delivery.state == "D" %}
-            <a href="{%url "delivery-spec" delivery.pk%}">
-                Levererad {{delivery.date}}. Visa följsesedel
-            </a>
+
+                Levererad<br/> <a href="{%url "delivery-spec" delivery.pk%}"> Visa följsesedel <span class="glyphicon glyphicon-print"></span> </a>
+
         {%else%}
             <button type="button" data-toggle="modal" data-target="#set_delivered_modal"  class="btn btn-default">Markera som levererad</button>
         {%endif%}
 
-        <p>Beställt:</p>
-        <h2>
-            <span id="harvested_sum">0</span> kr (<span id="order_sum">0</span> kr)
-        </h2>
+
+        <p>
+            <span id="harvested_sum">0</span> kr skördat <br/><span id="order_sum">0</span> kr beställt
+        </p>
 
         {% if delivery.type == "B" %}
         <div class="panel panel-default">
@@ -269,144 +269,24 @@ Dialog för att lägga till grödor
 
 
     <div class="col-md-9">
-        {% for di in delivery.deliveryitem_set.all %}
-
-
-<div class="row gutter-10 alert
-   {% if di.state == "C" %}
-    alert-success
-   {% elif di.state == "P" %}
-        alert-danger
-        {% else %}
-        alert-info
+        {%if delivery.started_items%}
+        <h2>Påbörjade</h2>
         {%endif%}
-
-   order-item top-buffer">
-    <div class="col-xs-5">
-
-<div class="order-amount" style="display:inline-block">
-
-            <a
-                    href="#"
-                    class="editable amount"
-                    data-type="amount_and_unit"
-                    data-pk="{{di.pk}}"
-                    data-value="{'amount': '{{di.order_amount}}','unit': '{{di.order_unit}}'}"
-                    {%if di.cropform.countable %}
-                    data-units='{"W":"kg","U":"{{di.cropform.form_name}}" }'
-                    {% else %}
-                    data-units='{"W":"kg" }'
-                    {% endif %}
-                    data-title="Ange mängd"
-                    data-url='/harvester/ajax/delivery_item_edit_amount'
-            >
-            </a>{% if not delivery.date %}
-
-            {%endif%}
-    </div >
-        <br class="visible-xs-block"/>
-    <div class="crop" style="display:inline-block">
-            <span style="font-weight:bold">
-
-            {{di.cropform.crop}}
-
-</span>
-        </div>
-<br class="visible-xs-block"/>
-    <div class="cropform" style="display:inline-block">
-<span style="font-weight:100">
-        {{di.cropform}}
-</span>
-</div>
-<br/>
-
-
-
-    </div>
-    <div class="col-xs-4">
-         <div class="row">
-         <div class="col-md-4">
-            <a
-                    href="#"
-                    class="editable price"
-                    data-type="amount_and_unit"
-                    data-pk="{{di.pk}}"
-                    data-value="{'amount': '{{di.price}}','unit': '{{di.price_type}}'}"
-                    {%if di.cropform.countable %}
-                    data-units='{"W":"kr/kg","U":"kr/{{di.cropform.form_name}}" }'
-                    {% else %}
-                    data-units='{"W":"kr/kg" }'
-                    {% endif %}
-                    data-title="Ange pris"
-                    data-name="price"
-                    data-url='/harvester/ajax/delivery_item_edit_price'
-            >
-                </a>
-            </div>
-             <div class="col-md-4">
-            <span class="ordered_value">0</span> kr (best)
-                </div>
-             <div class="col-md-4">
-                 <span class="harvested_value">0</span> kr (skörd)
-             </div>
-            </div>
-        <div class="row">
-            <div class="col-md-4">
-
-             <a href="#"
-               class="editable order_comment"
-               data-pk="{{di.pk}}"
-               data-value="{{di.order_comment}}"
-               data-type="text"
-               data-url='/harvester/ajax/delivery_item_edit'
-               data-placeholder="önskemål"
-               data-name="order_comment"
-               data-emptytext="spec. önskemål"
-        ></a>
-</div><div class="col-md-4">
-       <a href="#"
-               class="editable delivery_comment"
-               data-pk="{{di.pk}}"
-               data-value="{{di.delivery_comment}}"
-               data-type="text"
-               data-url='/harvester/ajax/delivery_item_edit'
-               data-placeholder="avvikelser"
-               data-name="delivery_comment"
-               data-emptytext="avvikelser"
-        ></a></div>
-         <div class="col-md-4">
-
-             </div>
-</div>
-        </div>
-        <div class="col-xs-3">
-
-            {% if delivery.state != "D" %}
-
-            <a data-id="{{i.pk}}"
-               href="{%url "delivery-edit-harvests" di.pk request.get_full_path|urlencode:"" %}"
-            >
-  <span style="font-size:2em" class="glyphicon glyphicon-download-alt"> </span>
-            <br/>
- <span class="relation">
-                    {{di.harvest_relation}}
-                </span>
-            </a>
-            {% endif %}
-            {% if delivery.state != "D" %}
-            <a style="font-size:2em" data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "delivery-item-delete" di.pk %}"> <span class="glyphicon glyphicon-trash"></span></a></td>
+        {% for di in delivery.started_items %}
+            {% include "./delivery-item-fragment.html" with di=di %}
+        {%endfor%}
+        {% if delivery.not_started_items %}
+        <h2>Ej påbörjade</h2>
         {%endif%}
-
-
-        </div>
-    </div>
-
-
-
-
-
-
-{%endfor%}
+        {% for di in delivery.not_started_items %}
+            {% include "./delivery-item-fragment.html" with di=di %}
+        {%endfor%}
+        {% if delivery.completed_items %}
+        <h2>Färdiga</h2>
+        {%endif%}
+        {% for di in delivery.completed_items %}
+            {% include "./delivery-item-fragment.html" with di=di %}
+        {%endfor%}
     {%if delivery.state != "D" %}
     <a href="#" data-toggle="modal" data-target="#add_modal">
     <div class="row gutter-10 alert alert-info" style="text-align:center;font-size:2em">

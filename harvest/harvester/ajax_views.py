@@ -82,7 +82,11 @@ class values_for_deliveryitem(View):
               'sum_box_values_and_counts':delivery_item.delivery.box_values_and_counts(),
               'sum_harvested_value':delivery_item.delivery.total_harvested_value(),
               'box_num':str(delivery_item.delivery.variant_count()),
-              'relation':str(delivery_item.harvest_relation())+" "+delivery_item.harvested_unit_text()
+              'relation':str(delivery_item.harvest_relation())+" "+delivery_item.harvested_unit_text(),
+              'harvested_amount':delivery_item.harvested_amount(),
+              'ordered_amount': delivery_item.total_order_amount( ),
+              'under_error':delivery_item.under_error(),
+              'over_error': delivery_item.over_error ( ),
               }
         return HttpResponse ( simplejson.dumps ( data ) )
 

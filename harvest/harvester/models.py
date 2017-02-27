@@ -91,6 +91,14 @@ class Delivery (models.Model):
 
     type = models.CharField(max_length=1,choices=DELIVERY_TYPES,default='N')
 
+    def completed_items(self):
+        return self.deliveryitem_set.filter(state='C')
+
+    def started_items(self):
+        return self.deliveryitem_set.filter ( state='P' )
+
+    def not_started_items(self):
+        return self.deliveryitem_set.filter ( state='N' )
 
     def save(self, force_insert=False, force_update=False):
         is_new = self.pk is None
@@ -152,6 +160,26 @@ class DeliveryItem (models.Model):
     discount =   models.FloatField(default=0.0)
     order_comment = models.CharField(max_length=100, default="", blank=True)
     delivery_comment = models.CharField(max_length=100, default="", blank=True)
+
+    # sant om:
+    # om styckeenheter:
+    # harvested>ordered
+    # om kg:
+    # harvested>ordered*1.05
+    def over_error(self):
+        if self.order_unit == "W":
+            return self.harvested_amount()>float(self.total_order_amount())*1.05
+        else:
+            return self.harvested_amount()>self.total_order_amount()
+
+    def under_error(self):
+        if self.state!="C":
+            return False
+        if self.order_unit == "W":
+            return self.harvested_amount()<float(self.total_order_amount())*1.05
+        else:
+            return self.harvested_amount()>self.total_order_amount()
+
 
     def ordered_value(self):
         if self.order_unit=='W':
