@@ -35,6 +35,20 @@ class DeliveryVariantNew(RedirectView):
         v.save()
         return reverse ( 'delivery-edit', args=[delivery.pk] )
 
+class HarvestsView(View):
+
+    def get(self,request,days):
+        days = max(int(days),0)
+        dis = DeliveryItem.objects.exclude(delivery__state='C').filter( delivery__date__lte=datetime.now()+timedelta(days=days)).order_by('delivery__date')
+        template= 'harvester/harvests.html'
+        context= {'deliveryitems':dis}
+
+
+
+        return render ( request,
+                        template,
+                        context )
+
 
 class DeliveryView(View):
     def crops(self):

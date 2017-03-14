@@ -9,9 +9,9 @@ alert-info
 {%endif%}
 ">
 
-    <div class="col-md-5">
+    <div class="col-md-6">
         <div class="row">
-            <div class="col-xs-5">
+            <div class="col-xs-9">
 
                 <div class="crop" style="display:inline-block">
                 <span style="font-weight:bold">
@@ -27,8 +27,22 @@ alert-info
                 </span>
                 </div>
             </div>
-            <div class="col-xs-4">
+
+            <div class="col-xs-3">
+                 {% if delivery.state != "D" %}
+                <a style="font-size:1.5em" data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "delivery-item-delete" di.pk %}"> <span class="glyphicon glyphicon-trash"></span></a></td>
+                {%endif%}
+                <a data-id="{{i.pk}}"
+                   href="{%url "delivery-edit-harvests" di.pk request.get_full_path|urlencode:"" %}">
+                <span style="font-size:1.5em" class="glyphicon glyphicon-download-alt"> </span>
+                <br/>
+                </a>
+            </div>
+
+
+            <div class="col-xs-6">
                 <a
+                        id="{{di.pk}}_priceeditable"
                         href="#"
                         class="editable price price_state"
                         data-type="amount_and_unit"
@@ -45,7 +59,13 @@ alert-info
                 >
                 </a>
 
+                {% if delivery.state != "D" %}
+                <a class="pricereset" href="#" onclick="console.log('test');reset_price({{di.pk}},{{di.listed_price.price}},'{{di.listed_price.unit}}');event.stopPropagation();
+"> <span class=" glyphicon glyphicon-flash"></span></a>
+{%endif%}
 
+         </div>
+            <div class="col-xs-6">
                                 {% if delivery.type == "B" %}
 
                 <a
@@ -55,9 +75,9 @@ alert-info
                         data-pk="{{di.pk}}"
                         data-value="{'amount': '{{di.order_amount}}','unit': '{{di.order_unit}}'}"
                         {%if di.cropform.countable %}
-                        data-units='{"W":"kg","U":"{{di.cropform.form_name}}" }'
+                        data-units='{"W":"kg / kasse","U":"st {{di.cropform.form_name}}/ kasse" }'
                         {% else %}
-                        data-units='{"W":"kg" }'
+                        data-units='{"W":"kg / kasse" }'
                         {% endif %}
                         data-title="Ange mängd"
                         data-url='/harvester/ajax/delivery_item_edit_amount'
@@ -67,19 +87,43 @@ alert-info
 
 
             </div>
-            <div class="col-xs-3">
-                {% if delivery.state != "D" %}
-                <a style="font-size:1.5em" data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "delivery-item-delete" di.pk %}"> <span class="glyphicon glyphicon-trash"></span></a></td>
-                {%endif%}
-                <a data-id="{{i.pk}}"
-                   href="{%url "delivery-edit-harvests" di.pk request.get_full_path|urlencode:"" %}">
-                <span style="font-size:1.5em" class="glyphicon glyphicon-download-alt"> </span>
-                <br/>
-                </a>
-            </div>
+
         </div>
+
+                <div class="row">
+            <div class="col-md-6 col-xs-6">
+
+                <a href="#"
+                   class="editable order_comment"
+                   data-pk="{{di.pk}}"
+                   data-value="{{di.order_comment}}"
+                   data-type="text"
+                   data-url='harvester/ajax/deliveryitem_order_comment'
+                   data-placeholder="önskemål"
+                   data-name="order_comment"
+                   data-emptytext="spec. önskemål"
+                ></a>
+            </div>
+            <div class="col-md-6 col-xs-6">
+                <a href="#"
+                   class="editable delivery_comment"
+                   data-pk="{{di.pk}}"
+                   data-value="{{di.delivery_comment}}"
+                   data-type="text"
+                   data-url='harvester/ajax/deliveryitem_delivery_comment'
+                   data-placeholder="avvikelser"
+                   data-name="delivery_comment"
+                   data-emptytext="avvikelser"
+                ></a>
+            </div>
+
+        </div>
+
+
+
+
     </div>
-    <div class="col-md-5">
+    <div class="col-md-6">
 
         <div class="ordered-text" style="width:75%;text-align:right">
             <span style="" >
@@ -116,60 +160,30 @@ alert-info
 
 
 
-        <div class="harvested area" style="width:70%">
+        <div class="harvested area" style="width:0%">
             <div class="marker">
                 &nbsp;
             </div>
-        </div><div class="remaining area" style="width:5%">
+        </div><div class="remaining area" style="width:75%">
             <div class="marker" >
                 &nbsp;
             </div>
-        </div><div class="overflow area" style="width:24%">
+        </div><div class="overflow area" style="width:0%">
             <div class="marker">
                 &nbsp;
             </div>
         </div>
         <div class="harvested-text" >
-            <span class="harvested_amount">85 kg</span>  skördat (<span class="harvested_value">0</span> kr)
+            <span class="harvested_amount"></span>  skördat (<span class="harvested_value">0</span> kr)
         </div><div class="under" style="text-align:right;width:35%;display:inline-block">
-            återstår: <span class="under">85 kg</span>
+            återstår: <span class="under"></span>
         </div><div class="over" style="text-align:left;width:25%;display:inline-block">
-            <span class="over">85 kg</span> över!
+            <span class="over"></span> över!
         </div>
     </div>
 
     <div class="col-md-2">
 
-        <div class="row">
-            <div class="col-md-12 col-xs-6">
-
-                <a href="#"
-                   class="editable order_comment"
-                   data-pk="{{di.pk}}"
-                   data-value="{{di.order_comment}}"
-                   data-type="text"
-                   data-url='/harvester/ajax/delivery_item_edit'
-                   data-placeholder="önskemål"
-                   data-name="order_comment"
-                   data-emptytext="spec. önskemål"
-                ></a>
-            </div>
-            <div class="col-md-12 col-xs-6">
-                <a href="#"
-                   class="editable delivery_comment"
-                   data-pk="{{di.pk}}"
-                   data-value="{{di.delivery_comment}}"
-                   data-type="text"
-                   data-url='/harvester/ajax/delivery_item_edit'
-                   data-placeholder="avvikelser"
-                   data-name="delivery_comment"
-                   data-emptytext="avvikelser"
-                ></a>
-            </div>
-            <div class="col-md-4">
-
-            </div>
-        </div>
     </div>
 
 </div>

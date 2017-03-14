@@ -132,6 +132,9 @@ class Delivery (models.Model):
     def uncompleted_items(self):
         return self.deliveryitem_set.exclude(state='C')
 
+
+
+
 class DeliveryItem (models.Model):
     cropform = models.ForeignKey(CropForm)
     delivery = models.ForeignKey(Delivery)
@@ -176,7 +179,7 @@ class DeliveryItem (models.Model):
         if self.state!="C":
             return False
         if self.order_unit == "W":
-            return self.harvested_amount()<float(self.total_order_amount())*1.05
+            return self.harvested_amount()<float(self.total_order_amount())/1.05
         else:
             return self.harvested_amount()>self.total_order_amount()
 
@@ -198,6 +201,12 @@ class DeliveryItem (models.Model):
             return self.harvested_amount()*self.price
         elif self.price_type=='U':
             return self.harvested_count()*self.price
+
+    def charged_amount(self):
+        return min(self.order_amount, self.harvested_amount())
+
+    def charged_value(self):
+        return min ( self.ordered_value ( ), self.harvested_value ( ) )
 
     def box_value(self):
         if self.order_unit == 'W':
@@ -348,7 +357,6 @@ class DeliveryVariant (models.Model):
         for di in self.delivery.deliveryitem_set.all():
             if not di in self.extempt.all():
                 value=value+di.box_value()
-
         return value
 
     def crop_count(self):

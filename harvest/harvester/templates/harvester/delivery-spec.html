@@ -79,9 +79,9 @@
         <td>{{deliveryitem.cropform.crop}} ({{deliveryitem.cropform}})</td>
         <td>{{deliveryitem.order_amount}} {{deliveryitem.order_unit_text}}</td>
         <td>{{deliveryitem.harvested_amount}} {{deliveryitem.harvested_unit_text}}</td>
-        <td> </td>
+        <td>{{deliveryitem.charged_amount}} {{deliveryitem.harvested_unit_text}} </td>
         <td>{{deliveryitem.price}} {{deliveryitem.price_unit_text}}</td>
-        <td>{{deliveryitem.harvested_value|floatformat:2}} kr</td>
+        <td>{{deliveryitem.charged_value|floatformat:2}} kr</td>
 
     </tr>
     {% endfor %}

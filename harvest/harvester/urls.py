@@ -11,7 +11,7 @@ urlpatterns = [
 	url(r'^deliveries/(?P<pk>\d+)/$',               views.DeliveryView.as_view(),                   name='delivery-edit', ),
 	url(r'^deliveries/delete/(?P<pk>\d+)/$',               views.DeliverySingleDelete.as_view(),                   name='delivery-delete', ),
 
-
+	url(r'^harvests/(?P<days>\d+)/$', views.HarvestsView.as_view(),name='harvests'),
 
 	url(r'deliveries/set_deliveried/(?P<pk>\d+)/$', views.DeliverySetDelivered.as_view(), name='delivery-setdelivered',),
 	url(r'deliveries/spec/(?P<pk>\d+)/$', views.DeliverySpec.as_view(),name='delivery-spec'),
@@ -36,6 +36,9 @@ urlpatterns = [
 	url(r'ajax/delivery_variant_included', ajax_views.delivery_variant_included.as_view(), name='delivery_variant_included'),
 	url(r'ajax/cropform_price/', ajax_views.cropform_price.as_view(),name='ajax_cropform_price'),
     url(r'ajax/edit_harvest_state', ajax_views.edit_harvest_state.as_view(),name='ajax-edit-harvest-state'),
+	url(r'ajax/reset_price_deliveryitem', ajax_views.reset_price.as_view(),name='reset_price'),
+	url(r'ajax/deliveryitem_delivery_comment', ajax_views.deliveryitem_delivery_comment.as_view(),name ='deliveryitem_delivery_comment'),
+	url(r'ajax/deliveryitem_order_comment', ajax_views.deliveryitem_order_comment.as_view(),name ='deliveryitem_order_comment'),
 	url(r'cropform_new/', views.cropform_new.as_view(), name='cropform-new'),
 	url(r'crop_new',views.CropNew.as_view(),name='crop-new'),
 	url(r'customercategory_new', views.CustomerCategoryNew.as_view(),name='customercategory-new'),

@@ -6,10 +6,17 @@ String.prototype.trimRight = function(charlist) {
 };
 
 
+function reset_price(pk,price, unit )
+{
+    di = $('div[data-pk='+pk+']');
+    di.find(".price").editable('toggle');
+    setTimeout(function() {
+        di.find("input[name=amount]").val(price)
+        di.find("input[name=unit]").val(unit)
+    },100)
+}
 
-function recalc(pk ) {
-
-    function response_cb(response)  {
+  function response_cb(response)  {
         	result = JSON.parse(response);
 
             if (result) {
@@ -52,17 +59,35 @@ function recalc(pk ) {
 
                 }
 
+
                 di.find('.ordered_amount').html(result.total_order_amount )
                 di.find('.harvested_amount').html(result.harvested_amount + " "+result.unit)
 
 
-                     di.find('div.under').toggleClass('bg-danger', result.under_error)
-                     di.find('div.over').toggleClass('bg-danger', result.over_error)
+                di.find('div.under').toggleClass('bg-danger', result.under_error)
+                di.find('div.over').toggleClass('bg-danger', result.over_error)
 
 
 
+                setTimeout(function() {$('div[data-pk='+result.pk+'] .price_state').toggleClass('bg-danger',!result.is_price_as_listed);
+                        $('div[data-pk='+result.pk+'] .price_state').css("background-color","")
 
-                $('div[data-pk='+result.pk+'] .price_state').toggleClass('bg-danger', !result.is_price_as_listed)
+                },1000)
+
+
+                if (result.is_price_as_listed) {
+                    $('div[data-pk='+result.pk+'] .pricereset').hide()
+                 } else {
+                 $('div[data-pk='+result.pk+'] .pricereset').show()
+                 }
+
+
+                result.variants.forEach(variant=> {
+                    $("#box_sum_count_"+variant.pk).html(variant.count);
+                    $("#box_sum_value_"+variant.pk).html(variant.value  );
+                })
+
+
 
                 $('div[data-pk='+result.pk+'] .ordered_value' ).html(result.ordered_value )
                 $('div[data-pk='+result.pk+'] .harvested_value').html(result.harvested_value)
@@ -87,6 +112,18 @@ function recalc(pk ) {
 
     }
 
+function resetPrice(pk) {
+    url="/harvester/ajax/reset_price_deliveryitem"
+    params = {csrfmiddlewaretoken: csrf_token,
+              pk:pk}
+    $.post(
+            url,
+            params,
+            response_cb)
+    console.log(pk)
+}
+
+function recalc(pk ) {
     url="/harvester/ajax/values_for_deliveryitem"
     params = {csrfmiddlewaretoken: csrf_token,
               pk:pk}

@@ -1,6 +1,8 @@
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
+from django.views.generic import RedirectView
 
 from .models import Delivery, DeliveryVariant, PriceItem, CustomerCategory
 from .models import DeliveryItem
@@ -40,6 +42,46 @@ class deliveries_harvest_for_delivery(View):
               'crop':delivery_item.cropform.crop.crop}
         return HttpResponse ( simplejson.dumps ( data ) )
 
+
+def values_for_delivery(request):
+    delivery_item = get_object_or_404 ( DeliveryItem, pk=request.POST['pk'] )
+
+    variants = [{'pk':v.pk, 'count':v.crop_count(), 'value':v.value()} for v in delivery_item.delivery.deliveryvariant_set.all()]
+
+    data = {'pk': request.POST['pk'],
+            'is_price_as_listed': delivery_item.is_price_as_listed ( ),
+            'box_value': delivery_item.box_value ( ),
+            'price':delivery_item.price,
+            'price_unit':delivery_item.price_type,
+            'total_order_amount': str (
+                delivery_item.total_order_amount ( ) ) + " " + delivery_item.harvested_unit_text ( ),
+            'ordered_value': delivery_item.ordered_value ( ),
+            'harvested_value': delivery_item.harvested_value ( ),
+            'unit': delivery_item.order_unit_text ( ),
+            'sum_ordered_value': delivery_item.delivery.total_order_value ( ),
+            'sum_box_values_and_counts': delivery_item.delivery.box_values_and_counts ( ),
+            'sum_harvested_value': delivery_item.delivery.total_harvested_value ( ),
+            'box_num': str ( delivery_item.delivery.variant_count ( ) ),
+            'relation': str ( delivery_item.harvest_relation ( ) ) + " " + delivery_item.harvested_unit_text ( ),
+            'harvested_amount': delivery_item.harvested_amount ( ),
+            'ordered_amount': delivery_item.total_order_amount ( ),
+            'under_error': delivery_item.under_error ( ),
+            'over_error': delivery_item.over_error ( ),
+            'variants':variants
+            }
+    return HttpResponse ( simplejson.dumps ( data ) )
+
+
+class reset_price(View):
+    def post(self, request):
+        di = get_object_or_404 ( DeliveryItem, pk=self.request.POST['pk'] )
+        listed_price = di.listed_price()
+        di.price = listed_price.price
+        di.price_type = listed_price.unit
+        di.save()
+
+        return values_for_delivery(request)
+
 class delivery_item_edit_price(View):
     def post(self,request):
         delivery_item = get_object_or_404(DeliveryItem, pk=request.POST['pk'])
@@ -57,8 +99,8 @@ class delivery_item_edit_price(View):
 class delivery_item_edit_amount(View):
     def post(self,request):
         delivery_item = get_object_or_404(DeliveryItem, pk=request.POST['pk'])
-        price = float(request.POST['value[amount]'])
-        delivery_item.price = price
+        amount = float(request.POST['value[amount]'])
+        delivery_item.order_amount = amount
 
         if 'value[unit]' in request.POST:
             unit = request.POST['value[unit]']
@@ -69,26 +111,10 @@ class delivery_item_edit_amount(View):
         return HttpResponse ( "" )
 
 class values_for_deliveryitem(View):
+
+
     def post(self,request):
-        delivery_item = get_object_or_404 ( DeliveryItem, pk=request.POST['pk'] )
-        data={'pk':request.POST['pk'],
-              'is_price_as_listed':delivery_item.is_price_as_listed(),
-              'box_value':delivery_item.box_value(),
-              'total_order_amount':str(delivery_item.total_order_amount())+" "+delivery_item.harvested_unit_text()  ,
-              'ordered_value':delivery_item.ordered_value(),
-              'harvested_value':delivery_item.harvested_value(),
-              'unit':delivery_item.order_unit_text(),
-              'sum_ordered_value':delivery_item.delivery.total_order_value(),
-              'sum_box_values_and_counts':delivery_item.delivery.box_values_and_counts(),
-              'sum_harvested_value':delivery_item.delivery.total_harvested_value(),
-              'box_num':str(delivery_item.delivery.variant_count()),
-              'relation':str(delivery_item.harvest_relation())+" "+delivery_item.harvested_unit_text(),
-              'harvested_amount':delivery_item.harvested_amount(),
-              'ordered_amount': delivery_item.total_order_amount( ),
-              'under_error':delivery_item.under_error(),
-              'over_error': delivery_item.over_error ( ),
-              }
-        return HttpResponse ( simplejson.dumps ( data ) )
+        return values_for_delivery ( request )
 
 class delivery_edit_date(View):
     def post(self,request):
@@ -136,6 +162,19 @@ class delivery_variant_included(View):
 
         return HttpResponse ("")
 
+class deliveryitem_order_comment(View):
+    def post(self,request):
+        deliveryitem = get_object_or_404 ( DeliveryItem, pk=request.POST['pk'] )
+        deliveryitem.order_comment = request.POST['value']
+        deliveryitem.save()
+        return HttpResponse ( "" )
+
+class deliveryitem_delivery_comment ( View ):
+    def post(self, request):
+        deliveryitem = get_object_or_404 ( DeliveryItem, pk=request.POST['pk'] )
+        deliveryitem.delivery_comment = request.POST['value']
+        deliveryitem.save ( )
+        return HttpResponse ( "" )
 
 class edit_harvest_state(View):
     pass
