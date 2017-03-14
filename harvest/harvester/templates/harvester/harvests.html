@@ -1,0 +1,43 @@
+{% extends "harvester/base.html" %}
+{% load static l10n placeholder widget_tweaks %}
+
+{%block container-type %}container{%endblock%}
+{% block title %}
+Skördeplan
+
+{% endblock %}
+{% block content %}
+
+
+{% regroup deliveryitems by delivery.date as dis %}
+
+{% for date in dis %}
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">{{date.grouper}}</h3>
+  </div>
+  <div class="panel-body">
+
+
+
+
+    {% for di in date.list %}
+
+            <div class="order-item panel panel-default" style="padding:10px;{%ifchanged di.cropform%}margin-left:2em;{%endifchanged%}display:inline-block;background:#AAA" class="">
+                <div class="crop">{{di.cropform.crop}}</div>
+                <div class="cropform">{{di.cropform}}</div>
+                <div class="order-amount">{{di.order_amount}} {{di.order_unit_text}}</div>
+                {{di.delivery.customer}}
+            </div>
+
+
+    {% endfor %}
+
+  </div>
+</div>
+
+{% endfor %}
+
+
+{%endblock%}

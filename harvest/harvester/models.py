@@ -71,25 +71,34 @@ class Culture (models.Model):
 
 class Delivery (models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    target_date = models.DateField(default=datetime.now)
-    delivery_date = models.DateField(null=True, blank=True)
+    date = models.DateField(default=datetime.now)
+
     def __str__(self):
-        return '%s (%s)' % (self.customer.name, self.target_date.strftime("%B %d"))
+        return '%s (%s)' % (self.customer.name, self.date.strftime("%B %d"))
 
     DELIVERY_TYPES = (
         ('N','normal'),
         ('B','box')
     )
 
+    DELIVERY_STATES = (
+        ('N', 'ej påbörjad',),
+        ('P', 'påbörjad'),
+        ('D', 'levererad')
+    )
+
+    state = models.CharField(max_length=1, choices=DELIVERY_STATES,default='N')
+
     type = models.CharField(max_length=1,choices=DELIVERY_TYPES,default='N')
 
-    def get_state(self):
-        if self.delivery_date:
-            return "delivered"
-        elif self.deliveryitem_set.exclude(state='N').exists():
-            return "in_progress"
-        else:
-            return "not_started"
+    def completed_items(self):
+        return self.deliveryitem_set.filter(state='C')
+
+    def started_items(self):
+        return self.deliveryitem_set.filter ( state='P' )
+
+    def not_started_items(self):
+        return self.deliveryitem_set.filter ( state='N' )
 
     def save(self, force_insert=False, force_update=False):
         is_new = self.pk is None
@@ -123,6 +132,9 @@ class Delivery (models.Model):
     def uncompleted_items(self):
         return self.deliveryitem_set.exclude(state='C')
 
+
+
+
 class DeliveryItem (models.Model):
     cropform = models.ForeignKey(CropForm)
     delivery = models.ForeignKey(Delivery)
@@ -152,6 +164,26 @@ class DeliveryItem (models.Model):
     order_comment = models.CharField(max_length=100, default="", blank=True)
     delivery_comment = models.CharField(max_length=100, default="", blank=True)
 
+    # sant om:
+    # om styckeenheter:
+    # harvested>ordered
+    # om kg:
+    # harvested>ordered*1.05
+    def over_error(self):
+        if self.order_unit == "W":
+            return self.harvested_amount()>float(self.total_order_amount())*1.05
+        else:
+            return self.harvested_amount()>self.total_order_amount()
+
+    def under_error(self):
+        if self.state!="C":
+            return False
+        if self.order_unit == "W":
+            return self.harvested_amount()<float(self.total_order_amount())/1.05
+        else:
+            return self.harvested_amount()>self.total_order_amount()
+
+
     def ordered_value(self):
         if self.order_unit=='W':
             if self.price_type=='W':
@@ -169,6 +201,12 @@ class DeliveryItem (models.Model):
             return self.harvested_amount()*self.price
         elif self.price_type=='U':
             return self.harvested_count()*self.price
+
+    def charged_amount(self):
+        return min(self.order_amount, self.harvested_amount())
+
+    def charged_value(self):
+        return min ( self.ordered_value ( ), self.harvested_value ( ) )
 
     def box_value(self):
         if self.order_unit == 'W':
@@ -319,7 +357,6 @@ class DeliveryVariant (models.Model):
         for di in self.delivery.deliveryitem_set.all():
             if not di in self.extempt.all():
                 value=value+di.box_value()
-
         return value
 
     def crop_count(self):

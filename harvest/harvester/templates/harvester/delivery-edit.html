@@ -22,7 +22,7 @@ Ny leverans
 
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Marekera som levererad</h4>
+                    <h4 class="modal-title">Markera som levererad</h4>
                     <strong>Går ej att ångra - inga fler ändringar kan göras på beställningen efter detta.</strong>
                 </div>
 
@@ -32,11 +32,11 @@ Ny leverans
 
                     <label>Leveransdatum</label>
 
-                    <input name="date" class="form-control" type="date"/>
+                    <input name="date" class="form-control" type="date" value="{{delivery.date|date:"Y-m-d"}}"/>
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
                     <button type="submit" class="btn btn-primary">Markera som levererad</button>
                 </div>
                 </form>
@@ -134,262 +134,191 @@ Dialog för att lägga till grödor
 <!-- Allmänn info -->
 
 <script>
-    {% if delivery.delivery_date %}
+    {% if delivery.state == "D" %}
         var is_delivered=true
     {%else%}
         var is_delivered=false
     {%endif%}
 </script>
 <div class="row">
-<div class="col-md-3">
+    <div class="col-md-3">
 
 
-    <h2>{{delivery.customer}}</h2>
+        <h2>{{delivery.customer}}</h2>
 
-    <h2><a href="#"
+        <h2>
+            <a href="#"
                class="editable"
                data-type="combodate"
-               data-value="{{delivery.target_date|unlocalize}}"
+               data-value="{{delivery.date|unlocalize}}"
                data-combodate="{maxYear:2017}"
                data-pk="{{delivery.pk}}"
-               data-url="{%url "delivery_edit_target_date" %}"
+               data-url="{%url "delivery_edit_date" %}"
             >
-                {{delivery.target_date}}</a></h2>
-
-        {% if delivery.delivery_date %}
-        <a href="{%url "delivery-spec" delivery.pk%}">Levererad {{delivery.delivery_date}}. Visa följsesedel</a>
-    {%else%}
-    <button type="button" data-toggle="modal" data-target="#set_delivered_modal"  class="btn btn-default">Markera som levererad</button>
-    {%endif%}
-    <p>Beställt:</p>
-    <h2>
-            <span id="harvested_sum">0</span> kr (<span id="order_sum">0</span> kr)</h2>
-
-{% if delivery.type == "B" %}
-        <div class="panel panel-default">
-            <div class="panel-heading">Varianter kassar</div>
-            <div class="panel-body">
-                <form>
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th ></th>
-                        {% for v in variants %}
-                    <th>{{v.name}}</th>
-                        {% endfor %}
-<th><a href="{% url 'delivery_variant_new' delivery.pk %}"> <span class="glyphicon glyphicon-plus"></span></a></th>
-                        </tr>
-<tr><th>antal</th>
-    {% for v in variants %}
-                   <th>
-                        <a href="#"
-               class="editable"
-               data-pk="{{v.variant.pk}}"
-               data-value="{{v.variant.count}}"
-               data-type="number"
-               data-url='/harvester/ajax/delivery_variant_edit_count'
-               data-name="delivery_variant_count"
-               data-emptytext="avvikelser"
-        ></a> </th>
-                {% endfor %}
-                        </tr>
-                    <tbody>
-                    {% for di in delivery.deliveryitem_set.all %}
-                    <tr>
-                        <td><div style="text-overflow: ellipsis;  white-space: nowrap;
-  overflow: hidden;width:3em">{{di.cropform.crop}}</div></td>
-
-                        {% for v in di.variants %}
-                    <td>
-                        <a href="#"
-               class="editable"
-               data-pk="{{v.variant.pk}},{{di.pk}}"
-               data-value="1" data-source="[{ value:{{v.included}},text:'{{v.name}}'}]"
-               data-type="checklist"
-               data-title="ingår i kasse"
-               data-url='/harvester/ajax/delivery_variant_included'
-               data-name="delivery_variant_included"
-                           data-emptytext="-"
-        ></a> </td>
-                {% endfor %}
-
-                    </tr>
-                    {%endfor%}
-                <tfoot>
-                    <tr>
-                        <td>Grödor</td>
-                  {% for v in variants %}
-                    <td>
-
-                        <span id="box_sum_count-{{v.variant.pk}}"></span>
-                    </td>
-                {%endfor%}
-                    </tr>
-                <tr>
-
-                    <td>Värde</td>
-
-                                {% for v in variants %}
-                    <td>
-                        <span id="box_sum_value-{{v.variant.pk}}"> </span> <br>
-
-                    </td>
-                {%endfor%}
-
-
-                </tr>
-
-
-                </tfoot>
-                    </tbody>
-                    </thead>
-
-                </table>
-</form>
-
-            </div>
-        </div>
-{%endif%}
-
-</div>
-
-
-
-<div class="col-md-9">
-
-{% for di in delivery.deliveryitem_set.all %}
-
-
-<div class="row gutter-10 alert alert-success order-item top-buffer">
-    <div class="col-xs-5">
-
-<div class="order-amount" style="display:inline-block">
-
-            <a
-                    href="#"
-                    class="editable amount"
-                    data-type="amount_and_unit"
-                    data-pk="{{di.pk}}"
-                    data-value="{'amount': '{{di.order_amount}}','unit': '{{di.order_unit}}'}"
-                    {%if di.cropform.countable %}
-                    data-units='{"W":"kg","U":"{{di.cropform.form_name}}" }'
-                    {% else %}
-                    data-units='{"W":"kg" }'
-                    {% endif %}
-                    data-title="Ange mängd"
-                    data-url='/harvester/ajax/delivery_item_edit_amount'
-            >
-            </a>{% if not delivery.delivery_date %}
-
-            {%endif%}
-    </div >
-        <br class="visible-xs-block"/>
-    <div class="crop" style="display:inline-block">
-            <span style="font-weight:bold">
-
-            {{di.cropform.crop}}
-
-</span>
-        </div>
-<br class="visible-xs-block"/>
-    <div class="cropform" style="display:inline-block">
-<span style="font-weight:100">
-        {{di.cropform}}
-</span>
-</div>
-<br/>
-
-
-
-    </div>
-    <div class="col-xs-4">
-         <div class="row">
-         <div class="col-md-4">
-            <a
-                    href="#"
-                    class="editable price"
-                    data-type="amount_and_unit"
-                    data-pk="{{di.pk}}"
-                    data-value="{'amount': '{{di.price}}','unit': '{{di.price_type}}'}"
-                    {%if di.cropform.countable %}
-                    data-units='{"W":"kr/kg","U":"kr/{{di.cropform.form_name}}" }'
-                    {% else %}
-                    data-units='{"W":"kr/kg" }'
-                    {% endif %}
-                    data-title="Ange pris"
-                    data-name="price"
-                    data-url='/harvester/ajax/delivery_item_edit_price'
-            >
-                </a>
-            </div>
-             <div class="col-md-4">
-            <span class="ordered_value">0</span> kr (best)
-                </div>
-             <div class="col-md-4">
-                 <span class="harvested_value">0</span> kr (skörd)
-             </div>
-            </div>
-        <div class="row">
-            <div class="col-md-4">
-
-             <a href="#"
-               class="editable order_comment"
-               data-pk="{{di.pk}}"
-               data-value="{{di.order_comment}}"
-               data-type="text"
-               data-url='/harvester/ajax/delivery_item_edit'
-               data-placeholder="önskemål"
-               data-name="order_comment"
-               data-emptytext="spec. önskemål"
-        ></a>
-</div><div class="col-md-4">
-       <a href="#"
-               class="editable delivery_comment"
-               data-pk="{{di.pk}}"
-               data-value="{{di.delivery_comment}}"
-               data-type="text"
-               data-url='/harvester/ajax/delivery_item_edit'
-               data-placeholder="avvikelser"
-               data-name="delivery_comment"
-               data-emptytext="avvikelser"
-        ></a></div>
-         <div class="col-md-4">
-
-             </div>
-</div>
-        </div>
-        <div class="col-xs-3">
-            <a data-id="{{i.pk}}"
-               href="{%url "delivery-edit-harvests" di.pk request.get_full_path|urlencode:"" %}"
-            >
-  <span style="font-size:2em" class="glyphicon glyphicon-download-alt"> </span>
-            <br/>
- <span class="relation">
-                    {{di.harvest_relation}}
-                </span>
+                {{delivery.date}}
             </a>
+        </h2>
 
-            {% if not delivery.delivery_date %}
-            <a style="font-size:2em" data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "delivery-item-delete" di.pk %}"> <span class="glyphicon glyphicon-trash"></span></a></td>
+        {% if delivery.state == "D" %}
+
+                Levererad<br/> <a href="{%url "delivery-spec" delivery.pk%}"> Visa följsesedel <span class="glyphicon glyphicon-print"></span> </a>
+
+        {%else%}
+            <button type="button" data-toggle="modal" data-target="#set_delivered_modal"  class="btn btn-default">Markera som levererad</button>
         {%endif%}
 
 
-        </div>
+        <p>
+            <span id="harvested_sum">0</span> kr skördat <br/><span id="order_sum">0</span> kr beställt
+        </p>
+
+        {% if delivery.type == "B" %}
+        <div class="panel panel-default">
+            <div class="panel-heading">Varianter kassar</div>
+                <div class="panel-body">
+                    <form>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th ></th>
+                                {% for v in variants %}
+                                    <th>{{v.name}}</th>
+                                {% endfor %}
+                                <th>
+                                    <a href="{% url 'delivery_variant_new' delivery.pk %}">
+                                        <span class="glyphicon glyphicon-plus"></span>
+                                    </a>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th>antal</th>
+                                {% for v in variants %}
+                                    <th>
+                                        <a href="#"
+                                            class="editable"
+                                            data-pk="{{v.variant.pk}}"
+                                            data-value="{{v.variant.count}}"
+                                           data-type="number"
+                                           data-url='/harvester/ajax/delivery_variant_edit_count'
+                                           data-name="delivery_variant_count"
+                                           data-emptytext="avvikelser"
+                                        ></a>
+                                    </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for di in delivery.deliveryitem_set.all %}
+                                 <tr>
+                                    <td>
+                                        <div
+                                                style="text-overflow: ellipsis;  white-space: nowrap;
+  overflow: hidden;width:3em">{{di.cropform.crop}}
+                                        </div>
+                                    </td>
+
+                                    {% for v in di.variants %}
+                                        <td>
+                                            <a href="#"
+                                               class="editable"
+                                               data-pk="{{v.variant.pk}},{{di.pk}}"
+                                               data-value="1" data-source="[{ value:{{v.included}},text:'{{v.name}}'}]"
+                                               data-type="checklist"
+                                               data-title="ingår i kasse"
+                                               data-url='/harvester/ajax/delivery_variant_included'
+                                               data-name="delivery_variant_included"
+                                               data-emptytext="-" >
+                                            </a>
+                                        </td>
+                                    {% endfor %}
+
+                                 </tr>
+                            {%endfor%}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td>Grödor</td>
+                                {% for v in variants %}
+                                    <td>
+
+                                        <span id="box_sum_count_{{v.variant.pk}}"></span>
+                                    </td>
+                                {%endfor%}
+                            </tr>
+                            <tr>
+                                <td>Värde</td>
+                                {% for v in variants %}
+                                    <td>
+                                        <span id="box_sum_value_{{v.variant.pk}}"> </span> <br>
+
+                                    </td>
+                                {%endfor%}
+
+
+                            </tr>
+
+
+                        </tfoot>
+                    </table>
+                    </form>
+                 </div>
+            </div>
+        {%endif%}
     </div>
 
 
 
-
-
-
-{%endfor%}
+    <div class="col-md-9">
+        {%if delivery.started_items%}
+        <h2>Påbörjade</h2>
+        {%endif%}
+        {% for di in delivery.started_items %}
+            {% include "./delivery-item-fragment.html" with di=di %}
+        {%endfor%}
+        {% if delivery.not_started_items %}
+        <h2>Ej påbörjade</h2>
+        {%endif%}
+        {% for di in delivery.not_started_items %}
+            {% include "./delivery-item-fragment.html" with di=di %}
+        {%endfor%}
+        {% if delivery.completed_items %}
+        <h2>Färdiga</h2>
+        {%endif%}
+        {% for di in delivery.completed_items %}
+            {% include "./delivery-item-fragment.html" with di=di %}
+        {%endfor%}
+    {%if delivery.state != "D" %}
     <a href="#" data-toggle="modal" data-target="#add_modal">
     <div class="row gutter-10 alert alert-info" style="text-align:center;font-size:2em">
         <span class="glyphicon glyphicon-plus"></span> Lägg till gröda
     </div>
         </a>
+    {% endif%}
 </div>
     </div>
+<div class="card">
+
+    <div class="card-height-indicator"></div>
+
+    <div class="card-content">
+
+        <div class="card-image">
+            <img src="./image.jpg" alt="Loading image...">
+            <h3 class="card-image-headline">Lorem Ipsum Dolor</h3>
+        </div>
+
+        <div class="card-body">
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+        </div>
+
+        <footer class="card-footer">
+            <button class="btn btn-flat">Share</button>
+            <button class="btn btn-flat btn-warning">Learn More</button>
+        </footer>
+
+    </div>
+
+</div>
 
 
 <script src="{%static "harvester/js/pages/delivery-edit.js"%}"></script>

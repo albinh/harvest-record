@@ -1,15 +1,99 @@
-function recalc(pk ) {
+String.prototype.trimRight = function(charlist) {
+  if (charlist === undefined)
+    charlist = "\s";
 
-    function response_cb(response)  {
+  return this.replace(new RegExp("[" + charlist + "]+$"), "");
+};
+
+
+function reset_price(pk,price, unit )
+{
+    di = $('div[data-pk='+pk+']');
+    di.find(".price").editable('toggle');
+    setTimeout(function() {
+        di.find("input[name=amount]").val(price)
+        di.find("input[name=unit]").val(unit)
+    },100)
+}
+
+  function response_cb(response)  {
         	result = JSON.parse(response);
 
             if (result) {
-                $('tr[data-pk='+result.pk+'] .relation').html(result.relation )
-                $('tr[data-pk='+result.pk+'] .price_state').toggleClass('bg-danger', !result.is_price_as_listed)
-                $('tr[data-pk='+result.pk+'] .ordered_value' ).html(result.ordered_value )
-                $('tr[data-pk='+result.pk+'] .harvested_value').html(result.harvested_value)
-                $('tr[data-pk='+result.pk+'] .box_value').html(result.box_value)
-                $('tr[data-pk='+result.pk+'] .total_order_amount').html(result.total_order_amount)
+                di = $('div[data-pk='+result.pk+']')
+
+                ordered=result.ordered_amount
+                harvested=result.harvested_amount
+
+
+                relation = ordered-harvested
+
+                r = function (f) {
+                    return f.toFixed(2).trimRight("0").trimRight(".");
+                }
+
+                if (relation<0) {
+                    di.find('span.over').show().html( r(-relation) + " "+result.unit )
+                    di.find('div.under').show().html("")
+
+
+
+                    over_width = Math.min(25,((harvested/ordered-1)*0.75*100)).toFixed(0)+"%"
+
+                    di.find('.harvested').show().width("75%");
+                    di.find('.remaining').hide();
+                    di.find('.overflow').show().width(over_width);
+
+
+
+                } else {
+                    di.find('span.under').show().html( r(relation) + " "+result.unit )
+                    di.find('div.over').hide(  )
+
+                    remaining_width = (((ordered-harvested)/ordered)*0.75*100).toFixed(0)+"%";
+                    harvested_width = (((harvested)/ordered)*0.75*100).toFixed(0)+"%";
+                    di.find('.harvested').show().width(harvested_width);
+                    di.find('.remaining').show().width(remaining_width);
+                    di.find('.overflow').hide()
+
+
+                }
+
+
+                di.find('.ordered_amount').html(result.total_order_amount )
+                di.find('.harvested_amount').html(result.harvested_amount + " "+result.unit)
+
+
+                di.find('div.under').toggleClass('bg-danger', result.under_error)
+                di.find('div.over').toggleClass('bg-danger', result.over_error)
+
+
+
+                setTimeout(function() {$('div[data-pk='+result.pk+'] .price_state').toggleClass('bg-danger',!result.is_price_as_listed);
+                        $('div[data-pk='+result.pk+'] .price_state').css("background-color","")
+
+                },1000)
+
+
+                if (result.is_price_as_listed) {
+                    $('div[data-pk='+result.pk+'] .pricereset').hide()
+                 } else {
+                 $('div[data-pk='+result.pk+'] .pricereset').show()
+                 }
+
+
+                result.variants.forEach(variant=> {
+                    $("#box_sum_count_"+variant.pk).html(variant.count);
+                    $("#box_sum_value_"+variant.pk).html(variant.value  );
+                })
+
+
+
+                $('div[data-pk='+result.pk+'] .ordered_value' ).html(result.ordered_value )
+                $('div[data-pk='+result.pk+'] .harvested_value').html(result.harvested_value)
+                $('div[data-pk='+result.pk+'] .box_value').html(result.box_value)
+                $('div[data-pk='+result.pk+'] .total_order_amount').html(result.total_order_amount)
+
                 console.log(result)
                 $('#harvested_sum').html(result.sum_harvested_value)
                 $('#order_sum').html(result.sum_ordered_value)
@@ -28,6 +112,18 @@ function recalc(pk ) {
 
     }
 
+function resetPrice(pk) {
+    url="/harvester/ajax/reset_price_deliveryitem"
+    params = {csrfmiddlewaretoken: csrf_token,
+              pk:pk}
+    $.post(
+            url,
+            params,
+            response_cb)
+    console.log(pk)
+}
+
+function recalc(pk ) {
     url="/harvester/ajax/values_for_deliveryitem"
     params = {csrfmiddlewaretoken: csrf_token,
               pk:pk}
@@ -40,13 +136,15 @@ function recalc(pk ) {
 
 $(function(){
 
-    $.fn.editable.defaults.placement = 'auto top';
-    if (is_delivered) {
-    $.fn.editable.defaults.disabled = true;
-    }
-    $.fn.editable.defaults.params = {csrfmiddlewaretoken:csrf_token}
 
-    $('.editable').editable();
+         $.fn.editable.defaults.placement = 'auto top';
+        if (is_delivered) {
+             $.fn.editable.defaults.disabled = true;
+        }
+
+        $.fn.editable.defaults.params = {csrfmiddlewaretoken:csrf_token}
+
+        $('.editable').editable();
 });
 
 
