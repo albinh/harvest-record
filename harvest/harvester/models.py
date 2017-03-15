@@ -262,6 +262,14 @@ class DeliveryItem (models.Model):
         else:
             raise
 
+    def order_unit_text_short(self):
+        if self.order_unit=="W":
+            return "kg"
+        elif self.order_unit=="U":
+            return "st"
+        else:
+            raise
+
     def harvested_unit_text(self):
         if self.order_unit=="W":
             return "kg"
