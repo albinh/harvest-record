@@ -1,0 +1,113 @@
+{% load static  widget_tweaks  %}
+
+<script src="{% static "harvester/js/add-harvest-modal.js" %}"></script>
+
+<div id="add_harvest_modal" class="modal">
+    <div class="modal-content">
+        <h4>Registrera skörd</h4>
+        <ul class="stepper">
+            <li class="step active">
+                <div data-step-label="" class="step-title waves-effect waves-dark">Hur mycket?</div>
+                <div class="step-content" style="display: block;">
+                    <div class="row">
+
+                         <div   class="col m4">
+                            <div style="height:200px;" name="modal_chart"></div>
+                        </div>
+</div>
+  <div class="row">
+                        <div class="input-field col m4">
+
+
+                            <input name="kg" type="number" min="0" step="any" oninput="updateModalChart()" class="validate" required="" aria-required="true"
+                                   aria-invalid="true">
+
+                            <label data-error="adsf" for="kg" class="">Vikt</label>
+                        </div>
+                        </div>
+                        <div class="row">
+                        <div class="count input-field col m4">
+                            <input id="st" name="st" type="number" oninput="updateModalChart()" class="validate" required="" aria-required="true"
+                                   aria-invalid="true">
+                            <label for="st" class="">Antal</label>
+                        </div>
+                        </div>
+                        <div class="row">
+
+
+
+
+
+                    </div>
+
+
+                    <div class="step-actions">
+                        <button class="waves-effect waves-dark btn blue next-step">CONTINUE</button>
+                    </div>
+                </div>
+            </li>
+
+            <li class="step">
+                <div data-step-label="-" class="step-title waves-effect waves-dark">Varifrån?</div>
+                <div class="step-content" >
+                    <div class="row">
+                        <div class="input-field col s4">
+
+                            <select>
+                                <option value="" disabled selected>Välj kultur</option>
+                                <option value="1">Morot @ b1</option>
+                                <option value="2">Morot @ b2</option>
+                            </select>
+                            <label>Kultur</label>
+                        </div>
+
+                        <div class="input-field col s4">
+
+                            <select>
+                                <option value="1">Ej skördefärdig</option>
+                                <option value="1">Skördeklar</option>
+                                <option value="2">Färdigskördad</option>
+                            </select>
+                            <label>Skördestatus</label>
+                        </div>
+                        <div class="input-field col s4">
+                            <input name="length" type="number" class="validate" aria-required="true"
+                                   aria-invalid="true">
+
+                            <label for="length" class="">Skördade meter</label>
+                        </div>
+
+                    </div>
+                    <div class="step-actions">
+                        <button class="waves-effect waves-dark btn blue next-step">CONTINUE</button>
+
+                    </div>
+                </div>
+            </li>
+            <li class="step">
+                <div data-step-label="" class="step-title waves-effect waves-dark">Kommentarer</div>
+                <div class="step-content" >
+                    <div class="row">
+                        <form class="col s12">
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <textarea id="textarea1" class="materialize-textarea"></textarea>
+                                    <label for="textarea1">Kommentarer</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+
+                    <div class="step-actions">
+                        <button class="waves-effect waves-dark btn blue">REGISTRERA SKÃ–RD</button>
+                    </div>
+                </div>
+            </li>
+
+
+        </ul>
+
+
+    </div>
+</div>

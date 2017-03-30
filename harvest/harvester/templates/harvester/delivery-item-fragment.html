@@ -1,191 +1,122 @@
-
-<div data-pk="{{di.pk}}" class="row gutter-10 alert    order-item top-buffer
-   {% if di.state == "C" %}
-alert-success
-{% elif di.state == "P" %}
-alert-warning
-{% else %}
-alert-info
-{%endif%}
-">
-
-    <div class="col-md-6">
-        <div class="row">
-            <div class="col-xs-9">
-
-                <div class="crop" style="display:inline-block">
-                <span style="font-weight:bold">
-
-                    {{di.cropform.crop}}
-
-                </span>
-                </div>
-
-                <div class="cropform" style="display:inline-block">
-                <span style="font-weight:100">
-                    {{di.cropform}}
-                </span>
-                </div>
-            </div>
-
-            <div class="col-xs-3">
-                 {% if delivery.state != "D" %}
-                <a style="font-size:1.5em" data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "delivery-item-delete" di.pk %}"> <span class="glyphicon glyphicon-trash"></span></a></td>
-                {%endif%}
-                <a data-id="{{i.pk}}"
-                   href="{%url "delivery-edit-harvests" di.pk request.get_full_path|urlencode:"" %}">
-                <span style="font-size:1.5em" class="glyphicon glyphicon-download-alt"> </span>
-                <br/>
-                </a>
-            </div>
-
-
-            <div class="col-xs-6">
-                <a
-                        id="{{di.pk}}_priceeditable"
-                        href="#"
-                        class="editable price price_state"
-                        data-type="amount_and_unit"
-                        data-pk="{{di.pk}}"
-                        data-value="{'amount': '{{di.price}}','unit': '{{di.price_type}}'}"
-                        {%if di.cropform.countable %}
-                        data-units='{"W":"kr/kg","U":"kr/{{di.cropform.form_name}}" }'
-                        {% else %}
-                        data-units='{"W":"kr/kg" }'
-                        {% endif %}
-                        data-title="Ange pris"
-                        data-name="price"
-                        data-url='/harvester/ajax/delivery_item_edit_price'
-                >
-                </a>
-
-                {% if delivery.state != "D" %}
-                <a class="pricereset" href="#" onclick="console.log('test');reset_price({{di.pk}},{{di.listed_price.price}},'{{di.listed_price.unit}}');event.stopPropagation();
-"> <span class=" glyphicon glyphicon-flash"></span></a>
-{%endif%}
-
-         </div>
-            <div class="col-xs-6">
-                                {% if delivery.type == "B" %}
-
-                <a
-                        href="#"
-                        class="editable amount"
-                        data-type="amount_and_unit"
-                        data-pk="{{di.pk}}"
-                        data-value="{'amount': '{{di.order_amount}}','unit': '{{di.order_unit}}'}"
-                        {%if di.cropform.countable %}
-                        data-units='{"W":"kg / kasse","U":"st {{di.cropform.form_name}}/ kasse" }'
-                        {% else %}
-                        data-units='{"W":"kg / kasse" }'
-                        {% endif %}
-                        data-title="Ange mängd"
-                        data-url='/harvester/ajax/delivery_item_edit_amount'
-                >
-                </a>
-                {% endif %}
-
-
-            </div>
-
-        </div>
-
-                <div class="row">
-            <div class="col-md-6 col-xs-6">
-
-                <a href="#"
-                   class="editable order_comment"
-                   data-pk="{{di.pk}}"
-                   data-value="{{di.order_comment}}"
-                   data-type="text"
-                   data-url='harvester/ajax/deliveryitem_order_comment'
-                   data-placeholder="önskemål"
-                   data-name="order_comment"
-                   data-emptytext="spec. önskemål"
-                ></a>
-            </div>
-            <div class="col-md-6 col-xs-6">
-                <a href="#"
-                   class="editable delivery_comment"
-                   data-pk="{{di.pk}}"
-                   data-value="{{di.delivery_comment}}"
-                   data-type="text"
-                   data-url='harvester/ajax/deliveryitem_delivery_comment'
-                   data-placeholder="avvikelser"
-                   data-name="delivery_comment"
-                   data-emptytext="avvikelser"
-                ></a>
-            </div>
-
-        </div>
-
-
-
-
-    </div>
-    <div class="col-md-6">
-
-        <div class="ordered-text" style="width:75%;text-align:right">
-            <span style="" >
-                Beställt
-
-
-                (<span class="ordered_value">0</span> kr)
-
-                {% if delivery.type == "N" %}
-
-                <a
-                        href="#"
-                        class="editable amount"
-                        data-type="amount_and_unit"
-                        data-pk="{{di.pk}}"
-                        data-value="{'amount': '{{di.order_amount}}','unit': '{{di.order_unit}}'}"
-                        {%if di.cropform.countable %}
-                        data-units='{"W":"kg","U":"{{di.cropform.form_name}}" }'
-                        {% else %}
-                        data-units='{"W":"kg" }'
-                        {% endif %}
-                        data-title="Ange mängd"
-                        data-url='/harvester/ajax/delivery_item_edit_amount'
-                >
-                </a>
-                {% else %}
-                <span class="ordered_amount"></span>
-
-                {% endif %}
-            </span>
-        </div>
-
-
-
-
-
-        <div class="harvested area" style="width:0%">
-            <div class="marker">
-                &nbsp;
-            </div>
-        </div><div class="remaining area" style="width:75%">
-            <div class="marker" >
-                &nbsp;
-            </div>
-        </div><div class="overflow area" style="width:0%">
-            <div class="marker">
-                &nbsp;
-            </div>
-        </div>
-        <div class="harvested-text" >
-            <span class="harvested_amount"></span>  skördat (<span class="harvested_value">0</span> kr)
-        </div><div class="under" style="text-align:right;width:35%;display:inline-block">
-            återstår: <span class="under"></span>
-        </div><div class="over" style="text-align:left;width:25%;display:inline-block">
-            <span class="over"></span> över!
-        </div>
+<div class="col s12 m6 l4 ">
+    <div data-pk="{{di.pk}}" class="card delivery_item lighten-5
+{%if di.state == "C" %}green
+    {%elif di.state == "P"%}orange
+    {%else%}yellow {%endif%}
+    ">
+    <div id="progress_{{di.pk}}" style="margin-top:0" class="progress">
+        <div class="indeterminate"></div>
     </div>
 
-    <div class="col-md-2">
+    <div class="card-content compact">
+			  <span class="card-title">{{di.cropform.crop}} ({{di.cropform}})
 
-    </div>
+			</span>
 
+        <div class="row  ">
+
+
+                    <div class="col s6">
+                        <div style="height:125px" name="chart"></div>
+                    </div>
+
+
+                    <div class="col s6">
+                        <div class="row ">
+                            <div class="input-field col s6">
+                                <input placeholder="Placeholder" name="order_amount" id="order_amount-{{di.pk}}"
+                                       type="text" class="" value="">
+                                <label for="order_amount-{{di.pk}}" class="active">Mängd</label>
+
+                            </div>
+                            <div class="input-field col s6">
+                                <div class="mdl-selectfield">
+                                    <label>Standard Select</label>
+                                    <select id="order_unit-{{di.pk}}" name="order_unit"
+                                            class="mdl-select browser-default">
+                                        <option value="W">kg</option>
+                                        {% if di.cropform.countable %}
+                                        <option value="U">st</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
+                            </div>
+
+            </div>
+        <div class="row ">
+ <div class="input-field col s6">
+                                <input placeholder="Placeholder" name="price" id="price-{{di.pk}}" type="text" class=""
+                                       value="">
+                                <label for="price-{{di.pk}}" class="active">pris</label>
+
+                            </div>
+                            <div class="input-field col s6">
+                                <div class="mdl-selectfield">
+                                    <select id="price_unit-{{di.pk}}" name="price_unit"
+                                            class="mdl-select browser-default">
+                                        <option value="W">kr/kg</option>
+                                        {% if di.cropform.countable %}
+                                        <option value="U">kr/st</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
+
+
+                            </div>
+                            </div>
+                        </div>
 </div>
+        <div class="row">
+ <div class="input-field col s6">
+     <div class="row">
+          <div class="input-field col s12">
+                                    <input name="order_comment" id="order_comment-{{di.pk}}" type="text" value="...">
+                                    <label for="order_comment-{{di.pk}}">Önskemål</label>
+                                </div>
+         </div>
+     </div>
+            <div class="input-field col s6">
+            <div class="row">
+                {% if delivery.type == "B" %}
+                                <div class="input-field col s6">
+                                    <input type="text" disabled value="2" id="harvested" class="relation">
+                                    <label for="harvested" class="relation active">Återstår</label>
+                                </div>
+
+                                <div class="input-field col s6  ">
+                                    <input type="text" class="total_order_amount" disabled value="-"><label>Total mängd</label>
+                                </div>
+                {% else %}
+                                <div class=" input-field col s12 ">
+                                    <input type="text" class="realation" disabled value="-"><label class="relation">Återstår</label>
+                                </div>
+                {%endif%}
+
+
+</div></div>
+
+
+                        </div>
+</div>
+
+                    <div class="card-action">
+                    <a class="waves-effect waves-light" data-pk="{{di.pk}}" href="#add_harvest_modal">Registrera
+                        skörd</a>
+                    <a href="#">Markera som färdig</a>
+                </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 

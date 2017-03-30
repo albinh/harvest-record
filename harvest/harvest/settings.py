@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 	'harvester.apps.HarvesterConfig',
-
+    'rest_framework',
     'widget_tweaks',
 ]
 

@@ -37,8 +37,85 @@
             }
         }
 .delivery {
-width:300px;
+width:90%;
+max-width:375px;
 display:inline-block;
 margin:11.5px;
 vertical-align:top;
+}
+
+.select-wrapper input.select-dropdown{
+-webkit-user-select:none !important;
+-moz-user-select:none !important;
+-ms-user-select:none !important;
+-o-user-select:none !important;// latest Opera versions support -webkit-
+user-select:none !important;
+}
+
+/* ==========  Select Field Variables ========== */
+$color-black: "0,0,0";
+$select-background-color: transparent;
+$select-border-color: unquote("rgba(#{$color-black}, 0.12)") !default;
+$select-font-size: 16px;
+$select-color: unquote("rgba(#{$color-black}, 0.26)") !default;
+$select-padding: 4px;
+
+/* ==========  Select Field ========== */
+
+/* Style Select Field */
+.mdl-selectfield select {
+
+}
+
+/* Remove focus */
+select:focus {
+  outline: none}
+
+/* Hide label */
+.mdl-selectfield label {display: none;}
+/* Use custom arrow */
+.mdl-selectfield select {
+  font-family: inherit;
+  background-color: transparent; !important
+  width: 100%;
+  padding: 4px 0;
+  font-size: 12
+  color: #AAA;
+  border: none;
+  border-bottom: 1px solid #AAA;
+
+}
+.mdl-selectfield {
+  font-family: 'Roboto','Helvetica','Arial',sans-serif;
+  position: relative;
+    &:after {
+        position: absolute;
+        top: 0.75em;
+        right: 0.5em;
+        /* Styling the down arrow */
+        width: 0;
+        height: 0;
+        padding: 0;
+        content: '';
+        border-left: .25em solid transparent;
+        border-right: .25em solid transparent;
+        border-top: .375em solid $select-border-color;
+        pointer-events: none;
+    }
+}
+.compact input {
+    margin-bottom:5px;
+}
+
+.compact .row
+{
+    margin-bottom:15px;
+}
+
+.variant { color:#777; text-decoration:line-through }
+
+.variant.included { color:#000; font-weight:bold;text-decoration:none;}
+
+.autotable {
+    width:auto;!important;
 }
