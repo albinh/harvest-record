@@ -26,9 +26,8 @@
 {% block main %}
 
         {% include "./delivery-edit-add-di-fragment.html" with crops=crops%}
-        {% include "./add-harvest-modal.html" %}
-        {% include "./box-variants-fragment.html" %}
 
+        {% include "./box-variants-fragment.html" %}
 
         {%if delivery.started_items%}
 
@@ -78,15 +77,13 @@
 {% endblock %}
 
 {%block page_script %}
+    <script src="{% static "harvester/js/harvest-chart.js" %}"></script>
 <script src="{% static "harvester/js/delivery-edit.js" %}"></script>
-<script src="{% static "harvester/js/add-harvest-modal.js" %}"></script>
+
 <script>
 {% for di in delivery.deliveryitem_set.all %}
     f = changeHandler({{di.pk}})
-    $(document).ready( function(){
-        reloadDeliveryItem({{di.pk}});
-        $('.stepper').activateStepper();
-    });
+
     $("#price_unit-{{di.pk}}").on("input",f);
     $("#order_unit-{{di.pk}}").on("input",f);
     $("#order_amount-{{di.pk}}").on("input",f);

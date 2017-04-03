@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 from .api_views import delivery_item_element, delivery_variant_element
 from . import views
-from . import ajax_views
+
 urlpatterns = [
 
 

@@ -2,12 +2,9 @@
 {% load l10n static  placeholder widget_tweaks %}
 {% load widget_tweaks %}
 {%block container-type %}container{%endblock%}
-{% block content %}
-<h1>Registrera skörd</h1>
+{% block main %}
 
-<div class="alert alert-danger">
-    Denna del av beställningen är redan markerad som färdig. Registrera inte någon ny skörd om du inte är säker på vad du gör!
-</div>
+
 
 {{view.deliveryitem.cropform.crop}} ({{ view.deliveryitem.cropform }}) till {{ view.deliveryitem.delivery.customer }} ({{ view.deliveryitem.delivery.date }})
 <form method="post" action="">
@@ -25,97 +22,92 @@
     {% endfor %}
     {% csrf_token %}
 
-    <div class="row">
-        <div class="col-md-4">
-            <div class="form-group ">
-                <legend>Mängd</legend>
-                <label>
-                    vikt
-                </label>
+
+        <h4>Registrera skörd</h4>
+
+                    <div class="row">
+
+                         <div   class="col m4 s12">
+                            <div style="height:200px;" name="modal_chart"></div>
+                        </div>
+</div>
+  <div class="row">
+                        <div class="input-field col m4">
 
 
-                <div class="input-group">
-                    {% ifequal view.deliveryitem.order_unit "W" %}
-                        <span class="input-group-addon" id="basic-addon2"><b>{{  view.deliveryitem.harvest_relation }}</b> av {{view.deliveryitem.total_order_amount}} återstår</span>
-                    {% endifequal %}
-                    {{form.weight|add_class:'form-control'}}{{form.weight.errors}}
+                          {{form.weight|add_class:'form-control'}}{{form.weight.errors}}
+
+                            <label class="">Vikt</label>
+                        </div>
+                        </div>
+                        <div class="row">
+                        <div class="count input-field col m4">
+                            {{form.count|add_class:'form-control'}}
+
+                            <label for="st" class="">Antal</label>
+                        </div>
+                        </div>
+                        <div class="row">
 
 
-                    <span class="input-group-addon" id="basic-addon2">kg {{view.deliveryitem.cropform.crop}}</span>
-                </div>
-            </div>
-            <div class="form-group ">
-                {% if view.deliveryitem.cropform.countable %}
 
-                <label>
-                    Antal
-                </label>
-                <div class="input-group">
-                    {% ifequal view.deliveryitem.order_unit "U" %}
-                        <span class="input-group-addon" id="basic-addon2"><b>{{  view.deliveryitem.harvest_relation }}</b>/ {{view.deliveryitem.total_order_amount}}</span>
-                    {% endifequal %}
 
-                    {{form.count|add_class:'form-control'}}
 
-                    <span class="input-group-addon"">st {{view.deliveryitem.cropform}}</span>
-                </div>
-                {% endif %}
-                {{form.count.errors}}
-            </div>
-        </div>
-        <div class="col-md-4">
+                    </div>
 
-            <legend>Källa</legend>
 
-            <div class="form-group ">
-                <label>
-                    Kultur
-                </label>
+
+                    <div class="row">
+                        <div class="input-field col m4 s12">
+<div class="mdl-selectfield">
+
+
                 <!-- TODO: om det bara finns en kultur, använd den. -->
-                {{form.culture|add_class:'form-control'}}
-            </div>
-            <div class="form-group ">
-                <label>
-                    Skördestatus
-                </label>
-                {{form.culture_state|add_class:'form-control'}}
-                <!-- Skördeklar bör vara standard -->
-            </div>
+                {{form.culture|add_class:'mdl-select browser-default'}}
 
 
-            <div class="form-group ">
+                            <label>Kultur</label>
+                            </div>
+                        </div>
 
-                <label>
-                    Skördad längd
-                </label>
-                <div class="input-group">
-                    {{form.harvested_length|add_class:'form-control'}}
-                    <span class="input-group-addon"">bäddmeter</span>
-                </div>
-            </div>
+                        <div class="input-field col m4 s12">
+<div class="mdl-selectfield">
 
-            <div class="form-group ">
-                <label>
-                    {{form.harvest_state|add_class:'form-control'}}
-                    Kommer att skörda mer av denna gröda till denna leverans
-                </label>
 
-            </div>
+    {{form.culture_state|add_class:'mdl-select browser-default'}}
 
-        </div>
 
-        <div class="col-md-4">
+                            <label>Skördestatus</label>
+                            </div>
+                        </div>
+                        <div class="input-field col m4 s12">
 
-            <legend>Kommentar/avvikelse</legend>
-            <label>
+                            {{form.harvested_length|add_class:'form-control'}}
+
+
+                            <label for="length" class="">Skördade meter</label>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col s12">
+                            <div class="row">
+                                <div class="input-field col s12">
+
+
+            {{form.comment|add_class:'materialize-textarea'}} <label>
                 Avvikelser/kommentar (ej till kund)
             </label>
-            {{form.comment|add_class:'form-control'}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
 
-        </div>
 
-    </div>
+
+
     <div class="row">
         <div class="col-md-4 col-md-offset-8">
             <input id="save_harvest_item" class="btn-primary btn btn-block" type="submit"
@@ -125,62 +117,19 @@
     </div>
 </form>
 
-<h2>tidigare registrerade</h2>
-<div id="prev-harvested">
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Kultur</th>
-            <th>kg</th>
-            {% if view.deliveryitem.cropform.countable %}
-            <th>st</th>
-            {% endif %}
-            <th>m</th>
-            <th>d</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
 
-        {% for harvest in view.prev_harvests %}
-
-
-
-
-        <tr>
-            <td>{{harvest.culture}}</td>
-            <td>{{harvest.weight}} kg</td>
-            {% if view.deliveryitem.cropform.countable %}
-            <td>{{harvest.count}} st</td>
-            {% endif %}
-            <td>{{harvest.harvested_length}}</td>
-            <td>{{harvest.time}}</td>
-            <td>        <a data-toggle="confirmation" data-title="Ta bort skörd?" data-href="{%url "harvest-item-delete" harvest.pk %}"><span class="glyphicon glyphicon-trash"></span></a>
-                        <a href="{%url "delivery-edit-harvests-update" harvest.pk request.get_full_path|urlencode:"" %}"><span class="glyphicon glyphicon-pencil"></span></a> </td>
-        </tr>
-
-        {% endfor %}
-
-
-
-        </tbody>
-        <tfoot>
-                <tr>
-            <td>
-                skördat
-            </td>
-            <td>
-                {{view.deliveryitem.harvested_weight}} kg
-            </td>
-                        {% if view.deliveryitem.cropform.countable %}
-            <td> {{view.deliveryitem.harvested_count}} st</td>
-                    {% endif %}
-                    <td></td>
-                    <td></td>
-
-
-        </tr>
-</tfoot>
-    </table>
 </div>
+{%endblock%}
+
+{%block page_script%}
+<script>
+    var result = JSON.parse('{{view.di_data|safe }}')
+    console.log(result)
+    $(document).ready(function(){
+        updateModalChart();
+    })
+    </script>
+    <script src="{% static "harvester/js/harvest-chart.js" %}"></script>
+    <script src="{% static "harvester/js/add-harvest-modal.js" %}"></script>
+
 {%endblock%}

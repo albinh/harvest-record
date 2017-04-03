@@ -20,7 +20,7 @@ class CropForm(models.Model):
     crop = models.ForeignKey(Crop, on_delete=models.CASCADE,related_name="cropforms")
     form_name = models.CharField(max_length=40)
     weight_of_one_unit = models.DecimalField(max_digits=4,decimal_places=2)
-    weight_of_one_unit = models.DecimalField(max_digits=4,decimal_places=2)
+
     def __str__(self):
         return self.form_name
     countable = models.BooleanField()

@@ -59,7 +59,9 @@
         </ul>
     </header>
     <main>
+        <div class="container">
         {% block main %}{% endblock %}
+            </div>
     </main>
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
@@ -67,11 +69,6 @@
  <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
  <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
 
-<!--    <script src="{% static "harvester/js/jquery.circliful.js"%}"></script>-->
-
-
-    <!--Import Materialize-Stepper JavaScript -->
-    <script src="{% static "harvester/js/materialize-stepper.js"%}"></script>
 <script>
 (function(i,s,q,l){for(q=window._q(),l=q.length;i<l;){$.apply(this,s.call(q[i++]));}window.__q=undefined;}(0,Array.prototype.slice));
 </script>

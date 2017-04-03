@@ -21,7 +21,6 @@
 <ul class="right">
     <li><a class="dropdown-button" id="date_dropdown" href="#!" data-activates="dropdown2">Visa allar<i class="material-icons right">arrow_drop_down</i></a></li>
     <li><a class="dropdown-button" id="state_dropdown" href="#!" data-activates="dropdown1">Visar alla<i class="material-icons right">arrow_drop_down</i></a></li>
-
 </ul>
 
 
@@ -126,157 +125,10 @@
 
             </div>
           </div>
-        </div>
+
 
 
 
 
     {% endfor %}
-
-{% endblock %}
-    {% for delivery in object_list %}
-        <div class="row">
-        <div class="col s12 m3">
-          <div class="z-depth-5 card green lighten-5">
-		        <div class="card__date">
-                <span class="card__date__day">{{delivery.date|date:"d" }}</span>
-                <span class="card__date__month">{{delivery.date|date:"M" }}</span>
-              </div>
-            <div class="card-content">
-              <span class="card-title">Granö beckasin</span>
-			  Grödor:
-			  <ul class="collapsible" data-collapsible="accordion">
-    <li>
-      <div class="green lighten-3 collapsible-header"><span class="badge">15 kg</span>morot </div>
-      <div class="collapsible-body"><span>Granö 17 augusti</span>
-
-
-
-	  </div>
-    </li>
-    <li>
-      <div class=" yellow lighten-3 collapsible-header"><span class="badge">4 kg</span>Second</div>
-      <div class="yellow lighten-5 collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
-    </li>
-    <li>
-      <div class="grey lighten-3 collapsible-header">Third</div>
-      <div class="lighten-5 grey collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
-    </li>
-  </ul>
-              <p>Värde: 20kr (prognos)</p>
-
-            </div>
-            <div class="card-action">
-              <a href="#">Visa detaljer</a>
-              <a href="#">Markera som levererad</a>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-        </div>
-    {% endfor %}
-{% block content %}
-
-<div class="row">
-    <div class="col-md-4">
-
-    <div class="list-group">
-            {% for i in view.state_filter %}
-            <a class="list-group-item {%if view.filter == i.q%}active{%endif%}" href="?time_filter={{view.time_filter}}&filter={{i.q}}">{{i.text}}</a>
-            {%endfor%}
-
-
-
-    </div>
-
-
-    </div>
-    <div class="col-md-8">
-
-
-
-
-    {% for delivery in object_list %}
-    <div class="row alert
-    {% if delivery.state == "D" %}
-        alert-success
-    {% elif delivery.state == "P" %}
-        alert-info
-{%else%}
-alert-warning
-{%endif%}
-     delivery">
-        <div class="col-xs-5">
-            <div class="row ">
-                <div class="col-md-5">
-            <a href="{% url 'delivery-edit' delivery.id %}">{{ delivery.customer}}</a>
-
-            </div>
-
-            <div class="col-md-5">
-
-            {%if delivery.state == "D" %}
-                        {{delivery.date |date:"M d"}}
-                        <a href="{%url "delivery-spec" delivery.pk%}"><span class="glyphicon glyphicon-print"></span> </a>
-                        {%else %}
-                            {{delivery.date|date:"M d" }}
-                        {%endif%}
-                </div>
-                <div class="col-md-2">
-                <a data-toggle="confirmation" data-title="Ta bort leverans?" data-href="{%url "delivery-delete" delivery.pk %}"> <span class="glyphicon glyphicon-trash"></span></a>
-                        <a href="{% url 'delivery-edit' delivery.id %}"><span class="glyphicon glyphicon-pencil"></span></a> <!--TODO: länk till redigera  -->
-
-
-                </div>
-    </div>
-        </div>
-        <div style="height:100%" class="col-xs-7 ">
-
-                  {% for i in delivery.deliveryitem_set.all %}
-                        <a class="" role="button"
-                                   href="{%url "delivery-edit-harvests" i.pk request.get_full_path|urlencode:"" %}" >
-
-                                <div class="
-                                {% if i.state == "N" %}
-                                    di-not_started
-                                {%elif i.state == "P" %}
-                                    di-progress
-                                {% else %}
-                                    di-completed
-                                {% endif %}
-
-                                " id="harvest-button-{{i.pk}}" data-id="{{i.pk}}">
-
-                    {{i.cropform.crop.crop}}
-
-
-                    {{i.cropform.form_name}}
-                    {{i.order_amount}} / {{i.harvested_amount}} {{i.order_unit}}
-</div></a>
-
-
-<!--
-                            <a class="" role="button"
-                                   href="{%url "delivery-edit-harvests" i.pk request.get_full_path|urlencode:"" %}" >
-
-                                <div id="harvest-button-{{i.pk}}" data-id="{{i.pk}}"
-                                     data-query-url="{% url 'deliveries_harvest_for_delivery' %}"
-                                     style="margin-right:1em;display:inline;width:auto;padding-left:5px;padding-right:5px">
-                                    {{i.cropform.crop.crop}}
-                                    <span class="harvested">0</span>/<span class="target">0</span> <span class="unit">kg</span>
-                                </div>
-                                </a>-->
-
-                    {% endfor %}
-</div></div>
-    {%endfor%}
-
-
-    </div>
-</div>
-
-
-
 {% endblock %}

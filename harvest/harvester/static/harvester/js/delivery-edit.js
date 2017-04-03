@@ -17,100 +17,15 @@ function debounce(func, wait, immediate,pk) {
 	};
 };
 
-function updateHarvestChart(result, selector) {
-    var text_1;
-    var text_2;
-    var percentage;
-    var foregroundColor="#1b5e20"
-    var backgroundColor="#9e9e9e";
-    var data;
-    var colors;
-    var OVER="#ff5722";
-    var REMAINING="#9e9e9e";
-    var HARVESTED="#4caf50";
-    if ((result.order_unit)=="U")
-    {
-        if (result.harvest_remaining>0) {
-            colors = [HARVESTED,REMAINING]
-            data= [
-                 {label: "skördat", value: result.harvested_amount},
-                {label: "återstår", value: result.harvest_remaining}
-            ]
-
-        } else if (result.harvest_remaining==0) {
-            colors= [HARVESTED]
-            data= [
-                 {label: "Skördat", value: result.harvested_amount},
-
-            ]
-
-
-        } else if (result.harvest_remaining<0) {
-            colors=[OVER,HARVESTED]
-data= [
-                 {label: "överskördat", value: -result.harvest_remaining},
-                 {label: "Skördat", value: result.harvested_amount},
-
-            ]
-
-
-        }
-    } else if (result.order_unit=="W") {
-        if (result.harvested_amount==0) {
-                colors = [REMAINING]
-              data= [
-
-                {label: "återstår", value: result.harvest_remaining}
-            ]
-        }
-        else if (result.harvest_remaining/parseFloat(result.order_amount)>0.05) {
-            colors = [HARVESTED,REMAINING]
-            data= [
-                 {label: "skördat", value: result.harvested_amount},
-                {label: "återstår", value: result.harvest_remaining}
-            ]
-
-        }  else if (result.harvest_remaining/parseFloat(result.order_amount)<-0.05) {
-
-            colors=[OVER,HARVESTED]
-            data= [
-                 {label: "överskördat", value: -result.harvest_remaining},
-                 {label: "ordered", value: result.total_order_amount},
-
-            ]
-        }    	else {
-                colors=[HARVESTED]
-                        data= [
-                 {label: "Skördat", value: result.harvested_amount},
-
-            ]
-
-        }
-    }
-
-    selector.html("")
-
-    console.log(data)
-
-       Morris.Donut({
-        element: selector,
-        data: data,
-        colors:colors,
-        formatter:formatter_unit.bind(null,result.order_unit_text_short)
-});
 
 
 
 
-}
 
-function formatter_unit(unit,y,data) {
-    return y+unit;
-}
 
+
+// CB för att uppdatera deliveryitem-card.
 function callbackReloadDeliveryItem(reload_editable,result) {
-    console.log(result)
-
     var card = $(".delivery_item[data-pk='"+result.pk+"']");
     card.data("info", result);
 
@@ -143,18 +58,12 @@ function callbackReloadDeliveryItem(reload_editable,result) {
     }
 
     updateHarvestChart(result,card.find("[name='chart']"))
-
-
 }
 
 function sendDeliveryItem(pk) {
-    console.log("calling")
     $("#progress_"+pk).show();
     var card = $(".delivery_item[data-pk='"+pk+"']");
 
-    // Visa progress
-
-    //
     var data =
     {
         order_amount:card.find("[name='order_amount']").val(),
@@ -176,6 +85,12 @@ function sendDeliveryItem(pk) {
 function changeHandler(pk) {
     $("#progress_"+pk).show();
     return debounce(sendDeliveryItem,2000,false,pk).bind(null,pk);
+}
+
+function refresHandler(pk) {
+    $("#progress_"+pk).show();
+    return debounce(reloadDeliveryItem,500,false,pk).bind(null,pk);
+
 }
 
 function reloadDeliveryItem (pk) {
@@ -289,7 +204,6 @@ $("#crop-select").trigger("change");
 
 function toggleVariant(selector)
 {
-
     var state = !$(selector).hasClass("included");
     console.log(state);
     $(selector).toggleClass("included",state);
@@ -305,9 +219,8 @@ function callbackReloadDeliveryVariant(reload_editable, result) {
     $('.value[data-variant="'+result.pk+'"]').val(result.value+" kr");
 
     $('.delivery_item').each(function (i,e) {
-        reloadDeliveryItem($(e).data("pk"))
+        $(e).trigger("refresh")
     })
-
 }
 
 function reloadDeliveryVariant (pk) {
@@ -349,6 +262,15 @@ function updateVariant(event) {
     pushVariant(v)
 }
 
-console.log("test")
+
+$(document).ready( function(){
+    $('div.delivery_item').each(function() {
+        $(this).on('push_changes', changeHandler($(this).data("pk")));
+        $(this).on('refresh',      refresHandler($(this).data("pk")));
+
+        $(this).trigger('refresh');
+    })
+});
+
 $(".included_checkbox").on("change", updateVariant);
 $(".box-count").on("input",updateVariant);

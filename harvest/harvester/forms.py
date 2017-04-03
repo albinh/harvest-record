@@ -8,10 +8,6 @@ from .models import Culture
 from .models import HarvestItem
 
 
-class CropFormForm(ModelForm):
-    class Meta:
-        model=Crop
-        exclude=[]
 
 class HarvestItemForm(ModelForm):
     culture_state = forms.ChoiceField(choices=Culture.HARVEST_CHOICES,initial=2)
@@ -23,8 +19,6 @@ class HarvestItemForm(ModelForm):
        super(HarvestItemForm, self).__init__(*args, **kwargs)
        self.fields['culture'].queryset = Culture.objects.filter ( crop=di.cropform.crop )
 
-
-
     class Meta:
         widgets = {
             'comment': forms.Textarea(attrs={'cols': 80, 'rows': 4}),
@@ -34,4 +28,3 @@ class HarvestItemForm(ModelForm):
         fields = ['harvested_length', 'culture', 'comment', 'weight', 'count']
 
 
-CropFormFormSet        = inlineformset_factory(Crop,CropForm,exclude=[],extra=0,can_delete=True)

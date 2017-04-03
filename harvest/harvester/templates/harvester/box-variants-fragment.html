@@ -1,21 +1,23 @@
-        {% if delivery.type == "B" %}
+{% if delivery.type == "B" %}
 <div class="row">
     <div class="col s12 m8 l6">
 
         <div class="z-depth-5 card blue-grey lighten-5">
             <div class="card-content ">
-           <span class="card-title">Varianter kassar</span>
+                <span class="card-title">Varianter kassar</span>
 
-                    <form>
-                    <table class="autotable ">
-                        <thead>
+                <form>
+                    <div style="overflow-x:auto;">
+                        <table class="">
+                            <thead>
                             <tr>
-                                <th ></th>
+                                <th></th>
                                 {% for v in variants %}
                                     <th><h4>{{v.name}}</h4></th>
                                 {% endfor %}
                                 <th>
-                                    <a href="{% url 'delivery_variant_new' delivery.pk %}" class="waves-effect waves-light btn"><i class="material-icons left">add</i></a>
+                                    <a href="{% url 'delivery_variant_new' delivery.pk %}"
+                                       class="waves-effect waves-light btn"><i class="material-icons left">add</i></a>
 
                                 </th>
                             </tr>
@@ -24,73 +26,100 @@
                                 {% for v in variants %}
                                     <th>
                                         <div class="input-field">
-                                        <input id="{{v.pk}}-count"  class="box-count" type="number" data-variant="{{v.variant.pk}}" value="{{v.variant.count}}"/><label for="{{di.pk}}-{{v.pk}}-count">antal</label>
-</div>
+                                            <input id="{{v.pk}}-count" class="box-count" type="number"
+                                                   data-variant="{{v.variant.pk}}" value="{{v.variant.count}}"/><label
+                                                for="{{di.pk}}-{{v.pk}}-count">antal</label>
+                                        </div>
                                     </th>
                                 {% endfor %}
                             </tr>
-                        </thead>
-                        <tbody>
+                            </thead>
+
+
+                            <!-- Kryssrutor -->
+                            <tbody>
                             {% for di in delivery.deliveryitem_set.all %}
-                                 <tr>
+                                <tr>
                                     <td>
                                         <div
-                                                style="text-overflow: ellipsis;  white-space: nowrap; overflow: hidden;width:3em">{{di.cropform.crop}}
+                                                style="text-overflow: ellipsis;  white-space: nowrap; overflow: hidden;width:3em">
+                                            {{di.cropform.crop}}
                                         </div>
                                     </td>
 
                                     {% for v in di.variants %}
                                         <td>
-                                            <input  {%if v.included %} checked {%endif%} data-variant="{{v.variant.pk}}" data-deliveryitem="{{di.pk}}" class="included_checkbox filled-in" id="checkbox_{{di.pk}}-{{v.variant.pk}}" type="checkbox"/><label for="checkbox_{{di.pk}}-{{v.variant.pk}}"></label>
+                                            <input {%if v.included %} checked {%endif%} data-variant="{{v.variant.pk}}"
+                                                   data-deliveryitem="{{di.pk}}" class="included_checkbox filled-in"
+                                                   id="checkbox_{{di.pk}}-{{v.variant.pk}}" type="checkbox"/><label
+                                                for="checkbox_{{di.pk}}-{{v.variant.pk}}"></label>
                                         </td>
                                     {% endfor %}
 
-                                 </tr>
+                                </tr>
                             {%endfor%}
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td></td>
-                                {% for v in variants %}
-                                    <td>
-                                        <div class="input-field">
-                                        <input disabled  id="{{v.pk}}-count-crops" data-variant="{{v.variant.pk}}" class="crop-count" type="number" value="4"/><label for="{{v.pk}}-count-crops">antal grödor</label>
-</div>
-                                    </td>
-                                {%endfor%}
-                            </tr>
-                            <tr>
-                                <td></td>
-                                {% for v in variants %}
-                                    <td>
-                                   <div class="input-field">
-                                        <input class="value" disabled id="{{v.pk}}-value" type="text" data-variant="{{v.variant.pk}}" value="4"/><label for="{{v.pk}}-value">Värde</label>
-                                    </div>
-                                    </td>
-                                {%endfor%}
+                            </tbody>
 
 
-                            </tr>
+
+                            <tfoot>
+                                <tr>
+                                    <td></td>
+
+                                    <!-- antal grödor-->
+                                    {% for v in variants %}
+                                        <td>
+                                            <div class="input-field">
+                                                <input disabled id="{{v.pk}}-count-crops"
+                                                       data-variant="{{v.variant.pk}}"
+                                                       class="crop-count"
+                                                       type="number"
+                                                       value="4"/>
+                                                <label for="{{v.pk}}-count-crops">antal grödor</label>
+                                            </div>
+                                        </td>
+                                    {%endfor%}
 
 
-                        </tfoot>
-                    </table>
-                    </form>
-                 </div>
+                                </tr>
+                                <tr>
+                                    <td></td>
+
+
+                                    <!-- Värde -->
+                                    {% for v in variants %}
+                                        <td>
+                                            <div class="input-field">
+                                                <input class="value" disabled id="{{v.pk}}-value" type="text"
+                                                       data-variant="{{v.variant.pk}}" value="4"/><label for="{{v.pk}}-value">Värde</label>
+                                            </div>
+                                        </td>
+                                    {%endfor%}
+
+
+
+                                </tr>
+
+
+                            </tfoot>
+                        </table>
+                    </div>
+                </form>
             </div>
+        </div>
     </div>
 </div>
 
 {% for v in variants %}
-    <script>
+<script>
     $(document).ready (function(){
         reloadDeliveryVariant({{v.variant.pk}});
         })
-    </script>
+
+</script>
 {% endfor %}
 
 
-
-        {%endif%}
+{%endif%}
 
 

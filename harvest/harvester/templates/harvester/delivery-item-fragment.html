@@ -1,3 +1,5 @@
+{% include "./delivery-item-prev-harvests.html" with di=di %}
+
 <div class="col s12 m6 l4 ">
     <div data-pk="{{di.pk}}" class="card delivery_item lighten-5
 {%if di.state == "C" %}green
@@ -100,9 +102,14 @@
 </div>
 
                     <div class="card-action">
-                    <a class="waves-effect waves-light" data-pk="{{di.pk}}" href="#add_harvest_modal">Registrera
+
+                        <a class="waves-effect waves-light"  data-id="{{i.pk}}"
+                   href="{%url "delivery-edit-harvests" di.pk request.get_full_path|urlencode:"" %}">
+
+                        Registrera
                         skörd</a>
                     <a href="#">Markera som färdig</a>
+                        <a href="#prev-harvest-modal-{{di.pk}}">Visa redan skördat </a>
                 </div>
                     </div>
                 </div>
