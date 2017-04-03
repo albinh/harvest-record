@@ -1,0 +1,62 @@
+<div id="prev-harvest-modal-{{di.pk}}" class="modal">
+    <div class="modal-content">
+
+
+
+        <h4>Registrerade skördar</h4>
+
+<div class="row">
+         {% for harvest in di.harvestitem_set.all %}
+    <div class="col s12 m6">
+            <div class="card grey lighten-2">
+                <div class="card-content">
+                    <span class="card-title">{{harvest.time}} </span>
+
+
+
+                {%if di.order_unit == 'W'%}
+                    {% if di.cropform.countable %}
+                        <div class="row">
+                            <div class="col s5">Antal</div>
+                            <div class="col s7">{{harvest.count}}</div>
+                        </div>
+                    {%endif%}
+                {%else%}
+                <div class="row">
+                            <div class="col s5">Vikt</div>
+                            <div class="col s7">{{harvest.weight}}</div>
+                        </div>
+                {%endif%}
+                <div class="row">
+                    <div class="col s5">Kultur</div>
+                    <div class="col s7">{{harvest.culture}}</div>
+                </div>
+
+
+
+                <div class="row">
+                    <div class="col s5">Bäddmeter</div>
+                    <div class="col s7">{{harvest.harvested_length}} m</div>
+                </div>
+
+
+
+            </div>
+
+
+
+                <div class="card-action">
+
+              <a href="{%url "harvest-item-delete" harvest.pk %}">Ta bort denna skörd</a>
+            </div>
+            </div>
+
+
+
+
+
+</div>
+        {%endfor%}
+</div>
+    </div>
+        </div>

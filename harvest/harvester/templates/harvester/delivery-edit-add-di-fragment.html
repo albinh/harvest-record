@@ -1,0 +1,83 @@
+<script>
+    cropform_data = JSON.parse('{{cropform_data|safe}}');
+</script>
+
+<!--
+Dialog för att lägga till grödor
+-->
+
+  <!-- Modal Structure -->
+  <div id="add_di_modal" class="modal">
+    <div class="modal-content">
+        <h4 class="modal-title">Lägg till gröda i beställning</h4>
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="delivery" value="{{delivery.pk}}"/>
+                    <div class="row">
+                        <div class="col s12 input-field">
+
+
+                                <select name="crop" id="crop-select" class="form-control">
+
+                                    <option disabled selected value="-1">välj gröda</option>
+
+                                    <optgroup label="skördeklara">
+                                    {% for crop in crops.ready %}
+                                        <option value="{{crop.pk}}">{{crop.name}}</option>
+                                    {%endfor%}
+                                        </optgroup>
+
+                                    <optgroup label="ej skördemogna">
+                                    {% for crop in crops.not_ready %}
+                                        <option value="{{crop.pk}}">{{crop.name}}</option>
+                                    {%endfor%}
+                                        </optgroup>
+
+                                    <optgroup label="slutskördade">
+                                    {% for crop in crops.finished %}
+                                        <option value="{{crop.pk}}">{{crop.name}}</option>
+                                    {%endfor%}
+                                        </optgroup>
+
+                                </select>
+                            <label for="crop-select">Gröda</label>
+                            </div>
+
+
+                        <div class="col s12 inputgroup">
+
+                                <label>Form</label>
+                                <select name="cropform" id="crop-form" class="form-control">
+
+                                </select>
+                            </div>
+
+
+                    </div>
+                    <div class="row">
+                    <div class="col s12 inputgroup">
+
+                                <label>Mängd</label>
+                                <input name="amount" class="form-control" type="number">
+
+                        </div>
+                         <div class="col s12 inputgroup">
+
+                                <label>Enhet</label>
+                                <select name="unit" id="units" class="form-control">
+
+
+                                </select>
+
+                        </div>
+                    </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="waves-effect waves-green btn-flat" data-dismiss="modal">Avbryt</button>
+                    <button type="submit" class="waves-effect waves-green btn-flat">Lägg till gröda</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+

@@ -20,6 +20,7 @@ class CropForm(models.Model):
     crop = models.ForeignKey(Crop, on_delete=models.CASCADE,related_name="cropforms")
     form_name = models.CharField(max_length=40)
     weight_of_one_unit = models.DecimalField(max_digits=4,decimal_places=2)
+
     def __str__(self):
         return self.form_name
     countable = models.BooleanField()
@@ -220,6 +221,8 @@ class DeliveryItem (models.Model):
             elif self.price_type == 'U':
                 return self.order_amount  * self.price
 
+    def harvest_remaining(self):
+        return self.total_order_amount()-self.harvested_amount()
 
     def harvest_relation(self):
         return str(self.total_order_amount()-self.harvested_amount())+" "+self.harvested_unit_text()
@@ -262,6 +265,14 @@ class DeliveryItem (models.Model):
         else:
             raise
 
+    def order_unit_text_short(self):
+        if self.order_unit=="W":
+            return "kg"
+        elif self.order_unit=="U":
+            return "st"
+        else:
+            raise
+
     def harvested_unit_text(self):
         if self.order_unit=="W":
             return "kg"
@@ -278,6 +289,13 @@ class DeliveryItem (models.Model):
         else:
             raise
 
+    def price_unit_text_short(self):
+        if self.order_unit=="W":
+            return "kr/kg"
+        elif self.order_unit=="U":
+            return "kr/st"
+        else:
+            raise
 
     def harvested_amount(self):
         if self.order_unit=="W":
@@ -349,9 +367,16 @@ class PriceItem (models.Model):
 
 
 class DeliveryVariant (models.Model):
+
     delivery     = models.ForeignKey(Delivery)
+
+    # Antal kassar av denna variant
     count        = models.DecimalField(max_digits=5, decimal_places=0)
+
+    # DeliveryItems som inte ingår (bortkryssade)
     extempt      = models.ManyToManyField(DeliveryItem)
+
+    # Värde i kronor för en kasse av denna variant.
     def value(self):
         value=0
         for di in self.delivery.deliveryitem_set.all():
@@ -359,17 +384,21 @@ class DeliveryVariant (models.Model):
                 value=value+di.box_value()
         return value
 
+    # antal grödor i varianten
     def crop_count(self):
         count=0
         for di in self.delivery.deliveryitem_set.all():
             if not di in self.extempt.all():
                 count=count+1
-
         return count
+
+    def included(self):
+        return [di for di in self.delivery.deliveryitem_set.all ( ) if not di in self.extempt.all()]
 
 class HarvestItem (models.Model):
     harvested_length = models.DecimalField(max_digits=4, decimal_places=1)
     culture = models.ForeignKey(Culture, on_delete=models.CASCADE)
+    #TODO: Finns kommentarer på flera ställen
     comment = models.CharField(max_length=500, blank=True)
     destination = models.ForeignKey(DeliveryItem)
     weight = models.DecimalField(max_digits=5,decimal_places=1)

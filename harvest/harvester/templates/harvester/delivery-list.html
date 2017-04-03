@@ -1,103 +1,134 @@
 {% extends "harvester/base.html" %}
-{% block container-type %}container{%endblock%}
-{% block content %}
+{% load static  widget_tweaks  %}
+{% block navbar %}
+<a href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">menu</i></a>
+<a href="#" class="brand-logo"><i class="material-icons">present_to_all</i>Leveranser</a>
 
-<div class="row">
-    <div class="col-md-4">
+<ul id="dropdown1" class="dropdown-content">
+    <li><a href="javascript:set_state_filter('all')">Visar alla status</a></li>
+    <li class="divider"></li>
+    <li><a href="javascript:set_state_filter('delivered')">Visar levererade</a></li>
 
-    <div class="list-group">
-            {% for i in view.state_filter %}
-            <a class="list-group-item {%if view.filter == i.q%}active{%endif%}" href="?time_filter={{view.time_filter}}&filter={{i.q}}">{{i.text}}</a>
-            {%endfor%}
+    <li><a href="javascript:set_state_filter('not_delivered')">Visar ej levererade</a></li>
+</ul>
+
+<ul id="dropdown2" class="dropdown-content">
+    <li><a href="javascript:set_date_filter('all')">Visar alla datum</a></li>
+    <li class="divider"></li>
+    <li><a href="javascript:set_date_filter('present')">Visar närliggande</a></li>
+</ul>
+
+<ul class="right">
+    <li><a class="dropdown-button" id="date_dropdown" href="#!" data-activates="dropdown2">Visa allar<i class="material-icons right">arrow_drop_down</i></a></li>
+    <li><a class="dropdown-button" id="state_dropdown" href="#!" data-activates="dropdown1">Visar alla<i class="material-icons right">arrow_drop_down</i></a></li>
+</ul>
 
 
 
-    </div>
+{% endblock %}
 
-
-    </div>
-    <div class="col-md-8">
-
-
-
-
+{% block main %}
+<script src="{% static "harvester/js/delivery-list.js" %}"></script>
     {% for delivery in object_list %}
-    <div class="row alert
-    {% if delivery.state == "D" %}
-        alert-success
-    {% elif delivery.state == "P" %}
-        alert-info
-{%else%}
-alert-warning
-{%endif%}
-     delivery">
-        <div class="col-xs-5">
-            <div class="row ">
-                <div class="col-md-5">
-            <a href="{% url 'delivery-edit' delivery.id %}">{{ delivery.customer}}</a>
+
+
+          <div class="z-depth-5 delivery card
+                {%if delivery.state == "D" %}green
+                {%elif delivery.state == "P"%}orange
+                {%else%}yellow  {%endif%}
+          lighten-5"
+            data-state="{{delivery.state}}"
+            data-date="{{ delivery.date.isoformat }}"
+          >
+		        <div class="card__date">
+                <span class="card__date__day">{{delivery.date|date:"d" }}</span>
+                <span class="card__date__month">{{delivery.date|date:"M" }}</span>
+              </div>
+            <div class="card-content">
+              <span class="card-title">{{delivery.customer}}</span>
+			  Grödor:
+			  <ul class="collapsible" data-collapsible="accordion">
+                  {% for di in delivery.deliveryitem_set.all %}
+                    <li>
+                          <div class="
+                          {%if di.state == "C" %}green
+                          {%elif delivery.state == "P"%}yellow
+                          {%else%}grey{%endif%}
+
+                          lighten-3 collapsible-header"><span class="badge">{{di.order_amount}} {{di.order_unit_text_short}}</span>{{di.cropform.crop.crop}} </div>
+                          <div class="
+                                                    {%if di.state == "C" %}green
+                          {%elif delivery.state == "P"%}yellow
+                          {%else%}grey{%endif%}
+
+
+                          collapsible-body lighten-4">
+
+
+                            <div class="row">
+                                <div class="col s5">
+                                    pris
+                                </div>
+                                <div class="col s7">
+                                    {{di.price|floatformat:0}}{{di.price_unit_text_short}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s5">
+                                    värde
+                                </div>
+                                <div class="col s7">
+                                    {% if di.state == "C" %}
+                                        {{di.harvested_value}} kr
+                                    {% else %}
+                                        {{di.ordered_value|floatformat:0}} kr (prognos)
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col s5">
+                                    skördat
+                                </div>
+                                <div class="col s7">
+                                    {{di.harvested_amount}} {{di.order_unit_text_short}}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col s5">
+                                    återstår
+                                </div>
+                                <div class="col s7">
+                                    {{di.harvest_remaining}} {{di.order_unit_text_short}}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col s5">
+                                    önskemål
+                                </div>
+                                <div class="col s7">
+                                    {{di.order_comment}}
+                                </div>
+                            </div>
+
+                      </div>
+                    </li>
+                  {% endfor %}
+  </ul>
+              <p>Värde: {{delivery.total_order_value|floatformat:"0" }}kr {% if delivery.state != "D" %}(prognos){%endif%}</p>
 
             </div>
+            <div class="card-action">
+              <a href="{% url 'delivery-edit' delivery.id %}">Visa detaljer</a>
 
-            <div class="col-md-5">
-
-            {%if delivery.state == "D" %}
-                        {{delivery.date |date:"M d"}}
-                        <a href="{%url "delivery-spec" delivery.pk%}"><span class="glyphicon glyphicon-print"></span> </a>
-                        {%else %}
-                            {{delivery.date|date:"M d" }}
-                        {%endif%}
-                </div>
-                <div class="col-md-2">
-                <a data-toggle="confirmation" data-title="Ta bort leverans?" data-href="{%url "delivery-delete" delivery.pk %}"> <span class="glyphicon glyphicon-trash"></span></a>
-                        <a href="{% url 'delivery-edit' delivery.id %}"><span class="glyphicon glyphicon-pencil"></span></a> <!--TODO: länk till redigera  -->
-
-
-                </div>
-    </div>
-        </div>
-        <div style="height:100%" class="col-xs-7 ">
-
-                  {% for i in delivery.deliveryitem_set.all %}
-                        <a class="" role="button"
-                                   href="{%url "delivery-edit-harvests" i.pk request.get_full_path|urlencode:"" %}" >
-
-                                <div class="
-                                {% if i.state == "N" %}
-                                    di-not_started
-                                {%elif i.state == "P" %}
-                                    di-progress
-                                {% else %}
-                                    di-completed
-                                {% endif %}
-
-                                " id="harvest-button-{{i.pk}}" data-id="{{i.pk}}">
-
-                    {{i.cropform.crop.crop}}
-
-
-                    {{i.cropform.form_name}}
-                    {{i.order_amount}} / {{i.harvested_amount}} {{i.order_unit}}
-</div></a>
-
-
-<!--
-                            <a class="" role="button"
-                                   href="{%url "delivery-edit-harvests" i.pk request.get_full_path|urlencode:"" %}" >
-
-                                <div id="harvest-button-{{i.pk}}" data-id="{{i.pk}}"
-                                     data-query-url="{% url 'deliveries_harvest_for_delivery' %}"
-                                     style="margin-right:1em;display:inline;width:auto;padding-left:5px;padding-right:5px">
-                                    {{i.cropform.crop.crop}}
-                                    <span class="harvested">0</span>/<span class="target">0</span> <span class="unit">kg</span>
-                                </div>
-                                </a>-->
-
-                    {% endfor %}
-</div></div>
-    {%endfor%}
-    </div>
-</div>
+            </div>
+          </div>
 
 
 
+
+
+    {% endfor %}
 {% endblock %}

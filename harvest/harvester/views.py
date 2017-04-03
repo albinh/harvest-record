@@ -1,16 +1,22 @@
+import json
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, UpdateView, ListView, View,RedirectView
 from django.views.generic import DetailView
 from extra_views import ModelFormSetView
+from rest_framework.renderers import JSONRenderer
+
+from .serializers import DeliveryItemSerializer
 
 from .forms import *
 from .models import *
 from datetime import datetime, timedelta
 from urllib.parse import quote, unquote
+from rest_framework.response import Response
 import simplejson
 
 class DeliveryNew ( RedirectView ):
@@ -284,7 +290,7 @@ class HarvestItemDelete(RedirectView):
         harvestitem = get_object_or_404 ( HarvestItem, pk=id )
         deliveryitem = harvestitem.destination
         harvestitem.delete()
-        return reverse("delivery-edit-harvests", args=[deliveryitem.pk, ""])
+        return reverse("delivery-edit", args=[deliveryitem.delivery.pk])
 
 
 class DeliverySingleDelete(RedirectView):
@@ -325,6 +331,13 @@ class HarvestItemNew (CreateView):
     form_class = HarvestItemForm
     template_name = 'harvester/delivery-edit-harvests.html'
 
+    def di_data(self):
+
+        data= DeliveryItemSerializer ( self.deliveryitem() ).data
+        return JSONRenderer ( ).render ( data )
+
+        #return json.dumps(DeliveryItemSerializer ( self.deliveryitem()).data)
+
 
     def deliveryitem(self):
         id = self.kwargs['pk']
@@ -338,8 +351,6 @@ class HarvestItemNew (CreateView):
         kwargs = super(HarvestItemNew, self).get_form_kwargs()
         kwargs['di'] = self.deliveryitem()
         return kwargs
-
-
 
 
     def post(self, request, *args, **kwargs):

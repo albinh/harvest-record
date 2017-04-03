@@ -1,135 +1,114 @@
-
-
-.autowidth {
-    width: auto !important;
-}
-
-.di-completed {
-   text-decoration: line-through;
-}
-
-.di-progress {
-    font-weight:bold;
-
-}
-
-.crop-list {
-    padding:0;
-    list-style-type: none;
-}
-
-
+        .card__date {
+            background: #08c;
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: #fff;
+            text-align: center;
+            line-height: 12px;
+            font-weight: bold;
+            padding-top: 12px;
+        }
+        .card__date__day {
+            display: block;
+            font-size: 18px;
+        }
+        .card-action>a {
+            white-space: nowrap;
+        }
+        .card__date__month {
+            display: block;
+            font-size: 8px;
+            text-transform: uppercase;
+        }
+        header,
+        main,
+        footer {
+            padding-left: 300px;
+        }
+        @media only screen and (max-width: 992px) {
+            header,
+            main,
+            footer {
+                padding-left: 0;
+            }
+        }
 .delivery {
-    margin-bottom:20px;
-}
-
-input[type="checkbox"] {
-    width:1em;
-}
-
-
-.editable-empty {
-    color:#777; !important;
-    border-bottom: dashed 1px #CCCCCC !important;
-}
-
-.pricetable {
-    border-width:0 !important;
-}
-
-
-
-
-tr.cropstart>td {
-    padding-bottom:5em !important;
-    border-collapse:separate;
-    border-collapse:separate;
-    border-spacing:5em;
-}
-
-.order-item .order-amount {
-    font-size:1.5em;
-}
-
-.order-item .crop {
-    font-size:1.5em;
-     font-weight:bold;
-}
-
-.order-item .cropform {
-    font-size:1.5em;
-    font-style:italic;
-}
-
-
-// Används för att minska padding
-.gutter-10.row {
-    margin-right: -5px;
-    margin-left: -5px;
-}
-
-.gutter-10 > [class^="col-"], .gutter-10 > [class^=" col-"] {
-    padding-right: 5px;
-    padding-left: 5px;
-}
-
-.text-overflow-center {
-    margin-left: -100%;
-    margin-right: -100%;
-    text-align: center;
-}
-
-.area {
-margin:0;
+width:90%;
+max-width:375px;
 display:inline-block;
-
-text-align:center;
-overflow:visible;
-white-space : nowrap;
+margin:11.5px;
 vertical-align:top;
 }
 
-
-
-.harvested>.marker {
-	background-color:rgb(49, 112, 143);
-	border:thin solid black;
-}
-.harvested-text {
-    width:40%;
-    display:inline-block;
+.select-wrapper input.select-dropdown{
+-webkit-user-select:none !important;
+-moz-user-select:none !important;
+-ms-user-select:none !important;
+-o-user-select:none !important;// latest Opera versions support -webkit-
+user-select:none !important;
 }
 
-.remaining-text {
-       width:35%;
-        display:inline-block;
+
+/* ==========  Select Field ========== */
+
+/* Style Select Field */
+.mdl-selectfield select {
+
 }
 
-.harvested_amount {
+/* Remove focus */
+select:focus {
+  outline: none}
 
-    font-weight:bold;
+/* Hide label */
+.mdl-selectfield label {display: none;}
+/* Use custom arrow */
+.mdl-selectfield select {
+  font-family: inherit;
+  background-color: transparent; !important
+  width: 100%;
+  padding: 4px 0;
+  font-size: 12
+  color: #AAA;
+  border: none;
+  border-bottom: 1px solid #AAA;
+
+}
+.mdl-selectfield {
+  font-family: 'Roboto','Helvetica','Arial',sans-serif;
+  position: relative;
+    &:after {
+        position: absolute;
+        top: 0.75em;
+        right: 0.5em;
+        /* Styling the down arrow */
+        width: 0;
+        height: 0;
+        padding: 0;
+        content: '';
+        border-left: .25em solid transparent;
+        border-right: .25em solid transparent;
+        border-top: .375em solid $select-border-color;
+        pointer-events: none;
+    }
+}
+.compact input {
+    margin-bottom:5px;
 }
 
-.remaining_amount {
-    font-weight:bold;
+.compact .row
+{
+    margin-bottom:15px;
 }
 
-.amount {
-    font-weight:bold;
-}
+.variant { color:#777; text-decoration:line-through }
 
-.remaining>.marker {
-	//background-color:#a8314a;
-	border:thin solid black;
-}
+.variant.included { color:#000; font-weight:bold;text-decoration:none;}
 
-.overflow>.marker {
-	background-color:#a8314a;
-	border:thin solid black;
-}
-
-.target>.marker {
-	background-color:#000;
-	margin-left:-1;
-	width:2
+.autotable {
+    width:auto;!important;
 }
