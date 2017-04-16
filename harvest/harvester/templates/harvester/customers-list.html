@@ -1,0 +1,195 @@
+{% extends "harvester/base.html" %}
+{% load static  widget_tweaks  %}
+
+{% block main %}
+
+  <!-- Modal Structure -->
+  <div id="add-customer-modal" class="modal">
+                      <form method="post" action="{%url "customer-new" %}">
+      {%csrf_token%}
+    <div class="modal-content">
+
+      <h4>Lägg till kund</h4>
+
+
+            <div class="row">
+                                            <div class="input-field col s12">
+                                <input placeholder="Namn" name="name" id="name"
+                                       type="text" class="" value="">
+                                <label >Namn</label>
+                            </div>
+</div><div class="row">
+            <div class="col s12 input-field">
+                                                   <div class="mdl-selectfield">
+
+                                    <select id="" name="category"
+                                            class="mdl-select browser-default">
+                                        {% for category in view.categories %}
+                                            <option value="{{category.pk}}">{{category.name}}</option>
+                                        {% endfor %}
+
+                                    </select>
+                                    <label class="active">kategori</label>
+                                </div>
+
+</div>
+
+
+            </div>
+
+
+    </div>
+    <div class="modal-footer">
+      <button type="submit" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">registrera kund</button>
+    </div>
+              </form>
+
+  </div>
+
+
+
+
+
+  <div class="fixed-action-btn">
+    <a href="#add-customer-modal" class="btn-floating btn-large red">
+      <i class="large material-icons">add</i>
+    </a>
+  </div>
+
+{% for customercategory in object_list %}
+    {% cycle 'purple' 'pink' 'indigo' 'blue' as color2 silent %}
+<div class="row">
+              <div class="card  z-depth-5 white-text {{ color2 }}">
+
+
+
+
+    <div class="card-content ">
+		    <span class="card-title">{{customercategory.name}}</span>
+           <a class="btn-floating halfway-fab waves-effect waves-light red"><i class="material-icons">add</i></a>
+            <div class="row pricerow">
+                <div class="col s2 input-field" style="padding-top:10px">Morot</div>
+
+                <div class="col s3 input-field"><div class="mdl-selectfield">
+
+                                    <select id="category-{{customer.pk}}" data-pk="{{customer.pk}}" name="order_unit"
+                                            class="mdl-select browser-default category" value="{{customercategory.pk}}">
+                                     </select>
+                                </div>
+                </div>
+
+<div class="col s2 input-field" style="padding-top:10px">
+    <i class="add_cropform material-icons">playlist_add</i>
+</div>
+
+ <div class="input-field col s2">
+                                <input placeholder="xx" name="price" id="price-{{di.pk}}" type="text" class=""
+                                       value="">
+
+                            </div>
+                            <div class="input-field col s3">
+                                <div class="mdl-selectfield">
+                                    <select id="price_unit-{{di.pk}}" name="price_unit"
+                                            class="mdl-select browser-default">
+                                        <option value="W">kr/kg</option>
+                                        {% if di.cropform.countable %}
+                                        <option value="U">kr/st</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
+                            </div>
+    </div>
+        </div>
+                  </div>
+
+</div>
+
+
+<div class="row">
+    {% for customer in customercategory.customer_set.all %}
+    <div class="col s12 m6">
+              <div class="card  lighten-4 {{ color2 }}">
+
+
+
+
+    <div class="card-content ">
+		    <span class="card-title">{{customer.name}}</span>
+            <div class="row">
+
+                                           <div class="input-field col s6">
+                                <div class="mdl-selectfield">
+
+                                    <select id="category-{{customer.pk}}" data-pk="{{customer.pk}}" name="order_unit"
+                                            class="mdl-select browser-default category" value="{{customercategory.pk}}">
+                                        {% for category in view.categories %}
+                                            <option {%if category.pk == customercategory.pk %}selected {%endif%} value="{{category.pk}}">{{category.name}}</option>
+                                        {% endfor %}
+
+                                    </select>
+                                    <label class="active">kategori</label>
+                                </div>
+
+
+
+                            </div>
+
+
+                                                <div class="input-field col s6">
+                                <input placeholder="Placeholder"
+                                       type="text" class="" disabled value="{{customer.total_delivered|floatformat:0}} kr">
+                                <label class="active">Totalt levererat värde</label>
+
+                            </div>
+        </div><div class="row">
+         <ul class="collapsible z-depth-0" data-collapsible="accordion">
+            {% for delivery in customer.delivery_set.all %}
+
+                <li><div class="green lighten-5 collapsible-header">
+                        {{delivery.date}}
+                    </div>
+                    <div class="green lighten-5 collapsible-body">
+                        <div class="row">
+                            <div class="col s5">
+                                Grödor:
+                            </div>
+                            <div class="col s7">
+                                <ul>
+                                    {% for crop in delivery.deliveryitem_set.all %}
+                                        <li>{{crop.cropform.crop.crop}}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12">
+                                <a href="{%url "delivery-edit" delivery.pk %}" class="waves-effect waves-teal btn">Visa leverans</a>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+                </li>
+
+            {%endfor%}
+</ul>
+
+
+            </div>
+
+        </div>
+                  </div>
+        </div>
+    {% endfor %}
+    </div>
+    {%endfor%}
+
+
+
+
+{% endblock %}
+{%block page_script%}
+<script src="{% static "harvester/js/customers.js" %}"></script>
+{%endblock%}

@@ -46,8 +46,10 @@
 
 
                 <div class="card-action">
-
-              <a href="{%url "harvest-item-delete" harvest.pk %}">Ta bort denna skörd</a>
+            <form method="POST" action="{%url "harvest-item-delete" harvest.pk %}">
+                    {% csrf_token %}
+              <button class="waves-effect waves-teal btn-flat" type="submit">Ta bort denna skörd</button>
+                </form>
             </div>
             </div>
 

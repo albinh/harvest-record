@@ -1,0 +1,51 @@
+{% load customer_options %}
+<!-- Modal för att skapa ny leverans -->
+    <div  id="add_delivery_modal"  class="modal ">
+
+            <div class="modal-content">
+
+<h4 class="modal-title">Ny leverans</h4>
+
+                <form method="post" action="{%url "delivery-new" %}">
+                {%csrf_token%}
+                    <div class="row">
+                    <div class="col s12 input-field">
+<div class="mdl-selectfield">
+    <label class="active">Kund</label>
+                    <select name="customer" class="mdl-select browser-default ">
+                        {%customer_options%}
+                    </select>
+                    </div>
+                        </div>
+                        </div>
+                <div class="row">
+                    <div class="col s12 input-field">
+
+                    <input id="date" name="date" class="form-control" type="date"/><label class="active">Datum</label>
+                    </div>
+                            </div>
+
+                        </div>
+
+    <div class="modal-footer">
+      <button type="submit" class="waves-effect waves-light btn"><i class="material-icons left">add</i>Registrera</button>
+
+    </div>
+
+                </form>
+</div>
+        </div>
+    </div>
+
+<script>
+Date.prototype.toDateInputValue = (function() {
+    var local = new Date(this);
+    local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+    return local.toJSON().slice(0,10);
+});
+
+$(document).ready( function() {
+    $('#date').val(new Date().toDateInputValue());
+    console.log("test");
+})
+</script>

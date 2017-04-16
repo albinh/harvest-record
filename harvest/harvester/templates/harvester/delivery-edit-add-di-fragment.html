@@ -15,10 +15,10 @@ Dialog för att lägga till grödor
                 <input type="hidden" name="delivery" value="{{delivery.pk}}"/>
                     <div class="row">
                         <div class="col s12 input-field">
+<div class="mdl-selectfield">
+            <label class="active" >Gröda</label>
 
-
-                                <select name="crop" id="crop-select" class="form-control">
-
+                                <select name="crop" id="crop-select" class="mdl-select browser-default">
                                     <option disabled selected value="-1">välj gröda</option>
 
                                     <optgroup label="skördeklara">
@@ -40,36 +40,43 @@ Dialog för att lägga till grödor
                                         </optgroup>
 
                                 </select>
-                            <label for="crop-select">Gröda</label>
+
+
                             </div>
+</div>
+
+                        <div class="col s12 ">
+<div class="mdl-selectfield">
+            <label class="active" >Form</label>
 
 
-                        <div class="col s12 inputgroup">
 
-                                <label>Form</label>
-                                <select name="cropform" id="crop-form" class="form-control">
+
+                                <select name="cropform" id="crop-form" class="mdl-select browser-default">
 
                                 </select>
                             </div>
-
+</div>
 
                     </div>
                     <div class="row">
                     <div class="col s12 inputgroup">
 
                                 <label>Mängd</label>
-                                <input name="amount" class="form-control" type="number">
+                                <input name="amount" class="form-control" step="0.1" min="0" type="number">
 
                         </div>
                          <div class="col s12 inputgroup">
+<div class="mdl-selectfield">
+            <label class="active" >Enhet</label>
 
-                                <label>Enhet</label>
-                                <select name="unit" id="units" class="form-control">
+
+                                <select name="unit" id="units" class="mdl-select browser-default">
 
 
                                 </select>
 
-                        </div>
+                        </div></div>
                     </div>
 
 

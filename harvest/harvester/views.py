@@ -1,7 +1,7 @@
 import json
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -19,19 +19,36 @@ from urllib.parse import quote, unquote
 from rest_framework.response import Response
 import simplejson
 
+#använd post
 class DeliveryNew ( RedirectView ):
+    http_method_names=['post']
     def get_redirect_url(self, *args, **kwargs):
         customer = get_object_or_404 ( Customer, pk=self.request.POST['customer'] )
         date = self.request.POST['date']
-        type = self.request.POST['type']
+
         d = Delivery ( )
         d.date = date
         d.customer = customer
-        d.type=type
         d.save ( )
         return reverse ( 'delivery-edit', args=[d.pk] )
 
+class CustomerNew(View):
+    def post(self,request):
+        c=Customer()
+        c.name=request.POST['name']
+        c.category=get_object_or_404(CustomerCategory,pk=request.POST['category'])
+        c.save()
+        return redirect(reverse('customer-list'))
+
+
+class CustomerList(ListView):
+    model = CustomerCategory
+    template_name = 'harvester/customers-list.html'
+    def categories(self):
+        return CustomerCategory.objects.all()
+
 class DeliveryVariantNew(RedirectView):
+    http_method_names = ['post']
     def get_redirect_url(self,*args,**kwargs):
         delivery = get_object_or_404 ( Delivery, id = self.kwargs['pk'])
 
@@ -48,8 +65,6 @@ class HarvestsView(View):
         dis = DeliveryItem.objects.exclude(delivery__state='C').filter( delivery__date__lte=datetime.now()+timedelta(days=days)).order_by('delivery__date')
         template= 'harvester/harvests.html'
         context= {'deliveryitems':dis}
-
-
 
         return render ( request,
                         template,
@@ -157,7 +172,9 @@ class DeliveryView(View):
         # skicka tillbaka till föregående
         return HttpResponseRedirect ( request.path )
 
+#använd post
 class DeliverySetDelivered( RedirectView):
+    http_method_names = ['post']
     def get_redirect_url(self, *args, **kwargs ):
         id = self.kwargs['pk']
         delivery = get_object_or_404 ( Delivery, pk=id )
@@ -174,22 +191,27 @@ class DeliverySetDelivered( RedirectView):
         return reverse("delivery-spec", args=[delivery.pk])
 
 
+#använd post
 class CropNew(RedirectView):
+    http_method_names = ['post']
     def get_redirect_url(self,*args,**kwargs):
         name = self.request.POST['name']
 
         cf=Crop.objects.create(crop=name)
         return(reverse('crops-prices'))
 
+#använd post
 class CustomerCategoryNew(RedirectView):
+    http_method_names = ['post']
     def get_redirect_url(self,*args,**kwargs):
         name = self.request.POST['name']
 
         cf=CustomerCategory.objects.create(name=name)
         return(reverse('crops-prices'))
 
-
+#använd post
 class cropform_new(RedirectView):
+    http_method_names = ['post']
     def get_redirect_url(self,*args,**kwargs):
         crop = get_object_or_404( Crop, pk=self.request.POST['cropid'])
         name = self.request.POST['name']
@@ -198,6 +220,8 @@ class cropform_new(RedirectView):
 
         cf=CropForm.objects.create(form_name=name, countable=countable, weight_of_one_unit=weight_of_one_unit, crop=crop)
         return(reverse('crops-prices'))
+
+
 
 class CropsPrices(View):
     def get(self,request):
@@ -248,43 +272,13 @@ class DeliveryList ( ListView ):
     template_name = 'harvester/delivery-list.html'
     model = Delivery
 
-    state_filter = [{'q':'none' , 'text':'Alla'},
-                    {'q': 'delivered', 'text': 'Levererade'},
-                    {'q': 'not_delivered', 'text': 'Ej Levererade'},
-                    {'q': 'not_delivered_2', 'text': 'Ej Levererade, kommande 2 dagarna'},
-                    {'q': 'not_delivered_7', 'text': 'Ej Levererade, kommande veckan'},
-                    ]
-
-
-    def filter(self):
-        return self.request.GET.get ( 'filter', 'none' )
-
-    def time_filter(self):
-        return self.request.GET.get ( 'time_filter', 'none' )
-
-    def get_queryset(self):
-        q=Delivery.objects
-        f=self.filter()
-
-
-        if f=='none':
-            q=Delivery.objects.all()
-        elif f=='delivered':
-            q=Delivery.objects.filter (state="D")
-        elif f=='not_delivered':
-            q=Delivery.objects.exclude ( state="D")
-        elif f=='not_delivered_2':
-            q = Delivery.objects.exclude ( state="D")\
-                    .filter(date__lte=datetime.now()+timedelta(days=2))
-        elif f=='not_delivered_7':
-            q = Delivery.objects.exclude ( state="D" )\
-                    .filter(date__lte=datetime.now()+timedelta(days=7))
 
 
 
-        return q
 
+#TODO: använd post
 class HarvestItemDelete(RedirectView):
+    http_method_names = ['post']
     def get_redirect_url(self, *args, **kwargs):
         id = self.kwargs['pk']
         harvestitem = get_object_or_404 ( HarvestItem, pk=id )
@@ -293,15 +287,18 @@ class HarvestItemDelete(RedirectView):
         return reverse("delivery-edit", args=[deliveryitem.delivery.pk])
 
 
-class DeliverySingleDelete(RedirectView):
+#TODO: använd post
+class DeliveryDelete( RedirectView ):
+    http_method_names = ['post']
     def get_redirect_url(self, *args, **kwargs):
         id = self.kwargs['pk']
         deliverysingle = get_object_or_404 ( Delivery, pk=id )
         deliverysingle.delete()
         return reverse("delivery-list")
 
-
+#TODO: använd post
 class DeliveryItemDelete(RedirectView):
+    http_method_names = ['post']
     def get_redirect_url(self, *args, **kwargs):
         id = self.kwargs['pk']
         deliveryitem=get_object_or_404 ( DeliveryItem, pk=id )
@@ -379,17 +376,4 @@ class HarvestItemNew (CreateView):
         else:
              return self.form_invalid(form)
 
-class BedsAndCultures (View):
-    def get(self,request):
-        template = "harvester/bedsandcultures.html"
-        beds = Bed.objects.all()
-
-        context  = {
-                    'beds':beds,
-                    'harvest_states':Culture.HARVEST_CHOICES
-                   }
-
-        return render ( request,
-                        template,
-                        context )
 

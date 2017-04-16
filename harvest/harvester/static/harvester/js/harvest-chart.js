@@ -21,6 +21,15 @@ function updateHarvestChart(result, selector) {
     var HARVESTED="#4caf50";
     if ((result.order_unit)=="U")
     {
+
+    if (result.harvested_amount==0) {
+                colors = [REMAINING]
+                data= [
+
+                    {label: "återstår", value: result.harvest_remaining}
+                 ]
+        } else
+
         if (result.harvest_remaining>0) {
             colors = [HARVESTED,REMAINING]
             data= [

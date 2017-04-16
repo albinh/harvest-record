@@ -1,17 +1,18 @@
 {% include "./delivery-item-prev-harvests.html" with di=di %}
 
-<div class="col s12 m6 l4 ">
+
     <div data-pk="{{di.pk}}" class="card delivery_item lighten-5
-{%if di.state == "C" %}green
-    {%elif di.state == "P"%}orange
-    {%else%}yellow {%endif%}
+    {%if di.status == 0 %} grey
+    {%elif di.status == 1 %}yellow
+    {%elif di.status == 2 %}green
+    {%else%}red {%endif%}
     ">
     <div id="progress_{{di.pk}}" style="margin-top:0" class="progress">
         <div class="indeterminate"></div>
     </div>
 
     <div class="card-content compact">
-			  <span class="card-title">{{di.cropform.crop}} ({{di.cropform}})
+			  <span class="card-title">{{di.cropform.crop}} ({{di.cropform.form_name}})
 
 			</span>
 
@@ -29,11 +30,11 @@
                                 <input placeholder="Placeholder" name="order_amount" id="order_amount-{{di.pk}}"
                                        type="text" class="" value="">
                                 <label for="order_amount-{{di.pk}}" class="active">Mängd</label>
-
                             </div>
+
                             <div class="input-field col s6">
                                 <div class="mdl-selectfield">
-                                    <label>Standard Select</label>
+
                                     <select id="order_unit-{{di.pk}}" name="order_unit"
                                             class="mdl-select browser-default">
                                         <option value="W">kg</option>
@@ -79,7 +80,7 @@
      </div>
             <div class="input-field col s6">
             <div class="row">
-                {% if delivery.type == "B" %}
+                {% if delivery.customer.category.type == "B" %}
                                 <div class="input-field col s6">
                                     <input type="text" disabled value="2" id="harvested" class="relation">
                                     <label for="harvested" class="relation active">Återstår</label>
@@ -90,7 +91,7 @@
                                 </div>
                 {% else %}
                                 <div class=" input-field col s12 ">
-                                    <input type="text" class="realation" disabled value="-"><label class="relation">Återstår</label>
+                                    <input type="text" class="relation" disabled value="-"><label class="relation">Återstår</label>
                                 </div>
                 {%endif%}
 
@@ -103,16 +104,18 @@
 
                     <div class="card-action">
 
-                        <a class="waves-effect waves-light"  data-id="{{i.pk}}"
+                        <a class="btn-flat waves-effect waves-light"  data-id="{{i.pk}}"
                    href="{%url "delivery-edit-harvests" di.pk request.get_full_path|urlencode:"" %}">
 
                         Registrera
                         skörd</a>
-                    <a href="#">Markera som färdig</a>
-                        <a href="#prev-harvest-modal-{{di.pk}}">Visa redan skördat </a>
-                </div>
+
+                    {% if di.harvestitem_set.all %}
+                        <a class="btn-flat waves-effect waves-light"  href="#prev-harvest-modal-{{di.pk}}">Visa redan skördat </a>
+                        {% endif %}
                     </div>
-                </div>
+                    </div>
+
 
 
 

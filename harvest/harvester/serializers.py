@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import DeliveryItem, CropForm, Culture, DeliveryVariant
+from .models import DeliveryItem, CropForm, Culture, DeliveryVariant, Customer
 
 
 class DeliveryItemSerializer(serializers.ModelSerializer):
@@ -37,3 +37,8 @@ class DeliveryVariantSerializer(serializers.ModelSerializer):
         model = DeliveryVariant
 
         fields = ('count', 'pk','value','crop_count','extempt_ids','included_ids')
+
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ('name', 'category')

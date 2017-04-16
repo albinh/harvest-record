@@ -28,15 +28,19 @@
 {% endblock %}
 
 {% block main %}
+  <div class="fixed-action-btn">
+    <a href="#add_delivery_modal" class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons">add</i></a>
+      </div>
+
 <script src="{% static "harvester/js/delivery-list.js" %}"></script>
     {% for delivery in object_list %}
 
 
-          <div class="z-depth-5 delivery card
+          <div class="z-depth-1 delivery card
                 {%if delivery.state == "D" %}green
                 {%elif delivery.state == "P"%}orange
                 {%else%}yellow  {%endif%}
-          lighten-5"
+          lighten-4"
             data-state="{{delivery.state}}"
             data-date="{{ delivery.date.isoformat }}"
           >
@@ -55,14 +59,14 @@
                           {%elif delivery.state == "P"%}yellow
                           {%else%}grey{%endif%}
 
-                          lighten-3 collapsible-header"><span class="badge">{{di.order_amount}} {{di.order_unit_text_short}}</span>{{di.cropform.crop.crop}} </div>
+                          lighten-5 collapsible-header"><span class="badge">{{di.order_amount}} {{di.order_unit_text_short}}</span>{{di.cropform.crop.crop}} </div>
                           <div class="
                                                     {%if di.state == "C" %}green
                           {%elif delivery.state == "P"%}yellow
                           {%else%}grey{%endif%}
 
 
-                          collapsible-body lighten-4">
+                          collapsible-body lighten-5">
 
 
                             <div class="row">
@@ -121,13 +125,16 @@
 
             </div>
             <div class="card-action">
-              <a href="{% url 'delivery-edit' delivery.id %}">Visa detaljer</a>
-
+              <a class="btn-flat waves-effect waves-light"  href="{% url 'delivery-edit' delivery.id %}">Visa detaljer</a>
+              {% if delivery.state != "D" %}
+              <a class="btn-flat waves-effect waves-light" href="#set-delivered-modal-{{delivery.pk}}">Leverera!</a>
+              {% else %}
+              <a class="btn-flat waves-effect waves-light" href="{% url "delivery-spec" delivery.pk%}">Skriv ut följesedel</a>
+              {% endif %}
             </div>
           </div>
 
-
-
+    {%include "harvester/delivery-setdelivered-modal.html" with delivery=delivery %}
 
 
     {% endfor %}

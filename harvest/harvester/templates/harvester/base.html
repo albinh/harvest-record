@@ -38,7 +38,7 @@
 
         <ul id="slide-out" class="side-nav fixed">
             <li><img style="margin-top:10%;margin-left:10%;width:80%" src="http://media2.marstorpsmat.se/2016/05/marstorpsmat_logotyp_svart.png" /></li>
-                <li><a href="#!"><i class="material-icons">present_to_all</i>Leveranser</a>
+                <li><a href="/harvester/deliveries"><i class="material-icons">present_to_all</i>Leveranser</a>
                 </li>
                 <li class="active"><a href="#!"><i class="material-icons">done</i>Skörd</a>
                 </li>
@@ -57,6 +57,7 @@
 
 
         </ul>
+        {% include "harvester/delivery-new-modal.html" %}
     </header>
     <main>
         <div class="container">
@@ -66,8 +67,8 @@
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
- <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
- <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+     <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+     <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
 
 <script>
 (function(i,s,q,l){for(q=window._q(),l=q.length;i<l;){$.apply(this,s.call(q[i++]));}window.__q=undefined;}(0,Array.prototype.slice));
@@ -86,7 +87,10 @@
         }
     }
 });
-
+  $(document).ready(function(){
+    // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+    $('.modal').modal();
+  });
     </script>
 
 <!--
@@ -104,6 +108,7 @@
         });
     </script>
 -->
+
     {%block page_script %}
 
 
