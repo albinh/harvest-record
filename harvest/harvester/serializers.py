@@ -24,7 +24,7 @@ class DeliveryItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DeliveryItem
-        fields = ('countable', 'pk','cropform','harvested_amount','harvest_remaining','ordered_value', 'order_amount','order_unit','order_unit_text_short','price_unit_text_short','price','price_type','state','order_comment','ready_cultures', 'not_ready_cultures','total_order_amount')
+        fields = ('countable', 'pk','cropform','harvested_amount','harvest_remaining','ordered_value', 'order_amount','order_unit','order_unit_text_short','price_unit_text_short','price','price_type','status','order_comment','ready_cultures', 'not_ready_cultures','total_order_amount')
 
 class DeliveryVariantSerializer(serializers.ModelSerializer):
     extempt_ids = serializers.PrimaryKeyRelatedField(many=True, read_only=False, queryset=DeliveryItem.objects.all(), source='extempt')
