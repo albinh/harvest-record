@@ -8,6 +8,15 @@ class Crop (models.Model):
         return '%s' % (self.crop)
 
 class CustomerCategory (models.Model):
+
+    DELIVERY_TYPES = (
+        ('N','normal'),
+        ('B','box')
+    )
+
+    type = models.CharField(max_length=1,choices=DELIVERY_TYPES,default='N')
+
+
     name= models.CharField(max_length=50)
     def __str__(self):
         return self.name
@@ -22,7 +31,7 @@ class CropForm(models.Model):
     weight_of_one_unit = models.DecimalField(max_digits=4,decimal_places=2)
 
     def __str__(self):
-        return self.form_name
+        return self.crop.crop+"("+self.form_name+")"
     countable = models.BooleanField()
 
     is_default = models.BooleanField(default=False)
@@ -35,6 +44,14 @@ class Customer (models.Model):
     def __str__(self):
         return self.name
     category = models.ForeignKey(CustomerCategory, on_delete=models.CASCADE)
+
+    def total_delivered(self):
+        total=0
+        qs= Delivery.objects.filter(customer=self, state='D')
+        for d in qs:
+            total=total+d.total_order_value()
+        return total
+
 
 class PriceListItem (models.Model):
     category = models.ForeignKey(CustomerCategory, on_delete=models.CASCADE)
@@ -74,13 +91,6 @@ class Delivery (models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     date = models.DateField(default=datetime.now)
 
-    def __str__(self):
-        return '%s (%s)' % (self.customer.name, self.date.strftime("%B %d"))
-
-    DELIVERY_TYPES = (
-        ('N','normal'),
-        ('B','box')
-    )
 
     DELIVERY_STATES = (
         ('N', 'ej påbörjad',),
@@ -90,48 +100,34 @@ class Delivery (models.Model):
 
     state = models.CharField(max_length=1, choices=DELIVERY_STATES,default='N')
 
-    type = models.CharField(max_length=1,choices=DELIVERY_TYPES,default='N')
+    def __str__(self):
+        return '%s (%s)' % (self.customer.name, self.date.strftime("%B %d"))
 
-    def completed_items(self):
-        return self.deliveryitem_set.filter(state='C')
-
-    def started_items(self):
-        return self.deliveryitem_set.filter ( state='P' )
-
-    def not_started_items(self):
-        return self.deliveryitem_set.filter ( state='N' )
-
+    # Skapa en deliveryvariant.
     def save(self, force_insert=False, force_update=False):
         is_new = self.pk is None
         super(Delivery, self).save(force_insert, force_update)
         if is_new:
             DeliveryVariant.objects.create(delivery=self, count=1)
 
+
+    # Totalt värde på bestält.
     def total_order_value(self):
         sum=0
         for di in self.deliveryitem_set.all():
             sum=sum+di.ordered_value()
         return sum
+
+    # Totalt värde på allt skördat
     def total_harvested_value(self):
         sum=0
         for di in self.deliveryitem_set.all():
             sum=sum+di.harvested_value()
         return sum
 
-    def box_values_and_counts(self):
-        d=[]
-        for v in self.deliveryvariant_set.all():
-            d.append({ 'count':v.crop_count(),'value':v.value(),'pk':v.pk   })
-        return d
-
     def variant_count(self):
         return self.deliveryvariant_set.count()
 
-    def completed_items(self):
-        return self.deliveryitem_set.filter(state='C')
-
-    def uncompleted_items(self):
-        return self.deliveryitem_set.exclude(state='C')
 
 
 
@@ -150,12 +146,12 @@ class DeliveryItem (models.Model):
                     ('W','kg'),
                     ('U','st') )
 
-    STATES = (
-        ('N','ej påbörjad'),
-        ('P','påbörjad'),
-        ('C','färdig')    )
+    #STATES = (
+    #    ('N','ej påbörjad'),
+    #    ('P','påbörjad'),
+    #    ('C','färdig')    )
 
-    state      = models.CharField(max_length=1, choices=STATES, default='N')
+    #state      = models.CharField(max_length=1, choices=STATES, default='N')
 
     price_type = models.CharField(max_length=1, choices=PRICE_CHOICES, default="W", null=True)
     order_unit = models.CharField(max_length=1, choices=UNIT_CHOICES,  default="W", null=True)
@@ -170,19 +166,19 @@ class DeliveryItem (models.Model):
     # harvested>ordered
     # om kg:
     # harvested>ordered*1.05
-    def over_error(self):
-        if self.order_unit == "W":
-            return self.harvested_amount()>float(self.total_order_amount())*1.05
-        else:
-            return self.harvested_amount()>self.total_order_amount()
+    # def over_error(self):
+    #     if self.order_unit == "W":
+    #         return self.harvested_amount()>float(self.total_order_amount())*1.05
+    #     else:
+    #         return self.harvested_amount()>self.total_order_amount()
 
-    def under_error(self):
-        if self.state!="C":
-            return False
-        if self.order_unit == "W":
-            return self.harvested_amount()<float(self.total_order_amount())/1.05
-        else:
-            return self.harvested_amount()>self.total_order_amount()
+    # def under_error(self):
+    #     if self.state!="C":
+    #         return False
+    #     if self.order_unit == "W":
+    #         return self.harvested_amount()<float(self.total_order_amount())/1.05
+    #     else:
+    #         return self.harvested_amount()>self.total_order_amount()
 
 
     def ordered_value(self):
@@ -319,6 +315,7 @@ class DeliveryItem (models.Model):
         if a==None:
             return 0
         return a
+
     def total_order_amount(self):
         count = 0
         variants = DeliveryVariant.objects.filter(delivery=self.delivery)
@@ -341,6 +338,7 @@ class DeliveryItem (models.Model):
             j=j+1
             v.append({'name':c,'included':i,'variant':variant})
         return v
+
     def listed_price(self):
         try:
             pi=PriceItem.objects.get(customercategory=self.delivery.customer.category, cropform=self.cropform)

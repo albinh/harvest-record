@@ -9,7 +9,7 @@ Leverans till {{form.instance}}
 Ny leverans
 {% endif %}
 {% endblock %}
-{% block content %}
+{% block main %}
 
     <!-- Modal för att skapa ny leverans -->
     <div  id="add_crop_modal"  class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
@@ -120,9 +120,7 @@ Ny leverans
     <table class="table autowidth pricetable">
         <thead>
         <tr>
-            <td>
-                Gröda
-            </td>
+
             <td>
                 Form
             </td>
@@ -143,9 +141,7 @@ Ny leverans
             </td>
         </tr>
         <tr>
-                        <td>
 
-            </td>
             <td>
 
             </td>
@@ -171,13 +167,11 @@ Ny leverans
         </thead>
         <tbody>
         {% for crop in crops %}
+        <tr>
+            <td><h4>{{crop.crop}}</h4></td>
+        </tr>
         {% for cropform in crop.cropforms %}
             <tr class=" ">
-                <td>
-                    {% if forloop.first	%}
-                        {{crop.crop}}
-                    {%endif%}
-                </td>
                 <td>
                     {{cropform.cropform.form_name}}
 
@@ -190,28 +184,25 @@ Ny leverans
                 </td>
                 {% for price in cropform.prices %}
 <td>
-                    <a
-                    href="#"
-                    class="editable price"
-                    data-type="amount_and_unit"
-                    data-pk="{{cropform.cropform.pk}},{{price.category.pk}}"
+                   <div class="row">
+        <div class="input-field col s6">
+          <input value="10" id="disabled" type="number" class="validate">
+          <label class="active" for="disabled">restaurant</label>
+        </div>
+                            <div class="input-field col s6">
+                                <div class="mdl-selectfield">
+                                    <select id="price_unit-{{di.pk}}" name="price_unit"
+                                            class="mdl-select browser-default">
+                                        <option value="W">kr/kg</option>
+                                        {% if di.cropform.countable %}
+                                        <option value="U">kr/st</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
 
-                    {% if price.priceitem %}
-                        data-value="{'amount': '{{price.priceitem.price}}','unit': '{{price.priceitem.unit}}'}"
-                    {%else %}
-                        data-value={'amount':'-','unit':'W'}
-                    {%endif%}
 
-                    {%if cropform.cropform.countable %}
-                    data-units='{"W":"kr/kg","U":"kr/{{cropform.cropform.form_name}}" }'
-                    {% else %}
-                    data-units='{"W":"kr/kg" }'
-                    {% endif %}
-                    data-emptytext="saknas"
-                    data-title="Ange pris"
-                    data-name="price"
-                    data-url='/harvester/ajax/cropform_price/'
-            ></a>
+                            </div>      </div>
+
 
 </td>
                 {% endfor %}

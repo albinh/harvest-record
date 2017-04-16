@@ -2,7 +2,7 @@
 {% load static  widget_tweaks  %}
 {% block navbar %}
 <a href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">menu</i></a>
-<a href="#" class="brand-logo"><i class="material-icons">present_to_all</i>Leveranser</a>
+<a href="#" class="brand-logo"><i class="material-icons">present_to_all</i>Leverans till {{delivery.customer}} {{delivery.date}}</a>
 
 <ul id="dropdown1" class="dropdown-content">
     <li><a href="javascript:set_state_filter('all')">Visar alla status</a></li>
@@ -33,11 +33,11 @@
 
 <div class="section">
     <h5>Påbörjade</h5>
-<div class="row">
+
         {% for di in delivery.started_items %}
             {% include "./delivery-item-fragment.html" with di=di %}
         {%endfor%}
-    </div>
+
     </div>
 <div class="divider"></div>
             {%endif%}
@@ -45,34 +45,39 @@
 
         {% if delivery.not_started_items %}
 <div class="section">
-<div class="row">
+
             <h5>Ej Påbörjade</h5>
 
 
         {% for di in delivery.not_started_items %}
             {% include "./delivery-item-fragment.html" with di=di %}
         {%endfor%}
-    </div>
+
     </div>
     <div class="divider"></div>
     {%endif%}
         {% if delivery.completed_items %}
 <div class="section">
     <h5>Färdiga</h5>
-<div class="row">
+
 
 
         {% for di in delivery.completed_items %}
             {% include "./delivery-item-fragment.html" with di=di %}
         {%endfor%}
-    {%endif%}
-    </div>
-    </div>
+        {%endif%}
+{%include "harvester/delivery-setdelivered-modal.html" with delivery=delivery %}
+
 
   <div class="fixed-action-btn">
     <a class="btn-floating btn-large red" href="#add_di_modal">
       <i class="large material-icons">add</i>
     </a>
+
+          <a class="btn-floating btn-large red" href="#set-delivered-modal-{{delivery.pk}}">
+      <i class="large material-icons">done</i>
+    </a>
+
       </div>
 {% endblock %}
 

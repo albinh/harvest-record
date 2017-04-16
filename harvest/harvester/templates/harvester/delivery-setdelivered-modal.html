@@ -1,0 +1,24 @@
+    <div class="modal" id="set-delivered-modal-{{delivery.pk}}">
+        <div class="modal-content">
+
+            <h4 class="modal-title">Markera som levererad</h4>
+
+                <form method="post" action="{%url "delivery-setdelivered" delivery.pk %}">
+                    {%csrf_token%}
+                        <div class="row">
+
+                            <div class="col s12 input-field">
+
+                                <input id="date" name="date" class="form-control" type="date"/><label class="active">Datum</label>
+                            </div>
+
+                        </div>
+                            <div class="modal-footer">
+      <button type="submit" class="waves-effect waves-light btn"><i class="material-icons left">add</i>Registrera</button>
+
+    </div>
+
+                </form>
+        </div>
+
+    </div>
