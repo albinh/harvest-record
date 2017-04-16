@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import DeliveryItem, CropForm, Culture, DeliveryVariant, Customer
+from .models import DeliveryItem, CropForm, Culture, DeliveryVariant, Customer, Bed
 
 
 class DeliveryItemSerializer(serializers.ModelSerializer):
@@ -42,3 +42,4 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ('name', 'category')
+

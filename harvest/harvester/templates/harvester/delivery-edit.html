@@ -29,43 +29,19 @@
 
         {% include "./box-variants-fragment.html" %}
 
-        {%if delivery.started_items%}
+
 
 <div class="section">
-    <h5>Påbörjade</h5>
 
-        {% for di in delivery.started_items %}
+
+        {% for di in delivery.deliveryitem_set.all %}
             {% include "./delivery-item-fragment.html" with di=di %}
         {%endfor%}
 
     </div>
-<div class="divider"></div>
-            {%endif%}
-
-
-        {% if delivery.not_started_items %}
-<div class="section">
-
-            <h5>Ej Påbörjade</h5>
-
-
-        {% for di in delivery.not_started_items %}
-            {% include "./delivery-item-fragment.html" with di=di %}
-        {%endfor%}
-
-    </div>
-    <div class="divider"></div>
-    {%endif%}
-        {% if delivery.completed_items %}
-<div class="section">
-    <h5>Färdiga</h5>
 
 
 
-        {% for di in delivery.completed_items %}
-            {% include "./delivery-item-fragment.html" with di=di %}
-        {%endfor%}
-        {%endif%}
 {%include "harvester/delivery-setdelivered-modal.html" with delivery=delivery %}
 
 
