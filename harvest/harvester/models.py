@@ -327,8 +327,8 @@ class PriceItem (models.Model):
         return "PRICE for {0}/{1} is {2}".format(self.customercategory,self.cropform, self.price)
 
 
-    customercategory = models.ForeignKey(CustomerCategory, on_delete=models.PROTECT)
-    cropform         = models.ForeignKey(CropForm, on_delete=models.PROTECT)
+    customercategory = models.ForeignKey(CustomerCategory)
+    cropform         = models.ForeignKey(CropForm)
     price            = models.DecimalField(max_digits=5,decimal_places=2)
 
     PRICE_CHOICES = (

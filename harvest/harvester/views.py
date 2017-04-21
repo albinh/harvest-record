@@ -1,4 +1,5 @@
 import json
+import sys
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
@@ -25,13 +26,16 @@ def save_price_from_delivery_item_to_pricelist(request):
         di = get_object_or_404 ( DeliveryItem, pk=request.POST['pk'])
         price = float(request.POST['price'])
         price_type = request.POST['price_type']
-
+        category = di.delivery.customer.category
+        cropform = di.cropform
         try:
-            pi=PriceItem.get(customercategory=di.delivery.customer.category, cropform=di.cropform)
+            pi=PriceItem.objects.get(customercategory=category, cropform=di.cropform)
             pi.price=price
             pi.unit=price_type
+            pi.save()
         except:
-            pi = PriceItem(price=price, unit=price_type, customercategory=di.delivery.customer.category, cropform=di.cropform)
+            print (sys.exc_info()[0])
+            pi = PriceItem(price=price, unit=price_type, customercategory=category, cropform=di.cropform)
             pi.save()
         return HttpResponse("")
 
