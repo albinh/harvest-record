@@ -26,9 +26,13 @@ def save_price_from_delivery_item_to_pricelist(request):
         price = float(request.POST['price'])
         price_type = request.POST['price_type']
 
-
-        pi = PriceItem(price=price, unit=price_type, customercategory=di.delivery.customer.category, cropform=di.cropform)
-        pi.save()
+        try:
+            pi=PriceItem.get(customercategory=di.delivery.customer.category, cropform=di.cropform)
+            pi.price=price
+            pi.unit=price_type
+        except:
+            pi = PriceItem(price=price, unit=price_type, customercategory=di.delivery.customer.category, cropform=di.cropform)
+            pi.save()
         return HttpResponse("")
 
 
