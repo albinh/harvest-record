@@ -8,7 +8,6 @@ class Crop (models.Model):
         return '%s' % (self.crop)
 
 class CustomerCategory (models.Model):
-
     DELIVERY_TYPES = (
         ('N','normal'),
         ('B','box')
@@ -22,6 +21,7 @@ class CustomerCategory (models.Model):
         return self.name
 
     def has_price_for(self,cropform):
+        print(PriceItem.objects.filter(customercategory=self, cropform=cropform))
         return PriceItem.objects.filter(customercategory=self, cropform=cropform).exists()
 
 
@@ -51,19 +51,6 @@ class Customer (models.Model):
         for d in qs:
             total=total+d.total_order_value()
         return total
-
-
-class PriceListItem (models.Model):
-    category = models.ForeignKey(CustomerCategory, on_delete=models.CASCADE)
-    cropform = models.ForeignKey(CropForm, on_delete=models.CASCADE)
-
-    PRICE_CHOICES = (
-        ('W', 'kr/kg'),
-        ('U', 'kr/enhet')
-
-    )
-    price_type = models.CharField(max_length=1, choices=PRICE_CHOICES, default="W")
-    price = models.DecimalField(max_digits=5, decimal_places=2, )
 
 class Bed (models.Model):
     index = models.CharField(max_length=20)
@@ -98,6 +85,9 @@ class Delivery (models.Model):
         ('D', 'levererad')
     )
 
+    def is_delivered(self):
+        return self.state=="D"
+
     state = models.CharField(max_length=1, choices=DELIVERY_STATES,default='N')
 
     def __str__(self):
@@ -128,10 +118,6 @@ class Delivery (models.Model):
     def variant_count(self):
         return self.deliveryvariant_set.count()
 
-
-
-
-
 class DeliveryItem (models.Model):
     cropform = models.ForeignKey(CropForm)
     delivery = models.ForeignKey(Delivery)
@@ -161,26 +147,6 @@ class DeliveryItem (models.Model):
     order_comment = models.CharField(max_length=100, default="", blank=True)
     delivery_comment = models.CharField(max_length=100, default="", blank=True)
 
-    # sant om:
-    # om styckeenheter:
-    # harvested>ordered
-    # om kg:
-    # harvested>ordered*1.05
-    # def over_error(self):
-    #     if self.order_unit == "W":
-    #         return self.harvested_amount()>float(self.total_order_amount())*1.05
-    #     else:
-    #         return self.harvested_amount()>self.total_order_amount()
-
-    # def under_error(self):
-    #     if self.state!="C":
-    #         return False
-    #     if self.order_unit == "W":
-    #         return self.harvested_amount()<float(self.total_order_amount())/1.05
-    #     else:
-    #         return self.harvested_amount()>self.total_order_amount()
-
-
     def ordered_value(self):
         if self.order_unit=='W':
             if self.price_type=='W':
@@ -200,7 +166,7 @@ class DeliveryItem (models.Model):
             return self.harvested_count()*self.price
 
     def charged_amount(self):
-        return min(self.order_amount, self.harvested_amount())
+        return min(self.total_order_amount(), self.harvested_amount())
 
     def charged_value(self):
         return min ( self.ordered_value ( ), self.harvested_value ( ) )
@@ -229,6 +195,8 @@ class DeliveryItem (models.Model):
     TOO_MUCH   = 3
 
     def status(self):
+        if self.total_order_amount()==0:
+            return self.OK
         q = self.harvested_amount()/self.total_order_amount()
         if self.order_unit=="W":
             h=0.1 # allow 10% differ if calculated in weight
@@ -339,20 +307,26 @@ class DeliveryItem (models.Model):
             v.append({'name':c,'included':i,'variant':variant})
         return v
 
+
+
     def listed_price(self):
         try:
-            pi=PriceItem.objects.get(customercategory=self.delivery.customer.category, cropform=self.cropform)
+            return PriceItem.objects.get(customercategory=self.delivery.customer.category, cropform=self.cropform)
         except:
-            pi=PriceItem(price=0,unit="W")
-        return pi
-    def is_price_as_listed(self):
-        pi=self.listed_price()
-        return pi.price==self.price and pi.unit==self.price_type
+            return None
+
+    #def is_price_as_listed(self):
+    #    pi=self.listed_price()
+    #    return pi.price==self.price and pi.unit==self.price_type
 
 
 
 
 class PriceItem (models.Model):
+    def __str__(self):
+        return "PRICE for {0}/{1} is {2}".format(self.customercategory,self.cropform, self.price)
+
+
     customercategory = models.ForeignKey(CustomerCategory)
     cropform         = models.ForeignKey(CropForm)
     price            = models.DecimalField(max_digits=5,decimal_places=2)
@@ -394,7 +368,7 @@ class DeliveryVariant (models.Model):
         return [di for di in self.delivery.deliveryitem_set.all ( ) if not di in self.extempt.all()]
 
 class HarvestItem (models.Model):
-    harvested_length = models.DecimalField(max_digits=4, decimal_places=1)
+    harvested_length = models.DecimalField(max_digits=4, decimal_places=1, blank=True, null=True)
     culture = models.ForeignKey(Culture, on_delete=models.CASCADE)
     #TODO: Finns kommentarer på flera ställen
     comment = models.CharField(max_length=500, blank=True)

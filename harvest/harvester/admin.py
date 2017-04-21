@@ -13,19 +13,20 @@ class CropAdmin (admin.ModelAdmin):
         CropFormInline,
     ]
 
+
+
 class PriceListInline(admin.TabularInline):
-    model=PriceListItem
+    model=PriceItem
 
 class CustomerCategoryAdmin (admin.ModelAdmin):
-    inlines = [PriceListInline
-    ]
+    inlines = (PriceListInline,)
 
 class DeliveryItemInline(admin.TabularInline):
     model=DeliveryItem
 
-
+admin.site.register(PriceItem)
 admin.site.register(Delivery)
-admin.site.register(PriceListItem)
+
 admin.site.register(Culture)
 admin.site.register(Bed)
 admin.site.register(Crop, CropAdmin)

@@ -43,7 +43,7 @@
 
 
 {%include "harvester/delivery-setdelivered-modal.html" with delivery=delivery %}
-
+{% if not delivery.is_delivered %}
 
   <div class="fixed-action-btn">
     <a class="btn-floating btn-large red" href="#add_di_modal">
@@ -55,6 +55,7 @@
     </a>
 
       </div>
+{%endif%}
 {% endblock %}
 
 {%block page_script %}
@@ -62,15 +63,15 @@
 <script src="{% static "harvester/js/delivery-edit.js" %}"></script>
 
 <script>
-{% for di in delivery.deliveryitem_set.all %}
-    f = changeHandler({{di.pk}})
+    {% for di in delivery.deliveryitem_set.all %}
+        f = changeHandler({{di.pk}})
 
-    $("#price_unit-{{di.pk}}").on("input",f);
-    $("#order_unit-{{di.pk}}").on("input",f);
-    $("#order_amount-{{di.pk}}").on("input",f);
-    $("#order_comment-{{di.pk}}").on("input",f);
-    $("#price-{{di.pk}}").on("input",f);
-{% endfor %}
+        $("#price_unit-{{di.pk}}").on("input",f);
+        $("#order_unit-{{di.pk}}").on("input",f);
+        $("#order_amount-{{di.pk}}").on("input",f);
+        $("#order_comment-{{di.pk}}").on("input",f);
+        $("#price-{{di.pk}}").on("input",f);
+    {% endfor %}
 
 
 

@@ -1,15 +1,23 @@
 from rest_framework import serializers
-from .models import DeliveryItem, CropForm, Culture, DeliveryVariant, Customer, Bed
+from .models import DeliveryItem, CropForm, Culture, DeliveryVariant, Customer, Bed, PriceItem
 
+
+class PriceItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=PriceItem
+        fields = ('price','unit')
 
 class DeliveryItemSerializer(serializers.ModelSerializer):
     cropform = serializers.SlugRelatedField(
         queryset=CropForm.objects.all(), slug_field='form_name'
     )
 
+
     ready_cultures = serializers.SerializerMethodField()
     not_ready_cultures = serializers.SerializerMethodField()
     countable = serializers.SerializerMethodField()
+
+    listed_price = PriceItemSerializer(read_only=True)
 
     def get_ready_cultures(self,obj):
         cultures = Culture.objects.filter(crop=obj.cropform.crop, harvest_state=2 )
@@ -24,7 +32,9 @@ class DeliveryItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DeliveryItem
-        fields = ('countable', 'pk','cropform','harvested_amount','harvest_remaining','ordered_value', 'order_amount','order_unit','order_unit_text_short','price_unit_text_short','price','price_type','status','order_comment','ready_cultures', 'not_ready_cultures','total_order_amount')
+        fields = ('countable', 'pk','cropform','harvested_amount','harvest_remaining','ordered_value', 'order_amount','order_unit','order_unit_text_short',
+                  'price_unit_text_short','price','price_type','status','order_comment','ready_cultures', 'not_ready_cultures','total_order_amount',
+                  'listed_price')
 
 class DeliveryVariantSerializer(serializers.ModelSerializer):
     extempt_ids = serializers.PrimaryKeyRelatedField(many=True, read_only=False, queryset=DeliveryItem.objects.all(), source='extempt')

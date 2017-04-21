@@ -19,7 +19,18 @@ from urllib.parse import quote, unquote
 from rest_framework.response import Response
 import simplejson
 
-#använd post
+def save_price_from_delivery_item_to_pricelist(request):
+    if request.method == 'POST':
+        di = get_object_or_404 ( DeliveryItem, pk=request.POST['pk'])
+        price = float(request.POST['price'])
+        price_type = request.POST['price_type']
+
+
+        pi = PriceItem(price=price, unit=price_type, customercategory=di.delivery.customer.category, cropform=di.cropform)
+        pi.save()
+
+
+
 class DeliveryNew ( RedirectView ):
     http_method_names=['post']
     def get_redirect_url(self, *args, **kwargs):
@@ -307,21 +318,21 @@ class DeliveryItemDelete(RedirectView):
         return reverse("delivery-edit", args=[delivery.pk])
 
 
-class HarvestItemUpdate(UpdateView):
-    model = HarvestItem
-    form_class = HarvestItemForm
-    template_name = 'harvester/delivery-edit-harvests.html'
-
-    def deliveryitem(self):
-        id = self.kwargs['pk']
-        return get_object_or_404 ( HarvestItem, pk=id ).destination
-
-    def prev_harvests(self):
-        pk = self.kwargs['pk']
-        return HarvestItem.objects.filter(destination_id=pk)
-
-    def get_success_url(self):
-        return unquote ( self.kwargs['url'] )
+# class HarvestItemUpdate(UpdateView):
+#     model = HarvestItem
+#     form_class = HarvestItemForm
+#     template_name = 'harvester/delivery-edit-harvests.html'
+#
+#     def deliveryitem(self):
+#         id = self.kwargs['pk']
+#         return get_object_or_404 ( HarvestItem, pk=id ).destination
+#
+#     def prev_harvests(self):
+#         pk = self.kwargs['pk']
+#         return HarvestItem.objects.filter(destination_id=pk)
+#
+#     def get_success_url(self):
+#         return unquote ( self.kwargs['url'] )
 
 class HarvestItemNew (CreateView):
     model = HarvestItem

@@ -1,14 +1,43 @@
-{% if delivery.customer.category.type == "B" %}
+
 <div class="row">
-    <div class="col s12 m8 l6">
+    <div class="col s12 m12 l12">
+
+
 
         <div class="z-depth-5 card blue-grey lighten-5">
             <div class="card-content ">
-                <span class="card-title">Varianter kassar</span>
+                <h1>Leverans till Granö</h1>
 
                 <form>
+                    <div class="row">
+                    <div class="input-field col s12 m6 l6">
+                        <input  type="date" value="{{delivery.date|date:"Y-m-d"}}" class="form-control"/>
+                        <label class="active">Datum</label>
+                    </div>
+
+                    <div class="input-field col s12 m6 l6">
+                        <input type="number" disabled value="" id="total_order_value" class="form-control"/>
+                        <label class="active">Total värde</label><!-- TODO: totalt värde för skörd -->
+                    </div>
+
+                        </div>
+                </form>
+        </div>
+            </div>
+        </div>
+    </div>
+{% if delivery.customer.category.type == "B" %}
+<div class="row">
+    <div class="col s12 m12 l12">
+        <div class="z-depth-5 card blue-grey lighten-5">
+            <div class="card-content ">
+
+                <span class="card-title">Varianter kassar</span>
+
+                <form method="POST" action="{% url 'delivery_variant_new' delivery.pk %}">
+                    {%csrf_token%}
                     <div style="overflow-x:auto;">
-                        <table class="">
+                        <table class="" style="width:auto">
                             <thead>
                             <tr>
                                 <th></th>
@@ -16,8 +45,12 @@
                                     <th><h4>{{v.name}}</h4></th>
                                 {% endfor %}
                                 <th>
-                                    <a href="{% url 'delivery_variant_new' delivery.pk %}"
-                                       class="waves-effect waves-light btn"><i class="material-icons left">add</i></a>
+                                    {% if not delivery.is_delivered %}
+
+
+                                    <button type="submit"
+                                       class="waves-effect waves-light btn"><i class="material-icons left">add</i></button>
+                                    {% endif %}
 
                                 </th>
                             </tr>
@@ -26,9 +59,11 @@
                                 {% for v in variants %}
                                     <th>
                                         <div class="input-field">
-                                            <input id="{{v.pk}}-count" class="box-count" type="number"
+                                            <input {% if delivery.is_delivered %}
+                                                       disabled
+                                                       {% endif %} id="{{v.pk}}-count" class="box-count" type="number"
                                                    data-variant="{{v.variant.pk}}" value="{{v.variant.count}}"/><label
-                                                for="{{di.pk}}-{{v.pk}}-count">antal</label>
+                                                for="{{v.pk}}-count">antal</label>
                                         </div>
                                     </th>
                                 {% endfor %}
@@ -49,7 +84,9 @@
 
                                     {% for v in di.variants %}
                                         <td>
-                                            <input {%if v.included %} checked {%endif%} data-variant="{{v.variant.pk}}"
+                                            <input {% if delivery.is_delivered %}
+                                                       disabled
+                                                       {% endif %} {%if v.included %} checked {%endif%} data-variant="{{v.variant.pk}}"
                                                    data-deliveryitem="{{di.pk}}" class="included_checkbox filled-in"
                                                    id="checkbox_{{di.pk}}-{{v.variant.pk}}" type="checkbox"/><label
                                                 for="checkbox_{{di.pk}}-{{v.variant.pk}}"></label>
@@ -74,6 +111,7 @@
                                                        data-variant="{{v.variant.pk}}"
                                                        class="crop-count"
                                                        type="number"
+
                                                        value="4"/>
                                                 <label for="{{v.pk}}-count-crops">antal grödor</label>
                                             </div>
@@ -110,6 +148,7 @@
     </div>
 </div>
 
+
 {% for v in variants %}
 <script>
     $(document).ready (function(){
@@ -118,8 +157,46 @@
 
 </script>
 {% endfor %}
-
-
 {%endif%}
+
+<div class="row">
+    <div class="col s12 m12 l12">
+        <div class="z-depth-5 card blue-grey lighten-5">
+            <div class="card-content ">
+
+                <span class="card-title">Visa</span>
+                <form>
+<div class="row">
+    <div class="col s6">
+
+                      <div class="switch">
+    <label>
+      Dölj
+      <input checked id="show_completed" type="checkbox">
+      <span class="lever"></span>
+      Färdiga
+    </label>
+  </div>
+</div>
+    <div class="col s12 m6">
+                      <div class="switch">
+    <label>
+      Dölj
+      <input checked id="show_not_completed" type="checkbox">
+      <span class="lever"></span>
+      Ej färdiga
+    </label>
+  </div>
+</div>
+</div>
+
+                </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
 

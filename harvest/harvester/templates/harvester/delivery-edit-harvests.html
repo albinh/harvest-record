@@ -40,6 +40,8 @@
                             <label class="">Vikt</label>
                         </div>
                         </div>
+
+{%if view.deliveryitem.cropform.countable %}
                         <div class="row">
                         <div class="count input-field col m4">
                             {{form.count|add_class:'form-control'}}
@@ -47,6 +49,10 @@
                             <label for="st" class="">Antal</label>
                         </div>
                         </div>
+{% endif %}
+
+    
+
                         <div class="row">
 
 
@@ -66,7 +72,7 @@
                 {{form.culture|add_class:'mdl-select browser-default'}}
 
 
-                            <label>Kultur</label>
+                            <label class="active">Kultur</label>
                             </div>
                         </div>
 
@@ -77,7 +83,7 @@
     {{form.culture_state|add_class:'mdl-select browser-default'}}
 
 
-                            <label>Skördestatus</label>
+                            <label class="active">Skördestatus</label>
                             </div>
                         </div>
                         <div class="input-field col m4 s12">
@@ -85,7 +91,7 @@
                             {{form.harvested_length|add_class:'form-control'}}
 
 
-                            <label for="length" class="">Skördade meter</label>
+                            <label >Skördade meter</label>
                         </div>
 
                     </div>

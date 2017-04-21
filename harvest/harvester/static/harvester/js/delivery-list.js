@@ -59,8 +59,4 @@ function refilter(){
     } else if (state_filter=="not_delivered") {
        filtered=filtered.filter("[data-state!='D']")
     }
-
-    $(".card").hide();
-    filtered.show();
-
 }

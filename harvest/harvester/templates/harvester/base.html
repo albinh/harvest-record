@@ -30,7 +30,7 @@
     <header>
         <nav class="top-nav ">
             <div class="nav-wrapper">
-            {% block navbar %}{% endblock %}
+    <a href="#" data-activates="slide-out" class="button-collapse show-on-large"><i class="material-icons">menu</i></a>
 
             </div>
 
@@ -44,7 +44,7 @@
                 </li>
                 <li><a href="#!"><i class="material-icons">reorder</i>Grödor </a>
                 </li>
-                <li><a href="#!"><i class="material-icons">assignment_ind</i>Kunder </a>
+                <li><a href="/harvester/customers"><i class="material-icons">assignment_ind</i>Kunder </a>
                 </li>
                 <li>
                     <div class="divider"></div>
@@ -93,7 +93,7 @@
   });
     </script>
 
-<!--
+
     <script>
         // Initialize collapse button
 
@@ -101,13 +101,12 @@
             $(".button-collapse").sideNav();
             // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
             $('.modal').modal();
-            $('.stepper').activateStepper();
         });
         $(document).ready(function() {
             $('select').material_select();
         });
     </script>
--->
+
 
     {%block page_script %}
 

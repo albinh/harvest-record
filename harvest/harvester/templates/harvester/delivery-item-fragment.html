@@ -1,7 +1,7 @@
 {% include "./delivery-item-prev-harvests.html" with di=di %}
 
 
-    <div data-pk="{{di.pk}}" class="card delivery_item lighten-5
+    <div data-status="{{di.status}}" data-pk="{{di.pk}}" class="card delivery_item lighten-5
     {%if di.status == 0 %} grey
     {%elif di.status == 1 %}yellow
     {%elif di.status == 2 %}green
@@ -69,6 +69,21 @@
                             </div>
                         </div>
 </div>
+<div class="row">
+    <div class="col offset-s6 s6">
+        <div class="deep-orange-text no_price">
+            ange pris!
+        </div>
+
+        <div class="price_status_missing">
+            saknas i prislistan <a class="save_price_link">Spara till prislista</a>
+        </div>
+        <div class="deep-orange-text price_status_different">avviker från prislistans. <a class="reset_price_link" href="#">återställ <span class="listed_price"></span></a></div>
+
+    </div>
+
+</div>
+
         <div class="row">
  <div class="input-field col s6">
      <div class="row">
@@ -101,7 +116,7 @@
 
                         </div>
 </div>
-
+{% if not delivery.is_delivered %}
                     <div class="card-action">
 
                         <a class="btn-flat waves-effect waves-light"  data-id="{{i.pk}}"
@@ -114,6 +129,7 @@
                         <a class="btn-flat waves-effect waves-light"  href="#prev-harvest-modal-{{di.pk}}">Visa redan skördat </a>
                         {% endif %}
                     </div>
+        {%endif%}
                     </div>
 
 

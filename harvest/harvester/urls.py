@@ -23,7 +23,7 @@ urlpatterns = [
 	url(r'^deliveryitem/(?P<pk>\d+)/delete$', 	    views.DeliveryItemDelete.as_view(), name='delivery-item-delete'),
 
 	url(r'^deliveries/(?P<pk>\d+)/harvests/new/(?P<url>.*)$',			  views.HarvestItemNew.as_view(),		name='delivery-edit-harvests',),
-	url ( r'^harvests/(?P<pk>\d+)/(?P<url>.*)$', 						  views.HarvestItemUpdate.as_view ( ),  name='delivery-edit-harvests-update', ),
+
 	url ( r'^harvests/delete/(?P<pk>\d+)$', 	  						  views.HarvestItemDelete.as_view ( ),  name='harvest-item-delete', ),
 
 	url(r'cropform_new/', views.cropform_new.as_view(), name='cropform-new'),
@@ -35,5 +35,8 @@ urlpatterns = [
 
 	url(r'^api/v1/delivery_items/(?P<pk>[0-9]+)$', delivery_item_element),
 	url(r'^api/v1/delivery_variants/(?P<pk>[0-9]+)$', delivery_variant_element),
-	url(r'^api/v1/customers/(?P<pk>[0-9]+)$', customer_element)
+	url(r'^api/v1/customers/(?P<pk>[0-9]+)$', customer_element),
+	url(r'^api/v1/save_price_from_delivery_item_to_pricelist/$', views.save_price_from_delivery_item_to_pricelist,name='/harvester/api/v1/save_price_from_delivery_item_to_pricelist/')
+
+
 ]

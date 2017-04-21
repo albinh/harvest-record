@@ -93,6 +93,7 @@ function updateHarvestChart(result, selector) {
     console.log(data)
 
        Morris.Donut({
+       resize:true,
         element: selector,
         data: data,
         colors:colors,

@@ -18,12 +18,6 @@ function debounce(func, wait, immediate,pk) {
 };
 
 
-
-
-
-
-
-
 // CB för att uppdatera deliveryitem-card.
 function callbackReloadDeliveryItem(reload_editable,result) {
     var card = $(".delivery_item[data-pk='"+result.pk+"']");
@@ -57,8 +51,84 @@ function callbackReloadDeliveryItem(reload_editable,result) {
         card.find("input.relation").toggleClass("invalid",true);
     }
 
+var has_listed_price = result.listed_price != null;
+    if (has_listed_price) {
+    var same_price =  (result.listed_price.price == card.find("[name='price']").val()  ) &&
+                (result.listed_price.unit == card.find("[name='price_unit']").val()  );
+                } else {same_price=false }
+    var has_listed_price = result.listed_price != null;
+
+    var zero_price = card.find("[name='price']").val()==0
+
+    if (same_price) {
+                      card.find(".price_status_missing").hide()
+        card.find(".price_status_different").hide()
+        card.find(".no_price").hide()
+              }
+
+    else if (has_listed_price) {
+                  if (result.listed_price.unit="W") {
+                                card.find(".listed_price").text(result.listed_price.price + " kr/kg")
+                            } else {
+                                card.find(".listed_price").text(result.listed_price.price + " kr/st")
+                            }
+
+                            card.find(".no_price").hide()
+                            card.find(".price_status_missing").hide()
+                            card.find(".price_status_different").show()
+                  } else if (zero_price) {
+                   card.find(".price_status_missing").hide()
+        card.find(".price_status_different").hide()
+        card.find(".no_price").show()
+                  } else {
+                                    card.find(".price_status_missing").show()
+        card.find(".price_status_different").hide()
+        card.find(".no_price").hide()
+                  }
+
+
+
+
+
+    refilter();
     updateHarvestChart(result,card.find("[name='chart']"))
 }
+
+function reset_price_link(e) {
+        var card = $(e.target).closest('.card')
+        var result = card.data("info")
+        card.find("[name='price']").val(result.listed_price.price);
+        card.find("select[name='price_unit'] option[value='"+result.listed_price.type+"']").prop('selected', true);
+        card.trigger("push_changes")
+    }
+
+function callbackSavePrice(card) {
+    card.trigger('push_changes');
+}
+
+function save_price_link(e) {
+    var card = $(e.target).closest('.card')
+    var result= card.data("info")
+    var data = {
+        pk : result.pk,
+        price : card.find("[name='price']").val(),
+        price_type:card.find("[name='price_unit']").val()
+
+    }
+
+        $.ajax({
+    url: '/harvester/api/v1/save_price_from_delivery_item_to_pricelist/',
+    type: 'POST',
+    data:data,
+    success: callbackSavePrice.bind(null,card)
+});
+}
+
+$(document).ready( function(){
+    $('.reset_price_link').click(reset_price_link)
+    $('.save_price_link').click(save_price_link)
+})
+
 
 function sendDeliveryItem(pk) {
     $("#progress_"+pk).show();
@@ -207,7 +277,6 @@ function toggleVariant(selector)
     var state = !$(selector).hasClass("included");
     console.log(state);
     $(selector).toggleClass("included",state);
-
 }
 
 
@@ -274,3 +343,24 @@ $(document).ready( function(){
 
 $(".included_checkbox").on("change", updateVariant);
 $(".box-count").on("input",updateVariant);
+
+function refilter(){
+
+    var filtered=$([]);
+
+    if ($("#show_completed").is(':checked')) {
+        filtered=filtered.add( $(".card").filter("[data-status=2]")  ).add( $(".card").filter("[data-status=3]")  )
+    }
+
+    if ($("#show_not_completed").is(':checked')) {
+        filtered=filtered.add( $(".card").filter("[data-status=0]")  ).add( $(".card").filter("[data-status=1]")  )
+    }
+
+    $(".delivery_item").hide();
+    filtered.show();
+}
+
+$(document).ready(function() {
+    $("#show_completed").on("change",refilter);
+    $("#show_not_completed").on("change",refilter);
+})
