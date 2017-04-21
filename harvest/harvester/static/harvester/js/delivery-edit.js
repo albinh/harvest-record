@@ -53,7 +53,7 @@ function callbackReloadDeliveryItem(reload_editable,result) {
 
 var has_listed_price = result.listed_price != null;
     if (has_listed_price) {
-    var same_price =  (result.listed_price.price == card.find("[name='price']").val()  ) &&
+    var same_price =  (parseFloat(result.listed_price.price) == parseFloat(card.find("[name='price']").val())  ) &&
                 (result.listed_price.unit == card.find("[name='price_unit']").val()  );
                 } else {same_price=false }
     var has_listed_price = result.listed_price != null;
