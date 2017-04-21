@@ -185,8 +185,12 @@ class DeliveryView(View):
                           price_type="W"  # TODO: sätt pris och pristyp efter prislista
                           )
         p = di.listed_price()
-        di.price=p.price
-        di.price_type=p.unit
+        if p:
+            di.price=p.price
+            di.price_type=p.unit
+        else
+            di.price=0
+            di.price="W"
         di.save()
 
         # skicka tillbaka till föregående
