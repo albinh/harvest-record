@@ -188,7 +188,7 @@ class DeliveryView(View):
         if p:
             di.price=p.price
             di.price_type=p.unit
-        else
+        else:
             di.price=0
             di.price="W"
         di.save()
