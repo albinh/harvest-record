@@ -1,5 +1,6 @@
 import json
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
@@ -28,7 +29,7 @@ def save_price_from_delivery_item_to_pricelist(request):
 
         pi = PriceItem(price=price, unit=price_type, customercategory=di.delivery.customer.category, cropform=di.cropform)
         pi.save()
-
+        return HttpResponse("")
 
 
 class DeliveryNew ( RedirectView ):
