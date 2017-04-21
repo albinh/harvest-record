@@ -190,7 +190,7 @@ class DeliveryView(View):
             di.price_type=p.unit
         else:
             di.price=0
-            di.price="W"
+            di.price_type="W"
         di.save()
 
         # skicka tillbaka till föregående
