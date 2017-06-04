@@ -3,9 +3,9 @@ from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import DeliveryItemSerializer, DeliveryVariantSerializer, CustomerSerializer
+from .serializers import DeliveryItemSerializer, DeliveryVariantSerializer, CustomerSerializer, DeliverySerializer
 
-from .models import DeliveryItem, DeliveryVariant, Customer
+from .models import DeliveryItem, DeliveryVariant, Customer, Delivery
 
 
 @api_view(['GET','PATCH'])
@@ -58,3 +58,18 @@ def customer_element(request,pk):
         if serializer.is_valid():
             serializer.save()
         return Response ( serializer.errors, status=status.HTTP_400_BAD_REQUEST )
+
+@api_view(['GET','PATCH'])
+def delivery_element(request,pk):
+    d = get_object_or_404(Delivery,pk=pk)
+
+    if request.method ==  'PATCH':
+         serializer = DeliverySerializer(d,data=request.data, partial=True)
+         if serializer.is_valid():
+             serializer.save()
+             d2=Delivery.objects.get(pk=pk)
+             serializer_out = DeliverySerializer(d2)
+             return Response(serializer_out.data)
+    if request.method == 'GET':
+        serializer = DeliverySerializer(d)
+        return Response(serializer.data)

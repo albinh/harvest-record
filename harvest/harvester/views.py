@@ -401,3 +401,10 @@ class HarvestItemNew (CreateView):
              return self.form_invalid(form)
 
 
+class Harvests(View):
+    template_name = 'harvester/harvest-planing.html'
+    def get(self,request):
+        context={}
+        return render ( request,
+                        self.template_name,
+                        context )

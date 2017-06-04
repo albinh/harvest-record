@@ -304,8 +304,6 @@ function pushVariant(v) {
     var checked = $('.included_checkbox[data-variant="'+v+'"]:not(:checked)');
     var ids = checked.map(function() {return $(this).data("deliveryitem")}).toArray()
 
-    console.log(ids)
-
     var count = $('.box-count[data-variant="'+v+'"]').val()
     console.log(count)
     var data =
@@ -364,3 +362,52 @@ $(document).ready(function() {
     $("#show_completed").on("change",refilter);
     $("#show_not_completed").on("change",refilter);
 })
+
+
+function callbackReloadDelivery(reload_editable, result) {
+    $('.total-order-value ').val(result.total_order_value+" kr")
+    if (reload_editable) {
+        $('.delivery-date').val(result.date)
+    }
+    $("#progress_head").hide();
+}
+
+function pushDelivery() {
+    $("#progress_head").show();
+    var pk=$('#delivery').data("pk")
+    var data =
+    {
+        date: $('.delivery-date').val()
+    }
+
+    $.ajax({
+    url: '/harvester/api/v1/delivery/'+pk,
+    type: 'PATCH',
+    dataType: "json",
+    contentType: "application/json; charset=utf-8",
+    data: JSON.stringify(data),
+    success: callbackReloadDelivery.bind(null,false)
+
+})
+
+}
+
+function reloadDelivery() {
+    var pk=$('#delivery').data("pk")
+    $.ajax({
+    url: '/harvester/api/v1/delivery/'+pk,
+    type: 'GET',
+    success: callbackReloadDelivery.bind(null,true)
+});
+
+}
+
+var pushDeliveryDebounced = debounce (pushDelivery,false,"head")
+var reloadDeliveryDebounced = debounce (reloadDelivery,false,"head")
+
+$(document).ready(function() {
+    reloadDeliveryDebounced()
+
+})
+
+$("#delivery-date").on("input",pushDeliveryDebounced);

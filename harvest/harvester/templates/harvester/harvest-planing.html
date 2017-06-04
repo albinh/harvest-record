@@ -1,0 +1,52 @@
+{% extends "harvester/base.html" %}
+{% block main %}
+
+<script>
+    function allowDrop(e) {
+e.preventDefault();
+    }
+</script>
+
+<div class="row">
+    <div class="col s12 m6">
+  <ul class="collection with-header">
+        <li class="collection-header"><h4>idag</h4></li>
+
+      <li draggable="true"  class="collection-item yellow">
+      <span class="title">Morot</span>
+      <p>4 kg till Granö
+
+      </p>
+    </li>
+
+      <li draggable="true" class="collection-item yellow">
+      <span class="title">Rödbet</span>
+      <p>4 kg till Granö
+
+      </p>
+    </li>
+
+      </ul>
+    </div>
+    <div class="col s12 m6" onDrop="drop(event)" onDragOver="allowDrop(event)">
+  <ul class="collection with-header">
+        <li  class="collection-header"><h4>imorgon</h4></li>
+
+      <li draggable="true" class="collection-item yellow">
+      <span class="title">Morot</span>
+      <p>4 kg till Granö
+
+      </p>
+    </li>
+
+      <li draggable="true" class="collection-item yellow">
+      <span class="title">Rödbet</span>
+      <p>4 kg till Granö
+
+      </p>
+    </li>
+
+      </ul>
+    </div>
+</div>
+{% endblock %}

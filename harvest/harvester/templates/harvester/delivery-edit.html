@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block main %}
-
+<div id="delivery" data-pk="{{delivery.pk}}">
         {% include "./delivery-edit-add-di-fragment.html" with crops=crops%}
 
         {% include "./box-variants-fragment.html" %}
@@ -56,6 +56,7 @@
 
       </div>
 {%endif%}
+    </div>
 {% endblock %}
 
 {%block page_script %}

@@ -15,11 +15,15 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-
+from django.views.generic import RedirectView
+from django.urls import reverse_lazy
 urlpatterns = [
     url(r'^harvester/', include('harvester.urls')),
     url(r'^admin/', admin.site.urls),
-	#url(r'^chained/', include('chained_selects.urls')),
+
+    url ( r'^$', RedirectView.as_view ( url=reverse_lazy ( 'delivery-list' ), permanent=False ) ),
+
+    #url(r'^chained/', include('chained_selects.urls')),
 
 
 ]

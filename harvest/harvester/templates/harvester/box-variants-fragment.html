@@ -5,18 +5,22 @@
 
 
         <div class="z-depth-5 card blue-grey lighten-5">
+                <div id="progress_head" style="margin-top:0" class="progress">
+        <div class="indeterminate"></div>
+    </div>
+
             <div class="card-content ">
-                <h1>Leverans till Granö</h1>
+                <h1>Leverans till {{delivery.customer}}</h1>
 
                 <form>
                     <div class="row">
                     <div class="input-field col s12 m6 l6">
-                        <input  type="date" value="{{delivery.date|date:"Y-m-d"}}" class="form-control"/>
+                        <input id="delivery-date" type="date" value="{{delivery.date|date:"Y-m-d"}}" class="delivery-date form-control"/>
                         <label class="active">Datum</label>
                     </div>
 
                     <div class="input-field col s12 m6 l6">
-                        <input type="number" disabled value="" id="total_order_value" class="form-control"/>
+                        <input type="text" value="0" id="total_order_value" class="total-order-value form-control"/>
                         <label class="active">Total värde</label><!-- TODO: totalt värde för skörd -->
                     </div>
 

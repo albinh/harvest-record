@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from .api_views import delivery_item_element, delivery_variant_element, customer_element
+from .api_views import delivery_item_element, delivery_variant_element, customer_element, delivery_element
 from . import views
 
 urlpatterns = [
@@ -26,6 +26,8 @@ urlpatterns = [
 
 	url ( r'^harvests/delete/(?P<pk>\d+)$', 	  						  views.HarvestItemDelete.as_view ( ),  name='harvest-item-delete', ),
 
+	url (r'^harvests/$', views.Harvests.as_view(), name='harvests'),
+
 	url(r'cropform_new/', views.cropform_new.as_view(), name='cropform-new'),
 	url(r'crop_new',views.CropNew.as_view(),name='crop-new'),
 
@@ -33,6 +35,8 @@ urlpatterns = [
 	url(r'^customers/$',views.CustomerList.as_view(),name='customer-list'),
 	url(r'customercategory_new', views.CustomerCategoryNew.as_view(),name='customercategory-new'),
 
+
+	url(r'^api/v1/delivery/(?P<pk>[0-9]+)$',delivery_element),
 	url(r'^api/v1/delivery_items/(?P<pk>[0-9]+)$', delivery_item_element),
 	url(r'^api/v1/delivery_variants/(?P<pk>[0-9]+)$', delivery_variant_element),
 	url(r'^api/v1/customers/(?P<pk>[0-9]+)$', customer_element),
