@@ -1,4 +1,6 @@
 from django.contrib import admin
+from import_export.admin import ImportExportModelAdmin
+
 from .models import *
 
 # Register your models here.
@@ -8,12 +10,14 @@ class CropFormInline(admin.TabularInline):
     model=CropForm
 
 
-class CropAdmin (admin.ModelAdmin):
+class CropAdmin (ImportExportModelAdmin):
+
     inlines = [
         CropFormInline,
     ]
 
-
+class BedAdmin (ImportExportModelAdmin):
+    pass
 
 class PriceListInline(admin.TabularInline):
     model=PriceItem
@@ -28,7 +32,7 @@ admin.site.register(PriceItem)
 admin.site.register(Delivery)
 
 admin.site.register(Culture)
-admin.site.register(Bed)
+admin.site.register(Bed,BedAdmin)
 admin.site.register(Crop, CropAdmin)
 admin.site.register(Customer)
 admin.site.register(HarvestItem)

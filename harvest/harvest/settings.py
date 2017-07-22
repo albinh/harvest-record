@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 	'harvester.apps.HarvesterConfig',
     'rest_framework',
     'widget_tweaks',
+    'import_export',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
