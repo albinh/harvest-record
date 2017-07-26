@@ -104,6 +104,8 @@ class DeliveryView(View):
             for culture in cultures:
 
                 c.append ( {'pk': culture.crop.pk, 'name': culture.crop.crop} )
+            c = list ( set ( c ) )
+
             return c
 
         ready_crops =   a(Culture.objects.filter(harvest_state=2))
