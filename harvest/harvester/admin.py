@@ -16,6 +16,9 @@ class CropAdmin (ImportExportModelAdmin):
         CropFormInline,
     ]
 
+class CultureAdmin (ImportExportModelAdmin):
+    pass
+
 class BedAdmin (ImportExportModelAdmin):
     pass
 
@@ -31,7 +34,7 @@ class DeliveryItemInline(admin.TabularInline):
 admin.site.register(PriceItem)
 admin.site.register(Delivery)
 
-admin.site.register(Culture)
+admin.site.register(Culture,CultureAdmin)
 admin.site.register(Bed,BedAdmin)
 admin.site.register(Crop, CropAdmin)
 admin.site.register(Customer)
