@@ -21,6 +21,9 @@ from urllib.parse import quote, unquote
 from rest_framework.response import Response
 import simplejson
 
+from operator import itemgetter, attrgetter, methodcaller
+
+
 def save_price_from_delivery_item_to_pricelist(request):
     if request.method == 'POST':
         di = get_object_or_404 ( DeliveryItem, pk=request.POST['pk'])
@@ -102,9 +105,10 @@ class DeliveryView(View):
         def a(cultures):
             c=[]
             for culture in cultures:
-
-                c.append ( {'pk': culture.crop.pk, 'name': culture.crop.crop} )
-            c = list ( set ( c ) )
+                d={'pk': culture.crop.pk, 'name': culture.crop.crop}
+                if not d in c:
+                    c.append ( d )
+            c = sorted(c,key=lambda k: k['name'])
 
             return c
 
