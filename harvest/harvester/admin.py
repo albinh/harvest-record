@@ -9,6 +9,11 @@ from .models import *
 class CropFormInline(admin.TabularInline):
     model=CropForm
 
+class DeliveryItemInline(admin.TabularInline):
+    model=DeliveryItem
+
+class DeliveryAdmin(admin.ModelAdmin):
+    inlines = (DeliveryItemInline,)
 
 class CropAdmin (ImportExportModelAdmin):
 
@@ -32,7 +37,7 @@ class DeliveryItemInline(admin.TabularInline):
     model=DeliveryItem
 
 admin.site.register(PriceItem)
-admin.site.register(Delivery)
+admin.site.register(Delivery,DeliveryAdmin)
 
 admin.site.register(Culture,CultureAdmin)
 admin.site.register(Bed,BedAdmin)
