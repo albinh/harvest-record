@@ -1,35 +1,6 @@
 
-<div class="row">
-    <div class="col s12 m12 l12">
 
 
-
-        <div class="z-depth-5 card blue-grey lighten-5">
-                <div id="progress_head" style="margin-top:0" class="progress">
-        <div class="indeterminate"></div>
-    </div>
-
-            <div class="card-content ">
-                <h1>Leverans till {{delivery.customer}}</h1>
-
-                <form>
-                    <div class="row">
-                    <div class="input-field col s12 m6 l6">
-                        <input id="delivery-date" type="date" value="{{delivery.date|date:"Y-m-d"}}" class="delivery-date form-control"/>
-                        <label class="active">Datum</label>
-                    </div>
-
-                    <div class="input-field col s12 m6 l6">
-                        <input type="text" value="0" id="total_order_value" class="total-order-value form-control"/>
-                        <label class="active">Total värde</label><!-- TODO: totalt värde för skörd -->
-                    </div>
-
-                        </div>
-                </form>
-        </div>
-            </div>
-        </div>
-    </div>
 {% if delivery.customer.category.type == "B" %}
 <div class="row">
     <div class="col s12 m12 l12">
@@ -163,43 +134,6 @@
 {% endfor %}
 {%endif%}
 
-<div class="row">
-    <div class="col s12 m12 l12">
-        <div class="z-depth-5 card blue-grey lighten-5">
-            <div class="card-content ">
-
-                <span class="card-title">Visa</span>
-                <form>
-<div class="row">
-    <div class="col s6">
-
-                      <div class="switch">
-    <label>
-      Dölj
-      <input checked id="show_completed" type="checkbox">
-      <span class="lever"></span>
-      Färdiga
-    </label>
-  </div>
-</div>
-    <div class="col s12 m6">
-                      <div class="switch">
-    <label>
-      Dölj
-      <input checked id="show_not_completed" type="checkbox">
-      <span class="lever"></span>
-      Ej färdiga
-    </label>
-  </div>
-</div>
-</div>
-
-                </form>
-
-                </div>
-            </div>
-        </div>
-    </div>
 
 
 

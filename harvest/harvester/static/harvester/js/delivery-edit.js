@@ -343,7 +343,7 @@ $(".included_checkbox").on("change", updateVariant);
 $(".box-count").on("input",updateVariant);
 
 function refilter(){
-
+/*
     var filtered=$([]);
 
     if ($("#show_completed").is(':checked')) {
@@ -356,6 +356,7 @@ function refilter(){
 
     $(".delivery_item").hide();
     filtered.show();
+    */
 }
 
 $(document).ready(function() {

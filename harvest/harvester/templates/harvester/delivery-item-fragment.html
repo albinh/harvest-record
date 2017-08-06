@@ -1,7 +1,14 @@
 {% include "./delivery-item-prev-harvests.html" with di=di %}
 
+<li>
+      <div class="collapsible-header lighten-3 {%if di.status == 0 %} grey
+    {%elif di.status == 1 %}yellow
+    {%elif di.status == 2 %}green
+    {%else%}red {%endif%}">
+          {{di.cropform.crop}} <span class="secondary-content"> {{di.order_amount}} {{di.order_unit_text_short}} </span></div>
 
-    <div data-status="{{di.status}}" data-pk="{{di.pk}}" class="card delivery_item lighten-5
+
+    <div data-status="{{di.status}}" data-pk="{{di.pk}}" class="collapsible-body  delivery_item lighten-5
     {%if di.status == 0 %} grey
     {%elif di.status == 1 %}yellow
     {%elif di.status == 2 %}green
@@ -11,7 +18,7 @@
         <div class="indeterminate"></div>
     </div>
 
-    <div class="card-content compact">
+    <div class="">
 			  <span class="card-title">{{di.cropform.crop}} ({{di.cropform.form_name}})
 
 			</span>
@@ -20,7 +27,7 @@
 
 
                     <div class="col s6">
-                        <div style="height:125px" name="chart"></div>
+                        <div style="height:125px; width:125px" name="chart"></div>
                     </div>
 
 
@@ -146,3 +153,4 @@
 
 
 
+</li>

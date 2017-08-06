@@ -23,23 +23,54 @@
 {% endblock %}
 
 {% block main %}
+
+
+
+
 <div id="delivery" data-pk="{{delivery.pk}}">
         {% include "./delivery-edit-add-di-fragment.html" with crops=crops%}
 
-        {% include "./box-variants-fragment.html" %}
+    <div class="row">
+    <div class="col s12 m12 l12">
+
+
+
+
+                <h1>{{delivery.customer}}</h1>
+
+                <form>
+                    <div class="row">
+                    <div class="input-field col s6 m6 l6">
+                        <input id="delivery-date" type="date" value="{{delivery.date|date:"Y-m-d"}}" class="delivery-date form-control"/>
+                        <label class="active">Datum</label>
+                    </div>
+
+                    <div class="input-field col s6 m6 l6">
+                        <input type="text" value="0" id="total_order_value" class="total-order-value form-control"/>
+                        <label class="active">Total värde</label><!-- TODO: totalt värde för skörd -->
+                    </div>
+
+                        </div>
+                </form>
+
+        </div>
+    </div>
+
+
+
 
 
 
 <div class="section">
 
-
+  <ul class="collapsible popout" data-collapsible="accordion">
         {% for di in delivery.deliveryitem_set.all %}
             {% include "./delivery-item-fragment.html" with di=di %}
         {%endfor%}
-
+</ul>
     </div>
 
-
+    {% include "./box-variants-fragment.html" %}
 
 {%include "harvester/delivery-setdelivered-modal.html" with delivery=delivery %}
 {% if not delivery.is_delivered %}

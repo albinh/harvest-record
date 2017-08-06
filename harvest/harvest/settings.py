@@ -25,7 +25,7 @@ SECRET_KEY = '1-#ayhi3(g)1)hy%&veuf0)ee1_=35&cw^36aisig!cl6r-q)d'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["albin.pythonanywhere.com"]
+ALLOWED_HOSTS = ["127.0.0.1","localhost","albin.pythonanywhere.com"]
 
 
 # Application definition
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'widget_tweaks',
     'import_export',
+    'debug_toolbar'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
@@ -53,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'harvest.urls'
@@ -125,3 +127,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+INTERNAL_IPS = ['127.0.0.1']

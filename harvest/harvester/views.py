@@ -137,11 +137,11 @@ class DeliveryView(View):
         #todo: finns det bara en med pris - sätt den som default.
         cropform_data = {}
 
-        for crop in Crop.objects.all():
+        for crop in Crop.objects.prefetch_related("cropforms").all():
             cropforms = CropForm.objects.filter(crop=crop.pk)
 
-            priced = [cf for cf in cropforms if self.delivery.customer.category.has_price_for(cf) ]
-            not_priced = [cf for cf  in cropforms if cf not in priced]
+            priced =     [cf for cf in cropforms if self.delivery.customer.category.has_price_for(cf) ]
+            not_priced = [cf for cf in cropforms if cf not in priced]
 
             def a(l):
                 return [{'pk': cropform.pk,
