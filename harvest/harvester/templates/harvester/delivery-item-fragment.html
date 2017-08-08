@@ -18,32 +18,62 @@
         <div class="indeterminate"></div>
     </div>
 
-    <div class="">
-			  <span class="card-title">{{di.cropform.crop}} ({{di.cropform.form_name}})
 
-			</span>
-
-        <div class="row  ">
+<div class="row">
+    <div class="col s12">
+        <div class="delivery_progress">
 
 
-                    <div class="col s6">
-                        <div style="height:125px; width:125px" name="chart"></div>
-                    </div>
+<div style="width:50%" class="first harvested_bar">
+&nbsp;</div><div style="width:50%"  class="second">
+&nbsp;
+</div>
+</div>
+<div>
+<div class="text-1">
+<div class="amount">
+20kg
+</div><div class="desc">
+skördat
+</div></div><div class="text-2">
+<div class="amount">
+20kg
+</div><div class="desc">
+återstår
+</div>
 
 
-                    <div class="col s6">
+
+</div>
+
+    </div>
+        </div>
+
+
+
                         <div class="row ">
-                            <div class="input-field col s6">
+                            <div class="input-field col s3">
                                 <input placeholder="Placeholder" name="order_amount" id="order_amount-{{di.pk}}"
-                                       type="text" class="" value="">
+                                       type="text" class="" value=""
+                                {% if delivery.is_delivered %}
+                                       disabled
+                                       {% endif %}
+
+                                >
                                 <label for="order_amount-{{di.pk}}" class="active">Mängd</label>
                             </div>
 
-                            <div class="input-field col s6">
+                            <div class="input-field col s3">
                                 <div class="mdl-selectfield">
 
                                     <select id="order_unit-{{di.pk}}" name="order_unit"
-                                            class="mdl-select browser-default">
+                                            class="mdl-select browser-default"
+
+                                                                    {% if delivery.is_delivered %}
+                                       disabled
+                                       {% endif %}
+
+                                    >
                                         <option value="W">kg</option>
                                         {% if di.cropform.countable %}
                                         <option value="U">st</option>
@@ -52,18 +82,27 @@
                                 </div>
                             </div>
 
-            </div>
-        <div class="row ">
- <div class="input-field col s6">
+
+ <div class="input-field col s3">
                                 <input placeholder="Placeholder" name="price" id="price-{{di.pk}}" type="text" class=""
-                                       value="">
+                                       value=""
+
+                                                                {% if delivery.is_delivered %}
+                                       disabled
+                                       {% endif %}
+                                >
                                 <label for="price-{{di.pk}}" class="active">pris</label>
 
                             </div>
-                            <div class="input-field col s6">
+                            <div class="input-field col s3">
                                 <div class="mdl-selectfield">
                                     <select id="price_unit-{{di.pk}}" name="price_unit"
-                                            class="mdl-select browser-default">
+                                            class="mdl-select browser-default"
+
+                                                                            {% if delivery.is_delivered %}
+                                       disabled
+                                       {% endif %}
+                                    >
                                         <option value="W">kr/kg</option>
                                         {% if di.cropform.countable %}
                                         <option value="U">kr/st</option>
@@ -74,8 +113,7 @@
 
                             </div>
                             </div>
-                        </div>
-</div>
+
 <div class="row">
     <div class="col offset-s6 s6">
         <div class="deep-orange-text no_price">
@@ -91,37 +129,15 @@
 
 </div>
 
-        <div class="row">
- <div class="input-field col s6">
      <div class="row">
           <div class="input-field col s12">
                                     <input name="order_comment" id="order_comment-{{di.pk}}" type="text" value="...">
                                     <label for="order_comment-{{di.pk}}">Önskemål</label>
                                 </div>
          </div>
-     </div>
-            <div class="input-field col s6">
-            <div class="row">
-                {% if delivery.customer.category.type == "B" %}
-                                <div class="input-field col s6">
-                                    <input type="text" disabled value="2" id="harvested" class="relation">
-                                    <label for="harvested" class="relation active">Återstår</label>
-                                </div>
-
-                                <div class="input-field col s6  ">
-                                    <input type="text" class="total_order_amount" disabled value="-"><label>Total mängd</label>
-                                </div>
-                {% else %}
-                                <div class=" input-field col s12 ">
-                                    <input type="text" class="relation" disabled value="-"><label class="relation">Återstår</label>
-                                </div>
-                {%endif%}
 
 
-</div></div>
 
-
-                        </div>
 </div>
 {% if not delivery.is_delivered %}
                     <div class="card-action">

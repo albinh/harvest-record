@@ -19,6 +19,45 @@ function updateHarvestChart(result, selector) {
     var OVER="#ff5722";
     var REMAINING="#9e9e9e";
     var HARVESTED="#4caf50";
+selector.find('.second').removeClass('over_bar').removeClass('remainging_bar');
+
+    if (result.harvest_remaining>0) {
+        percentage = result.harvested_amount / result.order_amount
+        amount_1=result.harvested_amount + result.order_unit_text_short
+        text_1  ="skördat"
+
+        amount_2 = result.harvest_remaining + result.order_unit_text_short
+        text_2 = "återstår"
+        bar_class = "remaining";
+
+        selector.find('.second').addClass('remaining_bar')
+
+    } else {
+        percentage = result.total_order_amount / result.harvested_amount
+        amount_1=result.harvested_amount + result.order_unit_text_short
+        text_1  ="skördat"
+
+        amount_2 = -result.harvest_remaining + result.order_unit_text_short
+        text_2 = "för mycket"
+        bar_class = "over";
+                selector.find('.second').addClass('over_bar')
+
+    }
+
+     selector.find('.first').width(percentage*100+"%")
+     selector.find('.second').width((1-percentage)*100+"%")
+
+     selector.find('.text-1>.amount').html(amount_1)
+     selector.find('.text-1>.desc').html(text_1)
+
+     selector.find('.text-2>.amount').html(amount_2)
+     selector.find('.text-2>.desc').html(text_2)
+
+
+
+
+/*
+
     if ((result.order_unit)=="U")
     {
 
@@ -34,7 +73,7 @@ function updateHarvestChart(result, selector) {
             colors = [HARVESTED,REMAINING]
             data= [
                  {label: "skördat", value: result.harvested_amount},
-                {label: "återstår", value: result.harvest_remaining}
+                 {label: "återstår", value: result.harvest_remaining}
             ]
 
         } else if (result.harvest_remaining==0) {
@@ -98,5 +137,5 @@ function updateHarvestChart(result, selector) {
         data: data,
         colors:colors,
         formatter:formatter_unit.bind(null,result.order_unit_text_short)
-});
+});*/
 }

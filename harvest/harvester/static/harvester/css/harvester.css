@@ -126,3 +126,48 @@ div.mdl-selectfield label {
 .pricerow:hover .add_cropform {
     display:inline;
 }
+
+.first {
+
+}
+
+.second {
+
+background-color:#CCC;
+}
+
+.amount {
+   font-size:2em;
+}
+
+.first, .second {
+display:inline-block;
+}
+
+.text-1,.text-2 {
+display:inline-block;
+width:50%;
+}
+
+.text-2 {
+text-align:right;
+}
+
+.harvested_bar {
+background-color:#CFC;
+}
+
+.remaining_bar {
+background-color:#CCC;
+}
+
+.over_bar {
+background: repeating-linear-gradient(
+  45deg,
+  #CFC,
+  #CFC 10px,
+  #F00 10px,
+  #F00 20px
+);
+
+}

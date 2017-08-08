@@ -91,11 +91,11 @@ var has_listed_price = result.listed_price != null;
 
 
     refilter();
-    updateHarvestChart(result,card.find("[name='chart']"))
+    updateHarvestChart(result,card.find(".delivery_progress"))
 }
 
 function reset_price_link(e) {
-        var card = $(e.target).closest('.card')
+        var card = $(e.target).closest('.delivery_item')
         var result = card.data("info")
         card.find("[name='price']").val(result.listed_price.price);
         card.find("select[name='price_unit'] option[value='"+result.listed_price.type+"']").prop('selected', true);
@@ -107,7 +107,7 @@ function callbackSavePrice(card) {
 }
 
 function save_price_link(e) {
-    var card = $(e.target).closest('.card')
+    var card = $(e.target).closest('.delivery_item')
     var result= card.data("info")
     var data = {
         pk : result.pk,

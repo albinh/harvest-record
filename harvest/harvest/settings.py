@@ -24,8 +24,10 @@ SECRET_KEY = '1-#ayhi3(g)1)hy%&veuf0)ee1_=35&cw^36aisig!cl6r-q)d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
+
 if os.environ.get('DJANGO_DEVELOPMENT') is not None:
     DEBUG = True
+
 ALLOWED_HOSTS = ["127.0.0.1","localhost","albin.pythonanywhere.com"]
 
 
