@@ -5,7 +5,7 @@
     {%elif di.status == 1 %}yellow
     {%elif di.status == 2 %}green
     {%else%}red {%endif%}">
-          {{di.cropform.crop}} <span class="secondary-content"> {{di.order_amount}} {{di.order_unit_text_short}} </span></div>
+          {{di.cropform.crop}} <span class="secondary-content"> {{di.box_value|floatformat:0}} kr / {{di.order_amount}} {{di.order_unit_text_short}} </span></div>
 
 
     <div data-status="{{di.status}}" data-pk="{{di.pk}}" class="collapsible-body  delivery_item lighten-5
