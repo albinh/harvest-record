@@ -301,7 +301,7 @@ class DeliverySpec ( DetailView ):
 class DeliveryList ( ListView ):
     template_name = 'harvester/delivery-list.html'
     model = Delivery
-
+    ordering = ['-date']
 
 
 
